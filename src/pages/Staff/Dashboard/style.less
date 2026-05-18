@@ -1,0 +1,42 @@
+.kanban-container {
+  .header-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .kanban-col {
+    padding: 8px;
+    border-radius: 8px;
+    min-height: calc(100vh - 100px);
+
+    &.pending { background: #faad14; }
+    &.cooking { background: #1890ff; }
+    &.ready { background: #52c41a; }
+    &.completed { background: #8c8c8c; }
+
+    .col-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+
+      .col-title {
+        margin: 0;
+        color: #fff;
+      }
+      .badge {
+        background: #fff;
+        padding: 2px 8px;
+        border-radius: 12px;
+        font-weight: bold;
+      }
+    }
+
+    .col-body {
+      overflow-y: auto;
+      height: calc(100vh - 150px);
+      padding-right: 4px;
+    }
+  }
+}

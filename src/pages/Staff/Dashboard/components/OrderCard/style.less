@@ -1,0 +1,59 @@
+.order-card {
+  margin-bottom: 12px;
+  border-left-width: 4px;
+  border-left-style: solid;
+
+  &.urgent {
+    border-left-color: #f5222d;
+  }
+  
+  &.normal {
+    border-left-color: #1890ff;
+  }
+
+  .card-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 8px;
+  }
+
+  .item-list {
+    background: #f5f5f5;
+    padding: 8px;
+    border-radius: 4px;
+    margin: 8px 0;
+
+    .item-row {
+      margin-bottom: 4px;
+    }
+
+    .topping-text {
+      font-size: 12px;
+      color: #666;
+    }
+
+    .note-text {
+      font-size: 12px;
+      color: #f5222d;
+      font-weight: bold;
+    }
+  }
+
+  .card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    .price {
+      color: #f5222d;
+      font-weight: bold;
+    }
+  }
+
+  .payment-status {
+    margin-top: 8px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+}
