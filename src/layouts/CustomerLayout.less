@@ -1,0 +1,61 @@
+.customer-layout {
+  min-height: 100vh;
+  background-color: #f8fafc;
+  
+  .premium-header {
+    background: linear-gradient(135deg, #fa8c16, #ff7a45, #ffa940, #ffc53d);
+    background-size: 300% 300%;
+    animation: gradientFlow 6s ease infinite;
+    box-shadow: 0 4px 15px rgba(250, 140, 22, 0.4);
+    padding: 0 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    
+    .logo {
+      font-size: 20px;
+      font-weight: bold;
+      color: #fff;
+      cursor: pointer;
+    }
+    
+    .auth-buttons {
+      display: flex;
+      gap: 12px;
+    }
+  }
+
+  .content-area {
+    padding: 16px;
+    overflow-y: auto;
+    padding-bottom: 70px;
+  }
+
+  .glass-footer {
+    position: fixed;
+    bottom: 0;
+    width: 100%;
+    padding: 0;
+    z-index: 10;
+    background: rgba(255, 255, 255, 0.8) !important;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(255, 255, 255, 0.3);
+    box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+
+    .footer-menu {
+      display: flex;
+      justify-content: space-around;
+      border-top: 1px solid #e8e8e8;
+    }
+  }
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
