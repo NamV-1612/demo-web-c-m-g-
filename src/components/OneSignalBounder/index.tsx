@@ -1,4 +1,4 @@
-import { initOneSignal } from '@/services/base/api';
+﻿import { initOneSignal } from '@/services/base/api';
 import { AppModules } from '@/services/base/constant';
 import { currentRole, oneSignalClient, oneSignalRole } from '@/utils/ip';
 import { useEffect, useState } from 'react';
@@ -22,48 +22,48 @@ const OneSignalBounder = (props: { children: React.ReactNode }) => {
 	};
 
 	/** Show Popup center screen */
-	const showPopup = (url: string, w: number = 600, h: number = 400) => {
-		// Fixes dual-screen position                             Most browsers      Firefox
-		const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
-		const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
+	// const showPopup = (url: string, w: number = 600, h: number = 400) => {
+	// 	// Fixes dual-screen position                             Most browsers      Firefox
+	// 	const dualScreenLeft = window.screenLeft !== undefined ? window.screenLeft : window.screenX;
+	// 	const dualScreenTop = window.screenTop !== undefined ? window.screenTop : window.screenY;
 
-		const width = window.innerWidth
-			? window.innerWidth
-			: document.documentElement.clientWidth
-			? document.documentElement.clientWidth
-			: screen.width;
-		const height = window.innerHeight
-			? window.innerHeight
-			: document.documentElement.clientHeight
-			? document.documentElement.clientHeight
-			: screen.height;
+	// 	const width = window.innerWidth
+	// 		? window.innerWidth
+	// 		: document.documentElement.clientWidth
+	// 		? document.documentElement.clientWidth
+	// 		: screen.width;
+	// 	const height = window.innerHeight
+	// 		? window.innerHeight
+	// 		: document.documentElement.clientHeight
+	// 		? document.documentElement.clientHeight
+	// 		: screen.height;
 
-		const systemZoom = width / window.screen.availWidth;
-		const left = (width - w) / 2 / systemZoom + dualScreenLeft;
-		const top = (height - h) / 2 / systemZoom + dualScreenTop;
-		window.open(
-			url,
-			'_blank',
-			`scrollbars=yes,
-						width=${w / systemZoom}, 
-						height=${h / systemZoom}, 
-						top=${height}, 
-						left=${left}
-						`,
-		);
-	};
+	// 	const systemZoom = width / window.screen.availWidth;
+	// 	const left = (width - w) / 2 / systemZoom + dualScreenLeft;
+	// 	const top = (height - h) / 2 / systemZoom + dualScreenTop;
+	// 	window.open(
+	// 		url,
+	// 		'_blank',
+	// 		`scrollbars=yes,
+	// 					width=${w / systemZoom}, 
+	// 					height=${h / systemZoom}, 
+	// 					top=${top}, 
+	// 					left=${left}
+	// 					`,
+	// 	);
+	// };
 
 	/** Nhận message từ trang handle OneSignal */
-	const receiveMessage = (e: any) => {
-		// console.log(`received message: ${e.data} from ${iframeSource}`);
-		if (iframeSource?.includes(e.origin)) {
-			if (e.data === false) {
-				// console.log('user not subscribed to mainsite, lets prompt');
-				showPopup(`${iframeSource}notification/subscribe`);
-			} else if (e.data) setOneSignalId(e.data);
-			// if (iframe) iframe.remove();
-		}
-	};
+	// const receiveMessage = (e: any) => {
+	// 	// console.log(`received message: ${e.data} from ${iframeSource}`);
+	// 	if (iframeSource?.includes(e.origin)) {
+	// 		if (e.data === false) {
+	// 			// console.log('user not subscribed to mainsite, lets prompt');
+	// 			showPopup(`${iframeSource}notification/subscribe`);
+	// 		} else if (e.data) setOneSignalId(e.data);
+	// 		// if (iframe) iframe.remove();
+	// 	}
+	// };
 
 	useEffect(() => {
 		// Nếu đây là trang handle OneSignal

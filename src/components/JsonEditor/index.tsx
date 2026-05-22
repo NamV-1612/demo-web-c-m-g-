@@ -1,4 +1,4 @@
-import { Editor, type EditorProps } from '@monaco-editor/react';
+﻿import { Editor, type EditorProps } from '@monaco-editor/react';
 import './style.less';
 
 type Props = Omit<EditorProps, 'defaultLanguage' | 'language'>;

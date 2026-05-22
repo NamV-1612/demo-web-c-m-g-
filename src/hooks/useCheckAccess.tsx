@@ -1,4 +1,4 @@
-import { useModel } from 'umi';
+﻿import { useModel } from 'umi';
 
 const useCheckAccess = (code: string): boolean => {
 	const { initialState } = useModel('@@initialState');

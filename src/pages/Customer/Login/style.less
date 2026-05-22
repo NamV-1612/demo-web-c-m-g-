@@ -1,4 +1,4 @@
-.login-split-container {
+﻿.login-split-container {
   display: flex;
   height: 100vh;
   width: 100vw;
@@ -25,7 +25,7 @@
       color: white;
 
       h1 {
-        color: #fa8c16;
+        color: #BA1A21;
         font-size: 64px;
         font-weight: 900;
         margin-bottom: 16px;
@@ -57,7 +57,7 @@
         display: block;
         font-size: 32px;
         font-weight: bold;
-        color: #fa8c16;
+        color: #BA1A21;
         margin-bottom: 24px;
         text-align: center;
         @media (min-width: 768px) {
@@ -87,20 +87,47 @@
       }
 
       .ant-btn-primary {
-        background: #fa8c16;
-        border-color: #fa8c16;
+        background: #BA1A21;
+        border-color: #BA1A21;
         height: 50px;
         border-radius: 8px;
         font-size: 16px;
         font-weight: bold;
         margin-top: 16px;
-        box-shadow: 0 4px 14px rgba(250, 140, 22, 0.4);
+        box-shadow: 0 4px 14px rgba(186, 26, 33, 0.4);
 
         &:hover {
-          background: #d46b08;
-          border-color: #d46b08;
+          background: #8E1419;
+          border-color: #8E1419;
         }
       }
     }
+  }
+}
+
+@keyframes formFadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(15px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.ant-tabs-tabpane-active {
+  animation: formFadeInUp 0.6s ease-in-out forwards;
+}
+
+.expandable-field {
+  max-height: 0;
+  opacity: 0;
+  overflow: hidden;
+  transition: all 0.6s ease-in-out;
+  
+  &.expanded {
+    max-height: 100px;
+    opacity: 1;
   }
 }

@@ -1,4 +1,4 @@
-import ExpandText from '@/components/ExpandText';
+﻿import ExpandText from '@/components/ExpandText';
 import TableBase from '@/components/Table';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { EOperatorType } from '@/components/Table/constant';

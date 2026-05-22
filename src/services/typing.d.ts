@@ -3,8 +3,10 @@ export interface User {
   phone: string;
   password?: string;
   name: string;
-  role: 'user' | 'STAFF' | 'ADMIN';
-  isBanned: boolean;
+  full_name?: string;
+  role: 'ADMIN' | 'STAFF' | 'CUSTOMER' | 'admin' | 'staff' | 'customer';
+  status?: 'ACTIVE' | 'LOCKED';
+  isBanned?: boolean;
 }
 
 export interface Product {
@@ -13,9 +15,11 @@ export interface Product {
   price: number;
   category: string;
   imageUrl: string;
+  image?: string;
   description?: string;
   isAvailable: boolean;
   toppings: string[];
+  outOfStockToppings?: string[];
 }
 
 export interface CartItem {
@@ -35,9 +39,25 @@ export interface Order {
   items: CartItem[];
   totalAmount: number;
   status: 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';
-  pickupTime: string;
-  paymentMethod: 'cash' | 'transfer';
-  isPaid: boolean;
-  createdAt: number;
+  pickupTime?: string;
+  paymentMethod?: 'cash' | 'transfer' | string;
+  isPaid?: boolean;
+  createdAt: number | string;
   note?: string;
+  rating?: {
+    stars: number;
+    comment: string;
+  };
+  promoCode?: string;
+  discountAmount?: number;
+}
+
+export interface Promo {
+  id: string;
+  code: string;
+  discountType: 'PERCENT' | 'AMOUNT';
+  discountValue: number;
+  maxDiscountAmount?: number; // Only for PERCENT
+  quantity: number;
+  isActive: boolean;
 }

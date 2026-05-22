@@ -1,4 +1,4 @@
-import Footer from '@/components/Footer';
+﻿import Footer from '@/components/Footer';
 import RightContent from '@/components/RightContent';
 import { notification } from 'antd';
 import 'moment/locale/vi';

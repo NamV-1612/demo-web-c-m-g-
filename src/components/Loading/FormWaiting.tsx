@@ -1,4 +1,4 @@
-import { Modal, Progress } from 'antd';
+﻿import { Modal, Progress } from 'antd';
 import defaultSettings from '../../../config/defaultSettings';
 
 const FormWaiting = (s = 'Đang xử lý dữ liệu...') => {

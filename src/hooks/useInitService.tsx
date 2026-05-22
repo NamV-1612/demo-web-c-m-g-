@@ -1,4 +1,4 @@
-import axios from '@/utils/axios';
+﻿import axios from '@/utils/axios';
 import { ip3 } from '@/utils/ip';
 
 const useInitService = (url: string, ip?: string) => {

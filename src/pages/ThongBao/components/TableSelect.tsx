@@ -1,4 +1,4 @@
-import TableBase from '@/components/Table';
+﻿import TableBase from '@/components/Table';
 import ButtonExtend from '@/components/Table/ButtonExtend';
 import { type IColumn } from '@/components/Table/typing';
 import { EReceiverType, EVaiTroKhaoSat } from '@/services/ThongBao/constant';

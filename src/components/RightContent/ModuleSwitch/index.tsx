@@ -1,4 +1,4 @@
-import { Tooltip } from 'antd';
+﻿import { Tooltip } from 'antd';
 import HeaderDropdown from '../HeaderDropdown';
 import styles from '../NoticeIcon/index.less';
 import ModuleView from './ModuleView';

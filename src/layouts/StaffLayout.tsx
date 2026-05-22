@@ -16,9 +16,12 @@ const StaffLayout: React.FC = ({ children }) => {
   return (
     <Layout className="staff-layout">
       <Header className="staff-header">
-        <div className="logo">STAFF POS - QUÁN CƠM RANG</div>
+        <div className="logo">
+          <span className="logo-icon">Bếp</span>
+          <span className="logo-text">Hoa POS</span>
+        </div>
         {currentUser && (
-          <Button type="primary" danger onClick={handleLogout}>Đăng xuất</Button>
+          <Button type="primary" onClick={handleLogout} style={{ background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '20px', fontWeight: 'bold' }}>Thoát Ca (Đăng xuất)</Button>
         )}
       </Header>
       <Content className="staff-content">

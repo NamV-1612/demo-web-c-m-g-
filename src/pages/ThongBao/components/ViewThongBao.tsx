@@ -1,4 +1,4 @@
-import { EModuleKey } from '@/services/base/constant';
+﻿import { EModuleKey } from '@/services/base/constant';
 import { type ESourceTypeNotification, mapModuleKey } from '@/services/ThongBao/constant';
 import { type ThongBao } from '@/services/ThongBao/typing';
 import { currentRole } from '@/utils/ip';

@@ -1,4 +1,4 @@
-import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
+﻿import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Button } from 'antd';
 import { useRef, useState } from 'react';
 import { Document, Page, pdfjs } from 'react-pdf';

@@ -1,4 +1,4 @@
-import { Link } from 'umi';
+﻿import { Link } from 'umi';
 import { Result, Button } from 'antd';
 
 const ServerError = () => (

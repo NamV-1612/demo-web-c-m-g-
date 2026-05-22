@@ -1,4 +1,4 @@
-import ViewThongBao from '@/pages/ThongBao/components/ViewThongBao';
+﻿import ViewThongBao from '@/pages/ThongBao/components/ViewThongBao';
 import { Modal } from 'antd';
 import { useEffect, useState } from 'react';
 import { useModel } from 'umi';

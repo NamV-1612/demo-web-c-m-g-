@@ -1,4 +1,4 @@
-import UploadFile from '@/components/Upload/UploadFile';
+﻿import UploadFile from '@/components/Upload/UploadFile';
 import { dowLoadBieuMauNguoiNhan } from '@/services/ThongBao';
 import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';

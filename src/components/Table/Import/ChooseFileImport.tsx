@@ -1,4 +1,4 @@
-import UploadFile from '@/components/Upload/UploadFile';
+﻿import UploadFile from '@/components/Upload/UploadFile';
 import rules from '@/utils/rules';
 import { ArrowRightOutlined, CloseOutlined, DownloadOutlined } from '@ant-design/icons';
 import { Button, Col, Form, InputNumber, Row, Select, Space, message } from 'antd';

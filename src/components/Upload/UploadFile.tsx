@@ -1,4 +1,4 @@
-import { blobToBase64, getNameFile } from '@/utils/utils';
+﻿import { blobToBase64, getNameFile } from '@/utils/utils';
 import { PlusOutlined, UploadOutlined } from '@ant-design/icons';
 import { Button, Image, Upload, message, type UploadProps } from 'antd';
 import type { RcFile } from 'antd/es/upload';

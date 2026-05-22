@@ -1,4 +1,4 @@
-import { tienVietNam } from '@/utils/utils';
+﻿import { tienVietNam } from '@/utils/utils';
 import Chart from 'react-apexcharts';
 import { type DataChartType } from '.';
 import './style.less';

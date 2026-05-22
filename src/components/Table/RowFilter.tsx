@@ -1,4 +1,4 @@
-import rules from '@/utils/rules';
+﻿import rules from '@/utils/rules';
 import { Checkbox, Col, Form, Input, InputNumber, Row, Select, Space } from 'antd';
 import { useEffect, useState } from 'react';
 import MyDatePicker from '../MyDatePicker';

@@ -17,9 +17,9 @@ export default function useAuthModel() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const login = useCallback((phone: string, pass: string) => {
+  const login = useCallback((identifier: string, pass: string) => {
     const users = getStorageData<StorageUser>('users');
-    const user = users.find(u => u.phone === phone && u.password === pass);
+    const user = users.find(u => (u.phone === identifier || u.name === identifier) && u.password === pass);
     if (!user) {
       message.error('Sai thông tin đăng nhập!');
       return false;
@@ -36,26 +36,29 @@ export default function useAuthModel() {
     return true;
   }, []);
 
-  const register = useCallback((name: string, phone: string, pass: string) => {
+  const register = useCallback((name: string, username: string, phone: string, pass: string, role: 'CUSTOMER' | 'STAFF' | 'ADMIN' = 'CUSTOMER') => {
     const users = getStorageData<StorageUser>('users');
-    if (users.find(u => u.phone === phone)) {
-      message.error('Số điện thoại này đã được đăng ký!');
+    if (users.find(u => u.phone === phone || u.name === phone)) {
+      message.error('Số điện thoại này đã được sử dụng!');
+      return false;
+    }
+    if (users.find(u => u.name === username || u.phone === username)) {
+      message.error('Tên đăng nhập này đã được sử dụng!');
       return false;
     }
     const newUser: StorageUser = {
       id: 'u' + Date.now(),
       full_name: name,
+      name: username,
       phone,
       password: pass,
-      role: 'CUSTOMER'
+      role: role,
+      status: 'ACTIVE'
     };
     users.push(newUser);
     setStorageData('users', users);
     
-    localStorage.setItem('CURRENT_USER', JSON.stringify(newUser));
-    window.dispatchEvent(new Event('storage'));
-    
-    message.success('Đăng ký thành công!');
+    message.success('Đăng ký thành công! Vui lòng đăng nhập lại.');
     return true;
   }, []);
 

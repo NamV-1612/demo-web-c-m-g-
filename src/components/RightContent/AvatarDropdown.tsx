@@ -1,4 +1,4 @@
-import { landingUrl } from '@/services/base/constant';
+﻿import { landingUrl } from '@/services/base/constant';
 import { FileWordOutlined, GlobalOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons';
 import { Avatar, Menu, Spin } from 'antd';
 import { type ItemType } from 'antd/lib/menu/hooks/useItems';

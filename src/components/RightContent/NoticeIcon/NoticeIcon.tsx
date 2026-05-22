@@ -1,4 +1,4 @@
-import { type ThongBao } from '@/services/ThongBao/typing';
+﻿import { type ThongBao } from '@/services/ThongBao/typing';
 import { BellOutlined } from '@ant-design/icons';
 import { Badge, Spin, Tabs, Tooltip } from 'antd';
 import useMergedState from 'rc-util/es/hooks/useMergedState';

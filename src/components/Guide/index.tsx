@@ -1,4 +1,4 @@
-import Background from '@/components/Guide/Background';
+﻿import Background from '@/components/Guide/Background';
 import GuideProvider from '@/components/Guide/GuideContext';
 import React from 'react';
 import './index.less';

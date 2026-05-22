@@ -1,4 +1,4 @@
-import { EFileScope, uploadFile } from '@/services/uploadFile';
+﻿import { EFileScope, uploadFile } from '@/services/uploadFile';
 import { Editor } from '@tinymce/tinymce-react';
 import './style.less';
 

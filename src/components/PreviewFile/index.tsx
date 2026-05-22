@@ -1,4 +1,4 @@
-import { EDinhDangFile } from '@/services/base/constant';
+﻿import { EDinhDangFile } from '@/services/base/constant';
 import type { IFile } from '@/services/base/typing';
 import { getFileInfo } from '@/services/uploadFile';
 import { ip3 } from '@/utils/ip';

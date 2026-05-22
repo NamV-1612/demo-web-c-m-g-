@@ -1,4 +1,4 @@
-import rules from '@/utils/rules';
+﻿import rules from '@/utils/rules';
 import { Form, Input, Radio, type FormInstance } from 'antd';
 import { useEffect, useState } from 'react';
 import UploadFile from './UploadFile';

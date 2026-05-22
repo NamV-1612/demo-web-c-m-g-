@@ -1,4 +1,4 @@
-import type { IColumn } from '@/components/Table/typing';
+﻿import type { IColumn } from '@/components/Table/typing';
 import { Button, Modal, Table } from 'antd';
 import { useEffect } from 'react';
 import { useModel } from 'umi';

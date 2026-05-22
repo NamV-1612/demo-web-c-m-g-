@@ -1,4 +1,4 @@
-import React from 'react';
+﻿import React from 'react';
 import { Redirect, useModel } from 'umi';
 
 const AuthStaff: React.FC = ({ children }) => {
@@ -8,7 +8,7 @@ const AuthStaff: React.FC = ({ children }) => {
     return <Redirect to="/staff/login" />;
   }
   
-  if (currentUser.role !== 'staff') {
+  if (currentUser.role?.toLowerCase() !== 'staff' && currentUser.role?.toLowerCase() !== 'admin') {
     return <Redirect to="/403" />;
   }
 

@@ -1,6 +1,6 @@
-import React from 'react';
-import { Layout, Badge, Menu, Button, Space } from 'antd';
-import { ShoppingCartOutlined, HomeOutlined, UserOutlined, ClockCircleOutlined, LoginOutlined, ShoppingOutlined } from '@ant-design/icons';
+﻿import React from 'react';
+import { Layout, Badge, Menu, Button, Row, Col, Space, Modal } from 'antd';
+import { ShoppingCartOutlined, HomeOutlined, UserOutlined, ClockCircleOutlined, LoginOutlined, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
 import './CustomerLayout.less';
 
@@ -10,17 +10,34 @@ const CustomerLayout: React.FC = ({ children }) => {
   const { cartCount } = useModel('useCartModel');
   const { currentUser, logout } = useModel('useAuthModel');
 
+  const handlePortalNavigation = (path: string, targetRole: string) => {
+    if (currentUser) {
+      Modal.confirm({
+        title: 'Yêu cầu Đăng xuất',
+        content: 'Tài khoản hiện tại sẽ tự động đăng xuất, bạn có muốn tiếp tục?',
+        okText: 'Đăng xuất & Tiếp tục',
+        cancelText: 'Hủy',
+        onOk: () => {
+          logout();
+          history.push(path);
+        }
+      });
+    } else {
+      history.push(path);
+    }
+  };
+
   // Menu mặc định cho Guest
-  let menuItems = [
+  let menuItems: any[] = [
     { key: '/customer/home', icon: <HomeOutlined />, label: 'Trang chủ' },
-    { key: '/login', icon: <LoginOutlined />, label: 'Đăng ký/Đăng nhập' },
+    { key: '/login', icon: <LoginOutlined />, label: 'Đăng nhập' },
   ];
 
   // Menu mở rộng cho User
-  if (currentUser && currentUser.role === 'customer') {
+  if (currentUser && (currentUser.role?.toLowerCase() === 'customer' || currentUser.role?.toLowerCase() === 'admin')) {
     menuItems = [
       { key: '/customer/home', icon: <HomeOutlined />, label: 'Trang chủ' },
-      { key: '/customer/cart', icon: <ShoppingCartOutlined />, label: <Badge count={cartCount} offset={[10, 0]}>Giỏ hàng</Badge> },
+      { key: '/customer/cart', icon: <ShoppingCartOutlined />, label: <Badge count={cartCount} offset={[10, 0]} style={{ backgroundColor: '#FADB14', color: '#262626', fontWeight: 'bold', boxShadow: '0 0 0 1px #fff' }}>Giỏ hàng</Badge> },
       { key: '/customer/history', icon: <ClockCircleOutlined />, label: 'Lịch sử' },
       { key: '/customer/profile', icon: <UserOutlined />, label: 'Hồ sơ' },
     ];
@@ -28,16 +45,37 @@ const CustomerLayout: React.FC = ({ children }) => {
 
   return (
     <Layout className="customer-layout">
-      <Header className="premium-header">
-        <div className="logo" onClick={() => history.push('/customer/home')}>
-          🍚 CƠM RANG 1307
-        </div>
-        <div className="auth-buttons">
-          {currentUser ? (
-            <Button type="primary" danger onClick={() => { logout(); history.push('/customer/home'); }}>Đăng xuất</Button>
-          ) : (
-            <Button type="default" onClick={() => history.push('/login')}>Đăng nhập</Button>
-          )}
+      <Header className="glass-header">
+        <div className="header-content">
+          <div className="logo" onClick={() => history.push('/customer/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
+            <span className="logo-icon">🍚</span>
+            <span className="logo-text">CƠM RANG 1307</span>
+          </div>
+
+          <div className="top-navigation" style={{ flex: 1, padding: '0 24px' }}>
+            <Menu 
+              mode="horizontal" 
+              selectedKeys={[history.location.pathname]} 
+              onClick={(e) => history.push(e.key)}
+              items={menuItems}
+              style={{ background: 'transparent', borderBottom: 'none', lineHeight: '72px', justifyContent: 'center', fontSize: '15px', fontWeight: 500 }}
+            />
+          </div>
+
+          <div className="header-actions">
+            {currentUser ? (
+              <Space size="middle">
+                <span className="welcome-text">Xin chào, {currentUser.full_name}</span>
+                <Button onClick={() => { logout(); history.push('/login'); }} icon={<LoginOutlined />} className="logout-btn" type="text" danger>
+                  Đăng xuất
+                </Button>
+              </Space>
+            ) : (
+              <Button type="primary" className="login-btn" onClick={() => history.push('/login')}>
+                Đăng nhập ngay
+              </Button>
+            )}
+          </div>
         </div>
       </Header>
       
@@ -45,24 +83,46 @@ const CustomerLayout: React.FC = ({ children }) => {
         {children}
       </Content>
 
-      <Footer style={{ textAlign: 'center', background: '#fff', borderTop: '1px solid #f0f0f0', padding: '16px 50px' }}>
-        <p style={{ marginBottom: 8 }}>Cơm Rang 1307 ©2026 Thực hiện bởi Nhóm 5</p>
-        <Space>
-          <a onClick={() => history.push('/staff/login')} style={{ color: '#8c8c8c', fontWeight: 500 }}>👨‍🍳 Cổng cho Đầu Bếp (Staff)</a>
-          <span style={{ color: '#d9d9d9' }}>|</span>
-          <a onClick={() => history.push('/user/login')} style={{ color: '#8c8c8c', fontWeight: 500 }}>👑 Cổng cho Quản Lý (Admin)</a>
-        </Space>
-      </Footer>
-
-      {/* Menu dưới đáy cho Mobile */}
-      <Footer className="glass-footer">
-        <Menu 
-          className="footer-menu"
-          mode="horizontal" 
-          selectedKeys={[history.location.pathname]} 
-          onClick={(e) => history.push(e.key)}
-          items={menuItems}
-        />
+      <Footer className="premium-footer">
+        <div className="footer-container">
+          <Row gutter={[32, 32]}>
+            <Col xs={24} md={8}>
+              <div className="footer-brand">
+                <h2>🍚 CƠM RANG 1307</h2>
+                <p>Hệ thống Cơm rang Độc quyền lớn nhất Vịnh Bắc Bộ. Cam kết nguyên liệu sạch, tươi ngon 100%. Nóng hổi giao ngay!</p>
+                <div className="security-badges">
+                  <SafetyCertificateOutlined style={{ fontSize: 24, color: '#52c41a' }} />
+                  <span>Chứng nhận VSATTP</span>
+                </div>
+              </div>
+            </Col>
+            
+            <Col xs={24} md={8}>
+              <div className="footer-links">
+                <h3>Về chúng tôi</h3>
+                <ul>
+                  <li><a href="#">Giới thiệu</a></li>
+                  <li><a href="#">Thực đơn nổi bật</a></li>
+                  <li><a href="#">Chính sách giao hàng</a></li>
+                  <li><a href="#">Điều khoản bảo mật</a></li>
+                </ul>
+              </div>
+            </Col>
+            
+            <Col xs={24} md={8}>
+              <div className="footer-contact">
+                <h3>Tổng đài Hỗ trợ</h3>
+                <p><EnvironmentOutlined /> Tầng 6, Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
+                <p><PhoneOutlined /> Hotline: 1900 1307</p>
+                <p><MailOutlined /> cskh@comrang1307.vn</p>
+              </div>
+            </Col>
+          </Row>
+          
+          <div className="footer-bottom">
+            <p>© 2026 Hệ thống Cơm Rang 1307. All rights reserved.</p>
+          </div>
+        </div>
       </Footer>
     </Layout>
   );

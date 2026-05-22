@@ -1,4 +1,4 @@
-import rules from '@/utils/rules';
+﻿import rules from '@/utils/rules';
 import { resetFieldsForm } from '@/utils/utils';
 import { Button, Card, Form, Input } from 'antd';
 import { useEffect } from 'react';

@@ -1,4 +1,4 @@
-import { type DataChartType } from '.';
+﻿import { type DataChartType } from '.';
 import ColumnChart from './ColumnChart';
 
 const LineChart = (props: DataChartType) => {

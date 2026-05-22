@@ -1,4 +1,4 @@
-import { type ThongBao } from '@/services/ThongBao/typing';
+﻿import { type ThongBao } from '@/services/ThongBao/typing';
 import { Card } from 'antd';
 import ViewThongBao from '../components/ViewThongBao';
 

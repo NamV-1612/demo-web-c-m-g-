@@ -1,4 +1,4 @@
-import TableBase from '@/components/Table';
+﻿import TableBase from '@/components/Table';
 import { EOperatorType } from '@/components/Table/constant';
 import type { IColumn } from '@/components/Table/typing';
 import type { AuditLog } from '@/services/TienIch/AuditLog/typing';

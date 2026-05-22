@@ -1,4 +1,4 @@
-import rules from '@/utils/rules';
+﻿import rules from '@/utils/rules';
 import { ArrowLeftOutlined, ArrowRightOutlined } from '@ant-design/icons';
 import { Button, Col, Form, Row, Select, Space } from 'antd';
 import { useEffect } from 'react';

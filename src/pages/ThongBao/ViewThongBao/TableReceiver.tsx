@@ -1,4 +1,4 @@
-import TableBase from '@/components/Table';
+﻿import TableBase from '@/components/Table';
 import type { IColumn } from '@/components/Table/typing';
 import type { ThongBao } from '@/services/ThongBao/typing';
 import { Select, Tag } from 'antd';

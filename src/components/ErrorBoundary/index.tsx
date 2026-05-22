@@ -1,4 +1,4 @@
-import { currentRole, sentryDSN } from '@/utils/ip';
+﻿import { currentRole, sentryDSN } from '@/utils/ip';
 import { HomeOutlined, ReloadOutlined } from '@ant-design/icons';
 import * as Sentry from '@sentry/react';
 import { Button, Result } from 'antd';

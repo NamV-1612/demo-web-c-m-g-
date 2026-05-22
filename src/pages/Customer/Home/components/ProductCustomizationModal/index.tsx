@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Modal, Checkbox, Input, Button, Typography, Space } from 'antd';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Product, CartItem } from '@/services/typing';
@@ -17,7 +17,7 @@ interface Props {
 
 const ProductCustomizationModal: React.FC<Props> = ({ product, visible, onClose, onAddToCart }) => {
   const { currentUser } = useModel('useAuthModel');
-  const isGuest = !currentUser || currentUser.role !== 'customer';
+  const isGuest = !currentUser || (currentUser.role?.toLowerCase() !== 'customer' && currentUser.role?.toLowerCase() !== 'admin');
 
   const [quantity, setQuantity] = useState(1);
   const [selectedToppings, setSelectedToppings] = useState<string[]>([]);
@@ -77,10 +77,10 @@ const ProductCustomizationModal: React.FC<Props> = ({ product, visible, onClose,
             disabled={isGuest}
           >
             <Space direction="vertical" style={{ width: '100%' }}>
-              {product.toppings?.map(t => (
+              {(product.toppings?.filter(t => !((product as any).outOfStockToppings || []).includes(t)) || []).map(t => (
                 <Checkbox key={t} value={t} style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
                   <span>{t}</span>
-                  <span style={{ color: '#fa8c16', float: 'right', marginLeft: 16 }}>+5.000đ</span>
+                  <span style={{ color: '#BA1A21', float: 'right', marginLeft: 16 }}>+5.000đ</span>
                 </Checkbox>
               ))}
             </Space>

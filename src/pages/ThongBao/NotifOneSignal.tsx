@@ -1,4 +1,4 @@
-import { readNotification } from '@/services/ThongBao';
+﻿import { readNotification } from '@/services/ThongBao';
 import type { ThongBao } from '@/services/ThongBao/typing';
 import queryString from 'query-string';
 import { history } from 'umi';

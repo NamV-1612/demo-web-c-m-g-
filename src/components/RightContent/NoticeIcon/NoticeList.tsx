@@ -1,4 +1,4 @@
-import { type ThongBao } from '@/services/ThongBao/typing';
+﻿import { type ThongBao } from '@/services/ThongBao/typing';
 import { Avatar, List, Skeleton } from 'antd';
 import classNames from 'classnames';
 import moment from 'moment';

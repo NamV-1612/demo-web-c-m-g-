@@ -8,13 +8,22 @@ import '../admin.less';
 const OrderManagement: React.FC = () => {
   const { orders, changeOrderStatus } = useModel('useOrderModel');
 
+  const statusTextMap: any = { 
+    PENDING: 'Chờ xác nhận', 
+    PREPARING: 'Đang chế biến', 
+    READY: 'Đã sẵn sàng', 
+    COMPLETED: 'Hoàn thành', 
+    CANCELLED: 'Đã hủy' 
+  };
+
   const handleExport = () => {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
     csvContent += "Mã đơn,Ngày tạo,Khách hàng,SĐT,Tổng tiền,Trạng thái\n";
     
     orders.forEach(o => {
       const date = moment(o.createdAt).format('DD/MM/YYYY HH:mm');
-      const row = `${o.id},${date},"${o.customerName}","${o.customerPhone}",${o.totalAmount},${o.status}`;
+      const statusLabel = statusTextMap[o.status?.toUpperCase()] || o.status;
+      const row = `${o.id},${date},"${o.customerName}","${o.customerPhone}",${o.totalAmount},"${statusLabel}"`;
       csvContent += row + "\n";
     });
 
@@ -29,53 +38,65 @@ const OrderManagement: React.FC = () => {
   };
 
   const handleEmergencyCancel = (id: string) => {
-    changeOrderStatus(id, 'cancelled');
+    changeOrderStatus(id, 'CANCELLED');
     message.success(`Đã hủy khẩn cấp đơn hàng ${id}`);
   };
 
   const columns = [
     { title: 'Mã đơn', dataIndex: 'id', key: 'id', render: (val: string) => <strong>{val}</strong> },
-    { title: 'Ngày tạo', dataIndex: 'createdAt', render: (val: number) => moment(val).format('DD/MM/YYYY HH:mm') },
+    { title: 'Ngày tạo', dataIndex: 'createdAt', render: (val: number) => moment(val).format('DD/MM/YYYY HH:mm'), sorter: (a: any, b: any) => a.createdAt - b.createdAt },
     { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName' },
     { title: 'SĐT', dataIndex: 'customerPhone', key: 'customerPhone' },
     { 
       title: 'Tổng tiền', 
       dataIndex: 'totalAmount', 
-      render: (val: number) => <span className="amount-highlight">{val.toLocaleString()}đ</span> 
+      render: (val: number) => <span className="amount-highlight" style={{ fontWeight: 'bold', color: '#f5222d' }}>{val.toLocaleString()}đ</span>,
+      sorter: (a: any, b: any) => a.totalAmount - b.totalAmount
     },
     {
       title: 'Trạng thái',
       dataIndex: 'status',
       render: (status: string) => {
-        const colorMap: any = { pending: 'orange', cooking: 'blue', ready: 'green', completed: 'gray', cancelled: 'red' };
-        const textMap: any = { pending: 'Chờ duyệt', cooking: 'Đang nấu', ready: 'Chờ lấy', completed: 'Hoàn thành', cancelled: 'Đã hủy' };
-        return <Tag color={colorMap[status]}>{textMap[status]}</Tag>;
-      }
+        const s = status?.toUpperCase();
+        const colorMap: any = { PENDING: 'orange', PREPARING: 'blue', READY: 'green', COMPLETED: 'gray', CANCELLED: 'red' };
+        return <Tag color={colorMap[s] || 'default'}>{statusTextMap[s] || status}</Tag>;
+      },
+      filters: [
+        { text: 'Chờ xác nhận', value: 'PENDING' },
+        { text: 'Đang chế biến', value: 'PREPARING' },
+        { text: 'Đã sẵn sàng', value: 'READY' },
+        { text: 'Hoàn thành', value: 'COMPLETED' },
+        { text: 'Đã hủy', value: 'CANCELLED' },
+      ],
+      onFilter: (value: any, record: any) => record.status?.toUpperCase() === value
     },
     {
       title: 'Hành động',
-      render: (_: any, record: any) => (
-        <Space>
-          {record.status !== 'completed' && record.status !== 'cancelled' && (
-            <Popconfirm title="Bạn có chắc muốn hủy khẩn cấp đơn này?" onConfirm={() => handleEmergencyCancel(record.id)}>
-              <Button danger size="small" icon={<CloseCircleOutlined />}>Hủy khẩn cấp</Button>
-            </Popconfirm>
-          )}
-        </Space>
-      ),
+      render: (_: any, record: any) => {
+        const s = record.status?.toUpperCase();
+        return (
+          <Space>
+            {s !== 'COMPLETED' && s !== 'CANCELLED' && (
+              <Popconfirm title="Bạn có chắc muốn hủy khẩn cấp đơn này?" onConfirm={() => handleEmergencyCancel(record.id)} okText="Có, Hủy đơn" cancelText="Không">
+                <Button danger size="small" icon={<CloseCircleOutlined />}>Hủy khẩn cấp</Button>
+              </Popconfirm>
+            )}
+          </Space>
+        );
+      },
     },
   ];
 
   return (
-    <div className="admin-page">
-      <div className="header-actions">
-        <h2>Tra soát Đơn hàng</h2>
+    <div className="admin-page" style={{ padding: 24 }}>
+      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2 style={{ margin: 0 }}>Tra soát Đơn hàng</h2>
         <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
-          Xuất file Excel
+          Xuất file báo cáo (CSV)
         </Button>
       </div>
       
-      <Table columns={columns} dataSource={orders} rowKey="id" />
+      <Table columns={columns} dataSource={orders} rowKey="id" pagination={{ pageSize: 10 }} />
     </div>
   );
 };

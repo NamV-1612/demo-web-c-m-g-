@@ -1,4 +1,4 @@
-import { DeleteOutlined } from '@ant-design/icons';
+﻿import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card } from 'antd';
 import TableStaticData from '../TableStaticData';
 import { type IColumn, type TExportField } from '../typing';

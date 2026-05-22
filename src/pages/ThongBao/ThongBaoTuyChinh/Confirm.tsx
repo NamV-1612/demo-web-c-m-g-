@@ -1,4 +1,4 @@
-import ExpandText from '@/components/ExpandText';
+﻿import ExpandText from '@/components/ExpandText';
 import TableStaticData from '@/components/Table/TableStaticData';
 import type { IColumn } from '@/components/Table/typing';
 import { AppModules } from '@/services/base/constant';
