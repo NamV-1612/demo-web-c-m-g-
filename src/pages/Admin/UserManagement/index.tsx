@@ -64,15 +64,26 @@ const UserManagement: React.FC = () => {
   const columns = [
     { 
       title: 'Họ tên', 
-      dataIndex: 'name', 
-      key: 'name',
-      sorter: (a: User, b: User) => (a.name || '').localeCompare(b.name || '')
+      key: 'fullName',
+      render: (_: any, record: User) => {
+        // Khách hàng lưu họ tên ở full_name, Staff lưu ở name
+        const fullName = record.role?.toUpperCase() === 'CUSTOMER' ? record.full_name : record.name;
+        return <span>{fullName}</span>;
+      },
+      sorter: (a: User, b: User) => {
+        const nameA = (a.role?.toUpperCase() === 'CUSTOMER' ? a.full_name : a.name) || '';
+        const nameB = (b.role?.toUpperCase() === 'CUSTOMER' ? b.full_name : b.name) || '';
+        return nameA.localeCompare(nameB);
+      }
     },
     { 
-      title: 'Số điện thoại', 
-      dataIndex: 'phone', 
-      key: 'phone',
-      render: (phone: string) => <strong>{phone}</strong>
+      title: 'Tên đăng nhập', 
+      key: 'username',
+      render: (_: any, record: User) => {
+        // Khách hàng lưu username ở name, Staff lưu ở phone
+        const username = record.role?.toUpperCase() === 'CUSTOMER' ? record.name : record.phone;
+        return <strong>{username}</strong>;
+      }
     },
     { 
       title: 'Vai trò', 

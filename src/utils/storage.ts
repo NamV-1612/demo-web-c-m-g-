@@ -147,6 +147,86 @@ const DEFAULT_PRODUCTS: StorageProduct[] = [
     imageUrl: 'https://images.unsplash.com/photo-1576092768241-dec231879fc3?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
     isAvailable: true,
     toppings: []
+  },
+  {
+    id: 'p10',
+    name: 'Cơm rang gà xối mỡ',
+    price: 45000,
+    status: 'available',
+    category: 'Cơm rang',
+    imageUrl: 'https://images.unsplash.com/photo-1598514982205-f36b96d1e8dd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Thêm trứng ốp la', 'Thêm cơm', 'Nhiều sốt']
+  },
+  {
+    id: 'p11',
+    name: 'Cơm chiên Dương Châu',
+    price: 40000,
+    status: 'available',
+    category: 'Cơm rang',
+    imageUrl: 'https://images.unsplash.com/photo-1550989460-0adf9ea622e2?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Thêm trứng', 'Thêm tôm']
+  },
+  {
+    id: 'p12',
+    name: 'Cơm rang dưa tôm',
+    price: 50000,
+    status: 'available',
+    category: 'Cơm rang',
+    imageUrl: 'https://images.unsplash.com/photo-1627844005128-66236b2f7dcb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Nhiều tôm', 'Nhiều dưa', 'Thêm trứng ốp la']
+  },
+  {
+    id: 'p13',
+    name: 'Mì xào hải sản',
+    price: 55000,
+    status: 'available',
+    category: 'Cơm rang', // Putting in main menu for now or 'Món nước'
+    imageUrl: 'https://images.unsplash.com/photo-1585032226651-759b368d7246?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Thêm mực', 'Thêm rau']
+  },
+  {
+    id: 'p14',
+    name: 'Phở xào bò',
+    price: 50000,
+    status: 'available',
+    category: 'Cơm rang',
+    imageUrl: 'https://images.unsplash.com/photo-1552611052-33e04de081de?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Nhiều bò', 'Thêm trứng']
+  },
+  {
+    id: 'p15',
+    name: 'Nước ép cam tươi',
+    price: 25000,
+    status: 'available',
+    category: 'Đồ uống',
+    imageUrl: 'https://images.unsplash.com/photo-1600271886742-f049cd451b02?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Không đá', 'Ít đường']
+  },
+  {
+    id: 'p16',
+    name: 'Sinh tố bơ',
+    price: 35000,
+    status: 'available',
+    category: 'Đồ uống',
+    imageUrl: 'https://images.unsplash.com/photo-1577805947697-89e18249d767?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: ['Nhiều sữa', 'Ít đá']
+  },
+  {
+    id: 'p17',
+    name: 'Đậu phộng rang',
+    price: 5000,
+    status: 'available',
+    category: 'Món ăn kèm',
+    imageUrl: 'https://images.unsplash.com/photo-1593923986877-33827bb6ac2a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
+    isAvailable: true,
+    toppings: []
   }
 ];
 
@@ -186,11 +266,9 @@ export const initStorage = () => {
 
   if (!localStorage.getItem('users')) localStorage.setItem('users', JSON.stringify(DEFAULT_USERS));
   
-  const currentProductsStr = localStorage.getItem('products');
-  const productsArr = currentProductsStr ? JSON.parse(currentProductsStr) : [];
-  
-  if (productsArr.length <= 3 || !currentProductsStr || currentProductsStr.includes('tgdd.vn') || currentProductsStr.includes('i.ytimg.com')) {
+  if (!localStorage.getItem('force_clear_products_v2')) {
     localStorage.setItem('products', JSON.stringify(DEFAULT_PRODUCTS));
+    localStorage.setItem('force_clear_products_v2', 'true');
   }
   
   if (!localStorage.getItem('inventory')) localStorage.setItem('inventory', JSON.stringify(DEFAULT_INVENTORY));

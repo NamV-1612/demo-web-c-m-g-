@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Button, Typography } from 'antd';
 import { ShoppingOutlined, UserAddOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
@@ -12,7 +12,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="landing-container">
       <div className="content-wrapper">
-        <Title className="hero-title">Cơm Rang 1307</Title>
+        <Title className="hero-title">Chicken Doki</Title>
         <Paragraph className="hero-subtitle">
           Hương vị đặc trưng, cơm giòn rụm, topping ngập tràn. <br />
           Đặt món trực tuyến - Tiết kiệm thời gian, không lo chờ đợi!

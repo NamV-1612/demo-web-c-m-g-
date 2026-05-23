@@ -35,10 +35,13 @@ const CustomerHome: React.FC = () => {
       <section className="hero-section">
         <div className="hero-overlay"></div>
         <div className="hero-content">
-          <Badge count={<FireOutlined style={{ color: '#BA1A21', fontSize: 28 }} />} offset={[15, 5]}>
-            <Title className="hero-title">Thưởng Thức Tinh Hoa Cơm Rang</Title>
+          <Badge count={<FireOutlined style={{ color: '#BA1A21', fontSize: 36 }} />} offset={[35, 15]}>
+            <Title className="hero-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1, marginBottom: 24 }}>
+              <span style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '4px', textShadow: '0 4px 10px rgba(0,0,0,0.5)', color: '#fff' }}>Thưởng Thức Tinh Hoa</span>
+              <span className="art-title" style={{ fontSize: 'clamp(60px, 10vw, 100px)', color: '#BA1A21', marginTop: '-10px', textShadow: '0 6px 15px rgba(0,0,0,0.6)' }}>Chicken Doki</span>
+            </Title>
           </Badge>
-          <Text className="hero-subtitle">Đặt trước liền tay, lấy ngay không đợi. Nóng hổi và giòn rụm từng hạt cơm!</Text>
+          <Text className="hero-subtitle">Gà giòn rụm, tim rung động! Take-away nóng hổi từng giây, giòn tan từng miếng!</Text>
           
           <div className="hero-search-wrapper">
             <Input 
@@ -54,8 +57,14 @@ const CustomerHome: React.FC = () => {
 
       {/* MENU SECTION */}
       <section className="menu-container">
-        <div className="category-filters">
-          <Space size="middle" wrap style={{ width: '100%', justifyContent: 'center' }}>
+        <div className="category-filters" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginBottom: '32px' }}>
+          <div className="menu-header" style={{ textAlign: 'left', marginBottom: 0 }}>
+            <Title level={2} className="art-title" style={{ margin: 0, lineHeight: 1, fontSize: '56px' }}>
+              Thực Đơn <span style={{ color: '#BA1A21' }}>Hôm Nay</span>
+            </Title>
+          </div>
+
+          <Space size="middle" wrap style={{ justifyContent: 'flex-end' }}>
             {CATEGORIES.map(cat => (
               <Button 
                 key={cat} 
@@ -70,18 +79,16 @@ const CustomerHome: React.FC = () => {
           </Space>
         </div>
 
-        <div className="menu-header">
-          <Title level={2}>
-            Thực Đơn <span style={{ color: '#BA1A21' }}>Hôm Nay</span>
-          </Title>
-        </div>
-
         <Row gutter={[24, 32]}>
           {filteredProducts.map((product, index) => (
-            <Col xs={24} sm={12} md={8} lg={6} key={product.id}>
-              {/* Thêm Badge giả lập Bán chạy cho 2 sản phẩm đầu */}
-              <Badge.Ribbon text={index < 2 ? '🔥 Bán chạy' : ''} color={index < 2 ? 'volcano' : 'transparent'} style={{ display: index < 2 ? 'block' : 'none' }}>
-                <div style={{ height: '100%' }}>
+            <Col 
+              xs={24} sm={12} md={8} lg={6} 
+              key={`${product.id}-${activeCategory}-${searchTerm}`}
+              className="fade-in-up"
+              style={{ animationDelay: `${index * 0.05}s` }}
+            >
+              <Badge.Ribbon text={index < 2 ? '🔥 Bán chạy' : ''} color={index < 2 ? 'volcano' : 'transparent'} style={{ display: index < 2 ? 'block' : 'none', zIndex: 10 }}>
+                <div style={{ height: '100%' }} className={index < 2 ? 'premium-fire-wrapper' : ''}>
                   <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
                 </div>
               </Badge.Ribbon>

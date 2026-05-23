@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
 import { getStorageData, setStorageData, StorageInventory, StorageRecipe } from '@/utils/storage';
-import { Order } from '@/services/typing';
+import { Order, Promo } from '@/services/typing';
 import { message } from 'antd';
+import moment from 'moment';
 
 export default function useOrderModel() {
   const [orders, setOrders] = useState<Order[]>([]);
@@ -24,7 +25,51 @@ export default function useOrderModel() {
     loadData();
 
     window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
+
+    const interval = setInterval(() => {
+      setOrders(prevOrders => {
+        let hasChanges = false;
+        const newOrders = prevOrders.map(o => {
+          if (o.status?.toUpperCase() === 'PENDING') {
+            const diffMins = moment().diff(moment(o.createdAt), 'minutes');
+            if (diffMins >= 30) {
+              hasChanges = true;
+              
+              const newPromo: Promo = {
+                id: 'promo_' + Date.now() + Math.random().toString(36).substring(7),
+                code: 'SORRY5K' + Date.now().toString().slice(-4),
+                discountType: 'AMOUNT',
+                discountValue: 5000,
+                quantity: 1,
+                isActive: true,
+              };
+              
+              const promos = getStorageData<Promo>('promos');
+              promos.push(newPromo);
+              setStorageData('promos', promos);
+
+              return {
+                ...o,
+                status: 'CANCELLED',
+                cancelMessage: `Đơn hàng tự động hủy do quá 30 phút chưa được duyệt. Quán gửi bạn mã ${newPromo.code} giảm 5K (đơn 0đ) thay lời xin lỗi!`,
+                cancelPromoCode: newPromo.code
+              };
+            }
+          }
+          return o;
+        });
+        
+        if (hasChanges) {
+          setStorageData('orders', newOrders);
+        }
+        return newOrders;
+      });
+    }, 60000);
+
+    return () => {
+      window.removeEventListener('storage', loadData);
+      clearInterval(interval);
+    };
   }, []);
 
   const deductInventory = (order: Order) => {
@@ -79,7 +124,29 @@ export default function useOrderModel() {
     }
     
     if (canProceed) {
-      const updated = orders.map(o => o.id === id ? { ...o, status: upperNewStatus as any } : o);
+      const updated = orders.map(o => {
+        if (o.id === id) {
+          const newOrder = { ...o, status: upperNewStatus as any };
+          if (upperNewStatus === 'CANCELLED' && upperCurrentStatus === 'PENDING') {
+            const newPromo: Promo = {
+              id: 'promo_' + Date.now() + Math.random().toString(36).substring(7),
+              code: 'SORRY15K' + Date.now().toString().slice(-4),
+              discountType: 'AMOUNT',
+              discountValue: 15000,
+              quantity: 1,
+              isActive: true,
+            };
+            const promos = getStorageData<Promo>('promos');
+            promos.push(newPromo);
+            setStorageData('promos', promos);
+            
+            newOrder.cancelMessage = `Chúng tôi rất xin lỗi vì đã phải hủy đơn hàng của bạn. Tặng bạn mã giảm giá ${newPromo.code} trị giá 15K (đơn 0đ) cho lần đặt sau!`;
+            newOrder.cancelPromoCode = newPromo.code;
+          }
+          return newOrder;
+        }
+        return o;
+      });
       setStorageData('orders', updated);
       if (upperNewStatus === 'COMPLETED') message.success('Đã hoàn thành đơn & trừ nguyên liệu tự động!');
     }

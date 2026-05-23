@@ -42,7 +42,23 @@ export default function useCartModel() {
 
   const addToCart = useCallback((item: CartItem) => {
     setCartItems(prev => {
-      const newCart = [...prev, item];
+      const existingItemIndex = prev.findIndex(
+        p => p.product.id === item.product.id && (p.note || '').trim() === (item.note || '').trim()
+      );
+
+      let newCart;
+      if (existingItemIndex > -1) {
+        newCart = [...prev];
+        const existingItem = newCart[existingItemIndex];
+        newCart[existingItemIndex] = {
+          ...existingItem,
+          quantity: existingItem.quantity + item.quantity,
+          totalPrice: existingItem.totalPrice + item.totalPrice
+        };
+      } else {
+        newCart = [...prev, item];
+      }
+
       if (userId) localStorage.setItem(`CART_${userId}`, JSON.stringify(newCart));
       return newCart;
     });

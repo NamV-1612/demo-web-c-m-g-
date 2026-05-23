@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
-import { Card, Typography, Button, Tag, message, Steps, Modal, Rate, Input, Empty, Popconfirm, Form } from 'antd';
-import { SyncOutlined, StarOutlined, HistoryOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import React, { useState, useRef } from 'react';
+import { Card, Typography, Button, Tag, message, Steps, Modal, Rate, Input, Empty, Popconfirm, Form, AutoComplete, Alert } from 'antd';
+import { SyncOutlined, StarOutlined, HistoryOutlined, EditOutlined, DeleteOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import moment from 'moment';
 import './style.less';
@@ -17,6 +17,13 @@ const CustomerHistory: React.FC = () => {
   const [form] = Form.useForm();
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any>(null);
+
+  // States for Map Modal
+  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
+  const [mapSearchText, setMapSearchText] = useState('');
+  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542');
+  const [mapOptions, setMapOptions] = useState<any[]>([]);
+  const searchTimeoutRef = useRef<any>(null);
 
   // States for Rating Modal
   const [isRateModalVisible, setIsRateModalVisible] = useState(false);
@@ -65,11 +72,45 @@ const CustomerHistory: React.FC = () => {
     }
   };
 
+  const handleMapSearch = (value: string) => {
+    if (!value.trim()) {
+      setMapOptions([]);
+      return;
+    }
+    setMapSearchText(value);
+    
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=vn`);
+        const data = await res.json();
+        const newOptions = data.map((item: any) => ({
+          value: item.display_name,
+          label: item.display_name,
+          lat: item.lat,
+          lon: item.lon
+        }));
+        setMapOptions(newOptions);
+      } catch (err) {
+        console.error('Map search error:', err);
+      }
+    }, 600);
+  };
+
+  const handleMapSelect = (value: string, option: any) => {
+    form.setFieldsValue({ address: value });
+    setSubmittedSearchText(`${option.lat},${option.lon}`);
+    setIsMapModalVisible(false);
+    message.success('Đã lấy vị trí từ Bản đồ!');
+  };
+
   return (
     <div className="history-container">
-      <div className="history-header-title">
-        <HistoryOutlined style={{ fontSize: 28 }} />
-        <Title level={3} style={{ margin: 0, color: 'inherit' }}>Lịch sử Đơn hàng</Title>
+      <div className="history-header">
+        <Title level={2} className="art-title">
+          Lịch sử <span style={{ color: '#BA1A21' }}>Đơn hàng</span>
+        </Title>
       </div>
       
       {myOrders.length === 0 ? (
@@ -78,146 +119,148 @@ const CustomerHistory: React.FC = () => {
         </div>
       ) : (
         myOrders.map(order => (
-          <Card key={order.id} className="history-card" bodyStyle={{ padding: 16 }}>
-            <div className="card-header">
-              <Text strong style={{ fontSize: 16 }}>Đơn hàng: {order.id}</Text>
+          <Card key={order.id} className="history-card" bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16, borderRadius: 12, border: '1px solid #f0f0f0', borderLeft: '6px solid #BA1A21', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+            {/* Header: ID, Time, Status */}
+            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: 8, marginBottom: 12 }}>
               <div>
-                {getStatusTag(order.status)}
+                <Text strong style={{ fontSize: 16 }}>#{order.id}</Text>
+                <Text type="secondary" style={{ marginLeft: 12, fontSize: 13 }}>
+                  {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
+                </Text>
               </div>
             </div>
             
-            <Text style={{ display: 'block', marginBottom: 8, color: '#595959' }}>
-              Đặt lúc: {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
-            </Text>
-            
-            <div style={{ background: '#fafafa', padding: '8px 12px', borderRadius: 8, marginBottom: 16, fontSize: 13, border: '1px solid #f0f0f0' }}>
-              <div style={{ marginBottom: 4 }}><Text strong>Người nhận:</Text> {order.customerName} - {order.customerPhone}</div>
+            {/* Customer Info (Inline) */}
+            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', background: '#fafafa', padding: '8px 12px', borderRadius: 8, marginBottom: 12, fontSize: 13, border: '1px solid #f0f0f0' }}>
+              <div><Text strong>Người nhận:</Text> {order.customerName} - {order.customerPhone}</div>
               <div><Text strong>Giao đến:</Text> {order.note?.replace('Giao đến: ', '')}</div>
+              {order.pickupTime && (
+                <div><Text strong>Hẹn lấy:</Text> {order.pickupTime}</div>
+              )}
             </div>
 
-            <div className="item-list">
+            {/* Items Grid (Compact) */}
+            <div className="item-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
               {order.items.map((item: any, idx: number) => (
-                <div key={idx} className="item-row" style={{ display: 'flex', gap: 12, alignItems: 'flex-start' }}>
+                <div key={idx} className="item-row" style={{ display: 'flex', gap: 10, alignItems: 'center', background: '#fff', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e8e8e8' }}>
                   <img 
                     src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 
                     alt={item.product?.name || 'Food'}
-                    style={{ width: 64, height: 64, objectFit: 'cover', borderRadius: 8, border: '1px solid #f0f0f0' }}
+                    style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 6, border: '1px solid #f0f0f0' }}
                   />
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                      <Text strong>{item.quantity}x {item.product?.name}</Text>
-                    </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <Text strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontSize: 13 }}>{item.quantity}x {item.product?.name}</Text>
                     {item.selectedToppings && item.selectedToppings.length > 0 && (
-                      <div style={{ fontSize: 13, color: '#595959', marginTop: 4 }}>
-                        + {item.selectedToppings.join(', ')}
-                      </div>
-                    )}
-                    {item.note && (
-                      <div style={{ fontSize: 13, color: '#BA1A21', fontStyle: 'italic', marginTop: 4 }}>
-                        * Ghi chú: {item.note}
-                      </div>
+                      <div style={{ fontSize: 12, color: '#8c8c8c' }}>+{item.selectedToppings.join(', ')}</div>
                     )}
                   </div>
                 </div>
               ))}
-              {/* Removed the generic note rendering here since it's now displayed as Delivery Address above */}
             </div>
 
-            <div className="card-footer">
-              <div style={{ marginTop: 24, marginBottom: 24 }}>
-                <Steps 
-                  current={['PENDING', 'PREPARING', 'READY', 'COMPLETED'].indexOf(order.status?.toUpperCase())} 
-                  size="small"
-                  status={order.status?.toUpperCase() === 'CANCELLED' ? 'error' : 'process'}
-                >
-                  <Step title="Chờ duyệt" />
-                  <Step title="Đang nấu" />
-                  <Step title="Chờ lấy" />
-                  <Step title="Hoàn thành" />
-                </Steps>
-              </div>
-
-              {/* Hẹn giờ & hình thức thanh toán */}
-              <div style={{ marginBottom: 12, fontSize: 13 }}>
-                {order.pickupTime && (
-                  <div>
-                    <Text strong>Thời gian nhận: </Text>
-                    <Text>{order.pickupTime}</Text>
-                  </div>
-                )}
-                <div>
-                  <Text strong>Thanh toán: </Text>
-                  <Text>{order.paymentMethod === 'transfer' ? 'Chuyển khoản QR' : 'Tiền mặt khi nhận'}</Text>
-                  <Tag color={order.isPaid ? 'green' : 'red'} className="status-tag" style={{ marginLeft: 8 }}>
-                    {order.isPaid ? 'Đã thanh toán' : 'Chưa thanh toán'}
-                  </Tag>
+            {/* Footer */}
+            <div className="card-footer" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #f0f0f0' }}>
+              
+              {/* Process Steps */}
+              {order.status?.toUpperCase() !== 'CANCELLED' ? (
+                <div style={{ margin: '8px 0 16px 0' }}>
+                  <Steps 
+                    current={['PENDING', 'PREPARING', 'READY', 'COMPLETED'].indexOf(order.status?.toUpperCase())} 
+                    size="small"
+                  >
+                    <Step 
+                      title="Chờ duyệt" 
+                      icon={order.status?.toUpperCase() === 'PENDING' ? <SyncOutlined spin className="icon-spin-fast" /> : undefined}
+                    />
+                    <Step 
+                      title="Đang nấu" 
+                      icon={order.status?.toUpperCase() === 'PREPARING' ? <FireOutlined className="icon-shake" style={{ color: '#BA1A21' }} /> : undefined}
+                    />
+                    <Step 
+                      title="Chờ lấy" 
+                      icon={order.status?.toUpperCase() === 'READY' ? <ShoppingOutlined className="icon-pop" style={{ color: '#1890ff' }} /> : undefined}
+                    />
+                    <Step 
+                      title="Hoàn thành" 
+                      icon={order.status?.toUpperCase() === 'COMPLETED' ? <CheckCircleOutlined className="icon-pop" style={{ color: '#52c41a' }} /> : undefined}
+                    />
+                  </Steps>
                 </div>
-              </div>
+              ) : (
+                <div style={{ margin: '8px 0 16px 0' }}>
+                  <Steps current={0} size="small" status="error">
+                    <Step title="Đã hủy" icon={<CloseCircleOutlined className="icon-pop" style={{ color: '#ff4d4f' }} />} />
+                  </Steps>
+                  {order.cancelMessage && (
+                    <div style={{ marginTop: 12 }}>
+                      <Alert 
+                        message={<Text strong style={{ color: '#cf1322' }}>Thông báo từ quán</Text>}
+                        description={
+                          <div>
+                            <p style={{ margin: '0 0 8px 0', color: '#cf1322' }}>{order.cancelMessage}</p>
+                            {order.cancelPromoCode && (
+                              <div style={{ background: '#fff1f0', padding: '8px 12px', borderRadius: '6px', display: 'inline-block', border: '1px dashed #ffa39e' }}>
+                                Mã đền bù: <Text strong copyable style={{ fontSize: '16px', color: '#cf1322' }}>{order.cancelPromoCode}</Text>
+                              </div>
+                            )}
+                          </div>
+                        }
+                        type="error" 
+                        showIcon 
+                        style={{ borderRadius: '8px', border: '1px solid #ffa39e' }}
+                      />
+                    </div>
+                  )}
+                </div>
+              )}
 
-              {/* Review section */}
+              {/* Review section if completed */}
               {order.status?.toUpperCase() === 'COMPLETED' && (
-                <div style={{ margin: '16px 0', borderTop: '1px dashed #f0f0f0', paddingTop: 12 }}>
+                <div style={{ marginBottom: 12 }}>
                   {order.rating ? (
-                    <div style={{ padding: '8px 12px', background: '#fafafa', borderRadius: 6 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', marginBottom: 4 }}>
-                        <span style={{ marginRight: 8, fontSize: 13, fontWeight: 'bold' }}>Đánh giá của bạn:</span>
-                        <Rate disabled defaultValue={order.rating.stars} style={{ fontSize: 14 }} />
-                      </div>
-                      <Text style={{ fontSize: 13, fontStyle: 'italic', color: '#595959' }}>
+                    <div style={{ padding: '6px 12px', background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f', display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 13, fontWeight: 'bold', color: '#faad14' }}>Đánh giá:</span>
+                      <Rate disabled defaultValue={order.rating.stars} style={{ fontSize: 13 }} />
+                      <Text style={{ fontSize: 13, fontStyle: 'italic', color: '#595959', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                         "{order.rating.comment || 'Không có bình luận.'}"
                       </Text>
                     </div>
                   ) : (
                     <Button 
-                      type="dashed" 
-                      size="middle" 
-                      icon={<StarOutlined />} 
-                      onClick={() => {
-                        setRatingOrderId(order.id);
-                        setStars(5);
-                        setComment('');
-                        setIsRateModalVisible(true);
-                      }}
-                      style={{ color: '#BA1A21', borderColor: '#BA1A21' }}
-                    >
-                      Đánh giá món ăn
-                    </Button>
+                      type="dashed" size="small" icon={<StarOutlined />} 
+                      onClick={() => { setRatingOrderId(order.id); setStars(5); setComment(''); setIsRateModalVisible(true); }}
+                      style={{ color: '#faad14', borderColor: '#faad14' }}
+                    >Đánh giá món ăn</Button>
                   )}
                 </div>
               )}
 
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 12 }}>
-                <Title level={5} style={{ margin: 0, color: '#f5222d' }}>{order.totalAmount.toLocaleString()}đ</Title>
-                <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              {/* Bottom Row: Total Price & Actions */}
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
+                <div style={{ display: 'flex', gap: '12px' }}>
                   {order.status?.toUpperCase() === 'PENDING' && (
-                    <Button type="default" icon={<EditOutlined />} className="action-btn" onClick={() => {
+                    <Button size="middle" className="btn-premium-edit" icon={<EditOutlined />} onClick={() => {
                       setEditingOrder(order);
-                      form.setFieldsValue({
-                        phone: order.customerPhone,
-                        address: order.note?.replace('Giao đến: ', '') || ''
-                      });
+                      form.setFieldsValue({ phone: order.customerPhone, address: order.note?.replace('Giao đến: ', '') || '' });
                       setIsEditModalVisible(true);
-                    }}>
-                      Sửa ĐC/SĐT
-                    </Button>
+                    }}>Sửa ĐC</Button>
                   )}
                   {['COMPLETED', 'CANCELLED', 'PENDING'].includes(order.status?.toUpperCase()) && (
                     <Popconfirm 
-                      title={order.status?.toUpperCase() === 'PENDING' ? "Bạn có chắc chắn muốn hủy và xóa đơn hàng này không?" : "Bạn có chắc chắn muốn xóa lịch sử đơn hàng này?"} 
-                      onConfirm={() => deleteOrder(order.id)} 
-                      okText={order.status?.toUpperCase() === 'PENDING' ? "Hủy & Xóa" : "Xóa"} 
-                      cancelText="Đóng"
+                      title={order.status?.toUpperCase() === 'PENDING' ? "Hủy và xóa đơn hàng này?" : "Xóa lịch sử đơn hàng này?"} 
+                      onConfirm={() => deleteOrder(order.id)} okText="Có" cancelText="Không"
                     >
-                      <Button danger icon={<DeleteOutlined />} className="danger-action-btn">
-                        {order.status?.toUpperCase() === 'PENDING' ? "Hủy Đơn" : "Xóa"}
-                      </Button>
+                      <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>{order.status?.toUpperCase() === 'PENDING' ? "Hủy Đơn" : "Xóa"}</Button>
                     </Popconfirm>
                   )}
                   {order.status?.toUpperCase() === 'COMPLETED' && (
-                    <Button type="primary" icon={<SyncOutlined />} className="reorder-btn" onClick={() => handleReorder(order)}>
-                      Đặt lại đơn này
-                    </Button>
+                    <Button size="middle" className="btn-premium-success" icon={<SyncOutlined />} onClick={() => handleReorder(order)}>Đặt lại</Button>
                   )}
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                  <Text style={{ fontSize: 15, color: '#595959', fontWeight: 500 }}>Tổng thanh toán:</Text>
+                  <Title level={3} style={{ margin: 0, color: '#BA1A21', fontWeight: 700 }}>{order.totalAmount.toLocaleString()}đ</Title>
                 </div>
               </div>
             </div>
@@ -267,10 +310,71 @@ const CustomerHistory: React.FC = () => {
           <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="address" label="Địa chỉ giao hàng" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
-            <TextArea rows={3} />
+          <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+                Chọn từ Google Maps
+              </Button>
+            </div>
+            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
+              <TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
+            </Form.Item>
           </Form.Item>
         </Form>
+      </Modal>
+
+      {/* MAP MODAL */}
+      <Modal 
+        title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
+        visible={isMapModalVisible}
+        onCancel={() => setIsMapModalVisible(false)}
+        footer={null}
+        width={800}
+        bodyStyle={{ padding: 0, borderRadius: '8px', overflow: 'hidden' }}
+        closeIcon={<div style={{ background: '#f5f5f5', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</div>}
+      >
+        <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
+          <div style={{ display: 'flex', gap: '8px' }} className="map-search-input">
+            <AutoComplete
+              options={mapOptions}
+              onSearch={handleMapSearch}
+              onSelect={handleMapSelect}
+              style={{ flex: 1 }}
+            >
+              <Input.Search 
+                size="large" 
+                placeholder="Nhập địa chỉ bạn muốn tìm (VD: Hồ Gươm)..." 
+                enterButton="Tìm"
+                onSearch={(val) => {
+                  if (val.trim() && mapOptions.length === 0) {
+                    setSubmittedSearchText(val);
+                  }
+                }}
+              />
+            </AutoComplete>
+          </div>
+        </div>
+        <div style={{ width: '100%', height: '400px', background: '#e6e6e6', position: 'relative' }}>
+          <iframe 
+            width="100%" 
+            height="100%" 
+            frameBorder="0" 
+            style={{ border: 0 }}
+            src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+            allowFullScreen
+          />
+        </div>
+        <div style={{ padding: '16px 24px', background: '#fafafa', borderTop: '1px solid #f0f0f0', textAlign: 'right' }}>
+          <Button onClick={() => setIsMapModalVisible(false)} style={{ borderRadius: '8px' }}>Hủy</Button>
+          <Button type="primary" onClick={() => {
+            const val = mapSearchText;
+            if (val) {
+              form.setFieldsValue({ address: val });
+              message.success('Đã xác nhận địa chỉ này!');
+            }
+            setIsMapModalVisible(false);
+          }} style={{ marginLeft: '12px', background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px' }}>Xác nhận vị trí này</Button>
+        </div>
       </Modal>
     </div>
   );

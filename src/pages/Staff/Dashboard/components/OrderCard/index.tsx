@@ -15,7 +15,7 @@ interface Props {
 }
 
 const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentChange }) => {
-  const isUrgent = order.pickupTime !== 'asap' && moment(order.pickupTime, 'HH:mm').diff(moment(), 'minutes') < 10;
+  const isUrgent = order.pickupTime !== 'asap' && moment(order.pickupTime, ['HH:mm', 'hh:mm A']).diff(moment(), 'minutes') < 10;
   
   return (
     <Card 

@@ -25,12 +25,13 @@ const AdminDashboard: React.FC = () => {
     });
   }, [orders, dateRange]);
 
-  const completedOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'COMPLETED');
+  const validOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() !== 'CANCELLED');
   const cancelledOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'CANCELLED');
-  const totalRevenue = completedOrders.reduce((sum: number, o: any) => sum + o.totalAmount, 0);
+  
+  const totalRevenue = validOrders.reduce((sum: number, o: any) => sum + o.totalAmount, 0);
 
   const productSales: Record<string, number> = {};
-  completedOrders.forEach((o: any) => {
+  validOrders.forEach((o: any) => {
     o.items.forEach((item: any) => {
       if (!productSales[item.product.name]) productSales[item.product.name] = 0;
       productSales[item.product.name] += item.quantity;
@@ -47,7 +48,7 @@ const AdminDashboard: React.FC = () => {
   // Revenue Chart Data
   const revenueChartData = useMemo(() => {
     const data: Record<string, number> = {};
-    completedOrders.forEach((o: any) => {
+    validOrders.forEach((o: any) => {
       const dateStr = moment(o.createdAt).format('DD/MM');
       if (!data[dateStr]) data[dateStr] = 0;
       data[dateStr] += o.totalAmount;
@@ -67,7 +68,7 @@ const AdminDashboard: React.FC = () => {
       },
       series: [{ name: 'Doanh thu', data: sortedDates.map(d => data[d]) }]
     };
-  }, [completedOrders]);
+  }, [validOrders]);
 
   return (
     <div className="admin-dashboard">
@@ -98,8 +99,8 @@ const AdminDashboard: React.FC = () => {
         <Col span={6}>
           <Card className="stat-card">
             <Statistic
-              title="Đơn thành công"
-              value={completedOrders.length}
+              title="Đơn hợp lệ"
+              value={validOrders.length}
               valueStyle={{ color: '#1890ff' }}
               prefix={<ShoppingCartOutlined />}
             />

@@ -11,8 +11,14 @@ const AdminLogin: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState('1');
   const [form] = Form.useForm();
 
+  React.useEffect(() => {
+    if (currentUser) {
+      logout();
+    }
+  }, []);
+
   const onLogin = (values: any) => {
-    if (login(values.username.trim(), values.password)) {
+    if (login(values.username.trim(), values.password, ['ADMIN'])) {
       history.push('/admin/dashboard');
     }
   };

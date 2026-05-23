@@ -8,13 +8,19 @@ const { TabPane } = Tabs;
 const { Text } = Typography;
 
 const CustomerLogin: React.FC = () => {
-  const { login, register } = useModel('useAuthModel');
+  const { login, register, logout, currentUser } = useModel('useAuthModel');
   const [activeTab, setActiveTab] = React.useState('1');
   const [form] = Form.useForm();
 
+  React.useEffect(() => {
+    if (currentUser) {
+      logout();
+    }
+  }, []);
+
   const handleSubmit = (values: any) => {
     if (activeTab === '1') {
-      if (login(values.username.trim(), values.password)) {
+      if (login(values.username.trim(), values.password, ['CUSTOMER', 'ADMIN'])) {
         history.push('/customer/home');
       }
     } else {
@@ -29,14 +35,14 @@ const CustomerLogin: React.FC = () => {
     <div className="login-split-container">
       <div className="login-banner">
         <div className="banner-overlay">
-          <h1>Cơm Rang 1307</h1>
+          <h1>Chicken Doki</h1>
           <p>Trải nghiệm đặt món nhanh chóng, tiện lợi. Hạt cơm giòn rụm, topping ngập tràn đang chờ đón bạn.</p>
         </div>
       </div>
       
       <div className="login-form-wrapper">
         <div className="form-container">
-          <div className="logo-mobile">🍚 1307</div>
+          <div className="logo-mobile">🍗 Doki</div>
           <h2>Xin chào!</h2>
           <p className="subtitle">Vui lòng đăng nhập hoặc tạo tài khoản để đặt món.</p>
 

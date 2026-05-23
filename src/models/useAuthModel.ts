@@ -17,7 +17,7 @@ export default function useAuthModel() {
     return () => window.removeEventListener('storage', handleStorageChange);
   }, []);
 
-  const login = useCallback((identifier: string, pass: string) => {
+  const login = useCallback((identifier: string, pass: string, allowedRoles?: string[]) => {
     const users = getStorageData<StorageUser>('users');
     const user = users.find(u => (u.phone === identifier || u.name === identifier) && u.password === pass);
     if (!user) {
@@ -28,6 +28,14 @@ export default function useAuthModel() {
     if ((user as any)?.status === 'LOCKED') {
       message.error('Tài khoản đã bị khóa!');
       return false;
+    }
+
+    if (allowedRoles && allowedRoles.length > 0) {
+      const userRole = user.role?.toUpperCase() || 'CUSTOMER';
+      if (!allowedRoles.includes(userRole)) {
+        message.warning('Cảnh báo: Tài khoản của bạn không có quyền truy cập trang này. Vui lòng đăng nhập đúng cổng!');
+        return false;
+      }
     }
     
     localStorage.setItem('CURRENT_USER', JSON.stringify(user));
@@ -68,5 +76,26 @@ export default function useAuthModel() {
     message.success('Đã đăng xuất!');
   }, []);
 
-  return { currentUser, login, register, logout };
+  const updateAccount = useCallback((phone: string, username: string, newPass: string) => {
+    if (!currentUser) return false;
+    if (currentUser.phone !== phone || currentUser.name !== username) {
+      message.error('Số điện thoại hoặc tên đăng nhập không chính xác!');
+      return false;
+    }
+    
+    const users = getStorageData<StorageUser>('users');
+    const userIndex = users.findIndex(u => u.id === currentUser.id);
+    if (userIndex === -1) return false;
+    
+    users[userIndex].password = newPass;
+    
+    setStorageData('users', users);
+    const updatedUser = { ...currentUser, ...users[userIndex] };
+    localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
+    window.dispatchEvent(new Event('storage'));
+    message.success('Đổi mật khẩu thành công!');
+    return true;
+  }, [currentUser]);
+
+  return { currentUser, login, register, logout, updateAccount };
 }

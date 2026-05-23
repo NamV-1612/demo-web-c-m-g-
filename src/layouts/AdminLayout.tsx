@@ -14,11 +14,14 @@ import {
 import { history, useModel } from 'umi';
 import './AdminLayout.less';
 
+import AccountSettingsModal from '@/components/AccountSettingsModal';
+
 const { Header, Sider, Content } = Layout;
 
 const AdminLayout: React.FC = ({ children }) => {
   const { currentUser, logout } = useModel('useAuthModel');
   const [collapsed, setCollapsed] = useState(false);
+  const [isAccountModalVisible, setIsAccountModalVisible] = useState(false);
 
   const handleMenuClick = ({ key }: { key: string }) => {
     history.push(key);
@@ -31,8 +34,8 @@ const AdminLayout: React.FC = ({ children }) => {
 
   const userMenu = (
     <Menu>
-      <Menu.Item key="profile" icon={<UserOutlined />}>
-        Hồ sơ cá nhân
+      <Menu.Item key="profile" icon={<UserOutlined />} onClick={() => setIsAccountModalVisible(true)}>
+        Cài đặt tài khoản
       </Menu.Item>
       <Menu.Divider />
       <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={handleLogout} danger>
@@ -51,8 +54,8 @@ const AdminLayout: React.FC = ({ children }) => {
         width={250}
       >
         <div className="admin-logo">
-          <span className="logo-icon">Bếp</span>
-          {!collapsed && <span className="logo-text">Hoa Admin</span>}
+          <span className="logo-icon">🍗</span>
+          {!collapsed && <span className="logo-text">Doki Admin</span>}
         </div>
         <Menu
           mode="inline"
@@ -100,9 +103,9 @@ const AdminLayout: React.FC = ({ children }) => {
           </div>
           <div className="header-right">
             <Dropdown overlay={userMenu} placement="bottomRight">
-              <span className="user-dropdown-link">
+              <span className="user-dropdown-link" style={{ cursor: 'pointer' }}>
                 <Avatar style={{ backgroundColor: '#BA1A21' }} icon={<UserOutlined />} />
-                <span className="user-name">{currentUser?.full_name || 'Quản trị viên'}</span>
+                <span className="user-name" style={{ marginLeft: 8 }}>{currentUser?.full_name || 'Quản trị viên'}</span>
               </span>
             </Dropdown>
           </div>
@@ -112,6 +115,11 @@ const AdminLayout: React.FC = ({ children }) => {
           {children}
         </Content>
       </Layout>
+
+      <AccountSettingsModal 
+        visible={isAccountModalVisible} 
+        onClose={() => setIsAccountModalVisible(false)} 
+      />
     </Layout>
   );
 };

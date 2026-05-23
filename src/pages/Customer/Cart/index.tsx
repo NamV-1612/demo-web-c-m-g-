@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { List, Card, Typography, Button, Tag, Select, message, Empty, Row, Col, Input, Radio, Space, Form, Modal, Tooltip, Segmented } from 'antd';
-import { DeleteOutlined, ShopOutlined, EnvironmentOutlined, TagOutlined, QrcodeOutlined, DollarOutlined, PlusOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import React, { useState, useRef, useEffect } from 'react';
+import { List, Card, Typography, Button, Tag, Select, message, Empty, Row, Col, Input, Radio, Space, Form, Modal, Tooltip, Segmented, AutoComplete, TimePicker } from 'antd';
+import moment from 'moment';
+import { DeleteOutlined, ShopOutlined, EnvironmentOutlined, EnvironmentFilled, TagOutlined, QrcodeOutlined, DollarOutlined, PlusOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import { Order } from '@/services/typing';
 import './style.less';
@@ -8,18 +9,7 @@ import './style.less';
 const { Title, Text } = Typography;
 const { Option } = Select;
 
-const PICKUP_OPTIONS = [
-  { value: 'asap', label: 'Lấy ngay (Khoảng 15 phút)' },
-  { value: '11:00-11:30', label: 'Hẹn từ 11:00 - 11:30' },
-  { value: '11:30-12:00', label: 'Hẹn từ 11:30 - 12:00' },
-  { value: '12:00-12:30', label: 'Hẹn từ 12:00 - 12:30' },
-  { value: '12:30-13:00', label: 'Hẹn từ 12:30 - 13:00' },
-  { value: '13:00-13:30', label: 'Hẹn từ 13:00 - 13:30' },
-  { value: '18:00-18:30', label: 'Hẹn từ 18:00 - 18:30' },
-  { value: '18:30-19:00', label: 'Hẹn từ 18:30 - 19:00' },
-  { value: '19:00-19:30', label: 'Hẹn từ 19:00 - 19:30' },
-  { value: '19:30-20:00', label: 'Hẹn từ 19:30 - 20:00' },
-];
+
 
 const CustomerCart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart, subTotal, totalCartPrice, voucher, applyVoucher, updateQuantity } = useModel('useCartModel');
@@ -27,14 +17,64 @@ const CustomerCart: React.FC = () => {
   const { currentUser } = useModel('useAuthModel');
   const { decreasePromoQuantity } = useModel('usePromoModel');
 
+  const timeOptions = [1, 2, 3, 4].map(h => {
+    const time = moment().add(h, 'hours').add(moment().minute() > 0 ? 1 : 0, 'hours').startOf('hour').format('hh:00 A');
+    return {
+      value: time,
+      label: time.replace('AM', 'SA').replace('PM', 'CH')
+    };
+  });
+  
   const [selectedAddressId, setSelectedAddressId] = useState<string>(addresses[0]?.id || '');
   const [deliveryMethod, setDeliveryMethod] = useState('delivery');
-  const [pickupTime, setPickupTime] = useState('asap');
+  const [pickupTimeType, setPickupTimeType] = useState('asap');
+  const [pickupTimeText, setPickupTimeText] = useState(timeOptions[0].value);
   const [voucherInput, setVoucherInput] = useState('');
   
   // Modal Thêm địa chỉ mới
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
+  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
+  const [mapSearchText, setMapSearchText] = useState('');
+  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542'); // Hoan Kiem coords
+  const [mapOptions, setMapOptions] = useState<any[]>([]);
   const [form] = Form.useForm();
+  const searchTimeoutRef = useRef<any>(null);
+
+  useEffect(() => {
+    if (isAddressModalVisible && currentUser) {
+      form.setFieldsValue({
+        phone: form.getFieldValue('phone') || currentUser.phone,
+        name: form.getFieldValue('name') || currentUser.full_name || currentUser.name
+      });
+    }
+  }, [isAddressModalVisible, currentUser, form]);
+
+  const handleMapSearch = (value: string) => {
+    if (!value.trim()) {
+      setMapOptions([]);
+      return;
+    }
+
+    if (searchTimeoutRef.current) {
+      clearTimeout(searchTimeoutRef.current);
+    }
+
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=vn`);
+        const data = await res.json();
+        const newOptions = data.map((item: any) => ({
+          value: item.display_name,
+          label: item.display_name,
+          lat: item.lat,
+          lon: item.lon
+        }));
+        setMapOptions(newOptions);
+      } catch (err) {
+        console.error('Map search error:', err);
+      }
+    }, 600);
+  };
 
   const handleApplyVoucher = () => {
     applyVoucher(voucherInput);
@@ -58,6 +98,19 @@ const CustomerCart: React.FC = () => {
       return;
     }
 
+    if (isDelivery && pickupTimeType === 'specific') {
+      if (!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(pickupTimeText)) {
+        message.error('Vui lòng nhập đúng định dạng giờ (VD: 14:30)');
+        return;
+      }
+      const selectedTime = moment(pickupTimeText, 'hh:00 A');
+      const minTime = moment().add(1, 'hours');
+      if (selectedTime.isBefore(minTime)) {
+        message.error(`Vui lòng tải lại trang hoặc chọn giờ khác (giờ hiện tại đã vượt qua giờ bạn chọn)`);
+        return;
+      }
+    }
+
     const orderId = 'ORD' + Date.now().toString().slice(-6);
     
     const order: Order = {
@@ -71,7 +124,7 @@ const CustomerCart: React.FC = () => {
       status: 'PENDING',
       isPaid: false,
       paymentMethod: 'transfer',
-      pickupTime: pickupTime,
+      pickupTime: deliveryMethod === 'pickup' ? 'asap' : (pickupTimeType === 'asap' ? 'asap' : pickupTimeText),
       createdAt: Date.now(),
       promoCode: voucher?.code,
       discountAmount: voucher?.discount
@@ -99,8 +152,10 @@ const CustomerCart: React.FC = () => {
   }
 
   return (
-    <div className="customer-cart-page">
-      <Title level={2} className="cart-title"><ShopOutlined /> Giỏ hàng của bạn</Title>
+    <div className="cart-container">
+      <div className="cart-header">
+        <Title level={2} className="art-title"><ShopOutlined /> Giỏ hàng của bạn</Title>
+      </div>
       
       <Row gutter={[32, 24]}>
         {/* CỘT TRÁI: DANH SÁCH MÓN ĂN VÀ ĐỊA CHỈ */}
@@ -166,21 +221,41 @@ const CustomerCart: React.FC = () => {
               </>
             )}
             
-            <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
-              <Text strong style={{ display: 'block', marginBottom: 12, fontSize: '15px' }}>Hẹn khoảng thời gian đến lấy đồ:</Text>
-              <Select 
-                value={pickupTime} 
-                onChange={setPickupTime} 
-                style={{ width: '100%' }} 
-                size="large"
-                className="premium-select"
-                dropdownClassName="premium-dropdown"
-              >
-                {PICKUP_OPTIONS.map(opt => (
-                  <Option key={opt.value} value={opt.value}>{opt.label}</Option>
-                ))}
-              </Select>
-            </div>
+            {deliveryMethod === 'pickup' ? (
+              <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16, marginBottom: 24 }}>
+                <div style={{ background: '#fff7e6', padding: '12px 16px', borderRadius: '8px', border: '1px solid #ffd591' }}>
+                  <Text style={{ color: '#d46b08', fontSize: '14px' }}>
+                    <EnvironmentFilled style={{ marginRight: 8 }} />
+                    <Text strong style={{ color: '#d46b08' }}>Lưu ý:</Text> Quý khách vui lòng tới quán nhận đồ trong khoảng 1 tiếng sau khi nhận được thông báo món ăn đã hoàn thành.
+                  </Text>
+                </div>
+              </div>
+            ) : (
+              <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
+                <Text strong style={{ display: 'block', marginBottom: 16, fontSize: '15px' }}>Giờ giao hàng</Text>
+                <Radio.Group value={pickupTimeType} onChange={e => setPickupTimeType(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                  <Radio value="asap" style={{ fontSize: '15px' }}>Giao ngay khi xong</Radio>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <Radio value="specific" style={{ fontSize: '15px' }}>
+                      Giao vào giờ
+                    </Radio>
+                    <Select
+                      value={pickupTimeText}
+                      onChange={setPickupTimeText}
+                      disabled={pickupTimeType !== 'specific'}
+                      size="large"
+                      style={{ width: '140px' }}
+                      className="premium-select"
+                      dropdownClassName="premium-dropdown"
+                    >
+                        {timeOptions.map(opt => (
+                          <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>
+                        ))}
+                    </Select>
+                  </div>
+                </Radio.Group>
+              </div>
+            )}
 
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24, marginTop: 24 }}>
               <Text strong style={{ display: 'block', marginBottom: 16, fontSize: '16px', color: '#BA1A21' }}>
@@ -234,41 +309,33 @@ const CustomerCart: React.FC = () => {
  
         {/* CỘT PHẢI: TỔNG KẾT VÀ THANH TOÁN */}
         <Col xs={24} lg={10}>
-          <div className="checkout-panel">
-            <Title level={4}>Khuyến mãi</Title>
-            <div style={{ display: 'flex', width: '100%', marginBottom: 24 }}>
-              <Input 
-                size="large" 
-                placeholder="Nhập mã khuyến mãi (VD: GIAM20K)" 
-                prefix={<TagOutlined style={{color: '#BA1A21'}}/>}
-                value={voucherInput}
-                onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
-                style={{ borderRadius: '8px 0 0 8px' }}
-              />
-              <Button type="primary" size="large" onClick={handleApplyVoucher} style={{ borderRadius: '0 8px 8px 0', background: '#BA1A21', borderColor: '#BA1A21' }}>Áp dụng</Button>
-            </div>
- 
-            <div style={{ marginBottom: 24, padding: 12, background: '#e6f7ff', borderRadius: 8, border: '1px solid #91d5ff', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', marginBottom: 8 }}>
-                <QrcodeOutlined style={{ fontSize: 24, color: '#1890ff', marginRight: 12 }} />
-                <Text strong style={{ color: '#1890ff', fontSize: 16 }}>Thanh toán tại đây</Text>
+            <div className="checkout-panel" style={{ position: 'sticky', top: '100px', zIndex: 10 }}>
+              <Title level={4}>Khuyến mãi</Title>
+              <div style={{ display: 'flex', width: '100%', marginBottom: 24, gap: '12px' }}>
+                <Input 
+                  size="large" 
+                  placeholder="Nhập mã khuyến mãi (VD: GIAM20K)" 
+                  prefix={<TagOutlined style={{color: '#BA1A21'}}/>}
+                  value={voucherInput}
+                  onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
+                  style={{ borderRadius: '8px', flex: 1 }}
+                />
+                <Button type="primary" size="large" onClick={handleApplyVoucher} style={{ borderRadius: '8px', flexShrink: 0 }}>Áp dụng</Button>
               </div>
-              <ArrowDownOutlined style={{ fontSize: 24, color: '#1890ff' }} />
-            </div>
  
             <div className="qr-code-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fafafa', padding: 16, borderRadius: 8, border: '1px dashed #d9d9d9', marginBottom: 24 }}>
               <Text type="secondary" style={{ display: 'block', marginBottom: 8, textAlign: 'center' }}>
                 Quét mã QR dưới đây để thực hiện chuyển khoản:
               </Text>
               <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-COM%20RANG%201307`} 
+                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
                 alt="QR Code" 
                 style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 8, background: '#fff' }}
               />
               <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, lineHeight: '1.6' }}>
                 <div>Ngân hàng: <strong>MB Bank (Ngân hàng Quân Đội)</strong></div>
                 <div>STK: <strong>1307 8888 9999</strong></div>
-                <div>Chủ TK: <strong>COM RANG 1307</strong></div>
+                <div>Chủ TK: <strong>CHICKEN DOKI</strong></div>
                 <div>Nội dung CK: <strong>THANH TOAN DON HANG</strong></div>
               </div>
             </div>
@@ -298,12 +365,121 @@ const CustomerCart: React.FC = () => {
       </Row>
  
       {/* Modal Thêm Địa chỉ */}
-      <Modal title="Thêm địa chỉ giao hàng" visible={isAddressModalVisible} onCancel={() => setIsAddressModalVisible(false)} onOk={() => form.submit()}>
+      <Modal 
+        title="Thêm địa chỉ giao hàng" 
+        visible={isAddressModalVisible} 
+        onCancel={() => setIsAddressModalVisible(false)} 
+        onOk={() => form.submit()}
+        okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white' } }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
+      >
         <Form form={form} layout="vertical" onFinish={handleAddAddress}>
-          <Form.Item name="name" label="Tên người nhận" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true }]}><Input /></Form.Item>
-          <Form.Item name="address" label="Địa chỉ cụ thể" rules={[{ required: true }]}><Input.TextArea rows={3} /></Form.Item>
+          <Form.Item name="name" label="Tên người nhận" rules={[{ required: true, message: 'Vui lòng nhập tên người nhận' }, { pattern: /^[a-zA-ZÀ-ỹ\s]+$/, message: 'Tên chỉ chứa chữ cái (có thể 1 từ)' }]}>
+            <Input placeholder="VD: Nam" />
+          </Form.Item>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
+            <Input placeholder="VD: 0987654321" />
+          </Form.Item>
+          <Form.Item label="Địa chỉ cụ thể" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+                Chọn từ Google Maps
+              </Button>
+            </div>
+            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập hoặc chọn địa chỉ' }]}>
+              <Input.TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
+            </Form.Item>
+          </Form.Item>
         </Form>
+      </Modal>
+
+      {/* Modal Google Map */}
+      <Modal 
+        title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
+        visible={isMapModalVisible} 
+        onCancel={() => setIsMapModalVisible(false)} 
+        onOk={() => {
+          const finalAddress = mapSearchText.trim() ? mapSearchText : 'Hồ Hoàn Kiếm, Hà Nội';
+          form.setFieldsValue({ address: finalAddress });
+          setIsMapModalVisible(false);
+          message.success('Đã chọn vị trí từ bản đồ!');
+        }}
+        okText="Xác nhận vị trí này"
+        cancelText="Hủy"
+        width={700}
+        zIndex={1001}
+        bodyStyle={{ padding: 0 }}
+        okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
+        cancelButtonProps={{ style: { borderRadius: '8px' } }}
+      >
+        <div style={{ position: 'relative', width: '100%', height: '450px', overflow: 'hidden' }}>
+          
+          {/* SEARCH BAR OVERLAY */}
+          <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 20 }}>
+            <AutoComplete
+              options={mapOptions}
+              style={{ width: '100%' }}
+              onSearch={handleMapSearch}
+              onSelect={(value, option: any) => {
+                setMapSearchText(value);
+                // Dùng tọa độ lat/lon để map load chuẩn 100% thay vì text
+                if (option.lat && option.lon) {
+                  setSubmittedSearchText(`${option.lat},${option.lon}`);
+                } else {
+                  setSubmittedSearchText(value);
+                }
+                message.loading({ content: 'Đang tải vị trí...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã tìm thấy vị trí!', key: 'map-search' }));
+              }}
+              value={mapSearchText}
+              onChange={setMapSearchText}
+            >
+              <Input.Search 
+                className="map-search-input"
+                placeholder="Tìm kiếm trên Google Maps (Mô phỏng)..." 
+                enterButton="Tìm"
+                size="large"
+                style={{ 
+                  boxShadow: '0 2px 6px rgba(0,0,0,0.3)', 
+                  borderRadius: 8 
+                }}
+                onSearch={(value) => {
+                  const newSearch = value.trim() || 'Hồ Hoàn Kiếm, Hà Nội';
+                  setSubmittedSearchText(newSearch);
+                  message.loading({ content: 'Đang tìm kiếm...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã di chuyển tới vị trí!', key: 'map-search' }));
+                }}
+              />
+            </AutoComplete>
+          </div>
+
+          {/* MAP IFRAME */}
+          <iframe 
+            src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen 
+            loading="lazy"
+          ></iframe>
+
+          {/* CENTER PIN */}
+          <EnvironmentFilled 
+            style={{ 
+              position: 'absolute', 
+              top: '50%', 
+              left: '50%', 
+              transform: 'translate(-50%, -100%)', 
+              fontSize: 42, 
+              color: '#BA1A21', 
+              pointerEvents: 'none', 
+              zIndex: 10, 
+              filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' 
+            }} 
+          />
+        </div>
+        <div style={{ padding: '12px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <EnvironmentOutlined style={{ color: '#BA1A21' }} />
+          <Text type="secondary">Kéo bản đồ để ghim chính xác vào vị trí nhận hàng của bạn.</Text>
+        </div>
       </Modal>
     </div>
   );

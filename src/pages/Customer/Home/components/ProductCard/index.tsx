@@ -1,6 +1,6 @@
-﻿import React from 'react';
-import { Card, Button } from 'antd';
-import { PlusOutlined } from '@ant-design/icons';
+import React from 'react';
+import { Card, Button, Tooltip } from 'antd';
+import { PlusOutlined, LoginOutlined } from '@ant-design/icons';
 import { Product } from '@/services/typing';
 import { useModel } from 'umi';
 import './style.less';
@@ -8,9 +8,10 @@ import './style.less';
 interface ProductCardProps {
   product: Product;
   onClick: (product: Product) => void;
+  className?: string;
 }
 
-const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
+const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, className }) => {
   const { currentUser } = useModel('useAuthModel');
   const isGuest = !currentUser || (currentUser.role?.toLowerCase() !== 'customer' && currentUser.role?.toLowerCase() !== 'admin');
 
@@ -22,7 +23,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
   return (
     <Card
       hoverable
-      className="product-card"
+      className={`product-card ${className || ''}`}
       cover={
         <img 
           alt={product.name} 
@@ -44,13 +45,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick }) => {
           size="large"
         />
       ) : (
-        <Button 
-          type="primary"
-          className="login-to-order-btn"
-          onClick={(e) => { e.stopPropagation(); window.location.href = '/login'; }}
-        >
-          Đăng nhập để đặt món
-        </Button>
+        <Tooltip title="Đăng nhập để đặt món">
+          <Button 
+            shape="circle"
+            icon={<LoginOutlined />}
+            className="add-btn"
+            size="large"
+            onClick={(e) => { e.stopPropagation(); window.location.href = '/login'; }}
+          />
+        </Tooltip>
       )}
     </Card>
   );

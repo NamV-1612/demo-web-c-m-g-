@@ -74,7 +74,7 @@ const StaffDashboard: React.FC = () => {
     if (printWindow) {
       printWindow.document.write(`
         <div style="font-family: monospace; padding: 10px;">
-          <h2 style="text-align: center; margin-bottom: 5px;">CƠM RANG 1307</h2>
+          <h2 style="text-align: center; margin-bottom: 5px; font-weight: 900; color: #BA1A21;">CHICKEN DOKI</h2>
           <h3 style="text-align: center; margin-top: 0;">MÃ ĐƠN: ${order.id}</h3>
           <hr style="border: 1px dashed #000;"/>
           <p style="margin: 4px 0;">Khách hàng: ${order.customerName}</p>

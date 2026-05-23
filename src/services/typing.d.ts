@@ -50,6 +50,8 @@ export interface Order {
   };
   promoCode?: string;
   discountAmount?: number;
+  cancelMessage?: string;
+  cancelPromoCode?: string;
 }
 
 export interface Promo {

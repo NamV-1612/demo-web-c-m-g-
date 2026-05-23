@@ -1,14 +1,16 @@
-﻿import React from 'react';
-import { Layout, Badge, Menu, Button, Row, Col, Space, Modal } from 'antd';
-import { ShoppingCartOutlined, HomeOutlined, UserOutlined, ClockCircleOutlined, LoginOutlined, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Layout, Badge, Menu, Button, Row, Col, Space, Modal, Dropdown, Avatar } from 'antd';
+import { ShoppingCartOutlined, HomeOutlined, UserOutlined, ClockCircleOutlined, LoginOutlined, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
 import './CustomerLayout.less';
+import AccountSettingsModal from '@/components/AccountSettingsModal';
 
 const { Header, Content, Footer } = Layout;
 
 const CustomerLayout: React.FC = ({ children }) => {
   const { cartCount } = useModel('useCartModel');
   const { currentUser, logout } = useModel('useAuthModel');
+  const [isAccountModalVisible, setIsAccountModalVisible] = useState(false);
 
   const handlePortalNavigation = (path: string, targetRole: string) => {
     if (currentUser) {
@@ -39,17 +41,28 @@ const CustomerLayout: React.FC = ({ children }) => {
       { key: '/customer/home', icon: <HomeOutlined />, label: 'Trang chủ' },
       { key: '/customer/cart', icon: <ShoppingCartOutlined />, label: <Badge count={cartCount} offset={[10, 0]} style={{ backgroundColor: '#FADB14', color: '#262626', fontWeight: 'bold', boxShadow: '0 0 0 1px #fff' }}>Giỏ hàng</Badge> },
       { key: '/customer/history', icon: <ClockCircleOutlined />, label: 'Lịch sử' },
-      { key: '/customer/profile', icon: <UserOutlined />, label: 'Hồ sơ' },
     ];
   }
+
+  const userMenu = (
+    <Menu>
+      <Menu.Item key="settings" icon={<SettingOutlined />} onClick={() => setIsAccountModalVisible(true)}>
+        Cài đặt tài khoản
+      </Menu.Item>
+      <Menu.Divider />
+      <Menu.Item key="logout" icon={<LogoutOutlined />} onClick={() => { logout(); history.push('/login'); }} danger>
+        Đăng xuất
+      </Menu.Item>
+    </Menu>
+  );
 
   return (
     <Layout className="customer-layout">
       <Header className="glass-header">
         <div className="header-content">
           <div className="logo" onClick={() => history.push('/customer/home')} style={{ cursor: 'pointer', display: 'flex', alignItems: 'center' }}>
-            <span className="logo-icon">🍚</span>
-            <span className="logo-text">CƠM RANG 1307</span>
+            <span className="logo-icon">🍗</span>
+            <span className="logo-text">CHICKEN DOKI</span>
           </div>
 
           <div className="top-navigation" style={{ flex: 1, padding: '0 24px' }}>
@@ -64,12 +77,12 @@ const CustomerLayout: React.FC = ({ children }) => {
 
           <div className="header-actions">
             {currentUser ? (
-              <Space size="middle">
-                <span className="welcome-text">Xin chào, {currentUser.full_name}</span>
-                <Button onClick={() => { logout(); history.push('/login'); }} icon={<LoginOutlined />} className="logout-btn" type="text" danger>
-                  Đăng xuất
-                </Button>
-              </Space>
+              <Dropdown overlay={userMenu} placement="bottomRight">
+                <Space size="middle" style={{ cursor: 'pointer', padding: '4px 12px', background: 'transparent', borderRadius: 20, transition: 'all 0.3s' }} className="user-greeting">
+                  <Avatar style={{ backgroundColor: '#BA1A21' }} icon={<UserOutlined />} size="small" />
+                  <span className="welcome-text" style={{ fontWeight: 600 }}>Xin chào, {currentUser.full_name}</span>
+                </Space>
+              </Dropdown>
             ) : (
               <Button type="primary" className="login-btn" onClick={() => history.push('/login')}>
                 Đăng nhập ngay
@@ -88,7 +101,7 @@ const CustomerLayout: React.FC = ({ children }) => {
           <Row gutter={[32, 32]}>
             <Col xs={24} md={8}>
               <div className="footer-brand">
-                <h2>🍚 CƠM RANG 1307</h2>
+                <h2>🍗 CHICKEN DOKI</h2>
                 <p>Hệ thống Cơm rang Độc quyền lớn nhất Vịnh Bắc Bộ. Cam kết nguyên liệu sạch, tươi ngon 100%. Nóng hổi giao ngay!</p>
                 <div className="security-badges">
                   <SafetyCertificateOutlined style={{ fontSize: 24, color: '#52c41a' }} />
@@ -113,17 +126,22 @@ const CustomerLayout: React.FC = ({ children }) => {
               <div className="footer-contact">
                 <h3>Tổng đài Hỗ trợ</h3>
                 <p><EnvironmentOutlined /> Tầng 6, Số 1 Đại Cồ Việt, Hai Bà Trưng, Hà Nội</p>
-                <p><PhoneOutlined /> Hotline: 1900 1307</p>
-                <p><MailOutlined /> cskh@comrang1307.vn</p>
+                <p><PhoneOutlined /> Hotline: 1900 8888</p>
+                <p><MailOutlined /> cskh@chickendoki.vn</p>
               </div>
             </Col>
           </Row>
           
           <div className="footer-bottom">
-            <p>© 2026 Hệ thống Cơm Rang 1307. All rights reserved.</p>
+            <p>© 2026 Hệ thống Chicken Doki. All rights reserved.</p>
           </div>
         </div>
       </Footer>
+
+      <AccountSettingsModal 
+        visible={isAccountModalVisible} 
+        onClose={() => setIsAccountModalVisible(false)} 
+      />
     </Layout>
   );
 };

@@ -1,4 +1,4 @@
-﻿.customer-home-page {
+.customer-home-page {
   padding-bottom: 60px;
   
   /* HERO SECTION */
@@ -115,10 +115,34 @@
         font-weight: 900;
       }
     }
+
+    .fade-in-up {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+
+      .ant-badge {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+
+        .ant-badge-ribbon-wrapper, & > div {
+          flex: 1;
+        }
+      }
+    }
+  }
+
+  @keyframes floatCartPop {
+    0% { transform: translateY(100px) scale(0.5); opacity: 0; }
+    60% { transform: translateY(-15px) scale(1.1); opacity: 1; }
+    80% { transform: translateY(5px) scale(0.95); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
   }
 
   /* FLOATING CART */
   .floating-cart {
+    animation: floatCartPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
     position: fixed;
     bottom: 40px;
     right: 40px;

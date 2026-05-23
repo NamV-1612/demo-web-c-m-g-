@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Form, Input, Button, Tabs, Modal } from 'antd';
 import { UserOutlined, LockOutlined, ArrowLeftOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
@@ -10,8 +10,14 @@ const StaffLogin: React.FC = () => {
   const { login, currentUser, logout } = useModel('useAuthModel');
   const [activeTab, setActiveTab] = React.useState('1');
 
+  React.useEffect(() => {
+    if (currentUser) {
+      logout();
+    }
+  }, []);
+
   const onLogin = (values: any) => {
-    if (login(values.username, values.password)) {
+    if (login(values.username, values.password, ['STAFF', 'ADMIN'])) {
       history.push('/staff/dashboard');
     }
   };
