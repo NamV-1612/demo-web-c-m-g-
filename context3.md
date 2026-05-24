@@ -68,7 +68,11 @@ Hệ thống được chia thành 4 phân quyền với các nhóm tính năng c
   - Giữ nguyên thiết lập cấu hình của base web UmiJS (từ giảng viên), khai báo interface thống nhất trong dự án.
 
 **2. Backend (Server)**
-- Sử dụng **Mock API** và lưu trữ dữ liệu tại máy khách bằng **localStorage**.
+- **Nền tảng**: Node.js, Express.js (TypeScript).
+- **Cơ sở dữ liệu**: MongoDB.
+- **Xác thực**: JWT (JSON Web Token) & BcryptJS.
+- **Lưu trữ ảnh**: Cloudinary (Upload tự động bằng Multer).
 
 **3. Triển khai (Deploy)**
-- Dự án sẽ được **Deploy qua Netlify**.
+- **Frontend**: Triển khai qua Netlify.
+- **Backend**: Triển khai qua Render.com / Railway kết nối qua API thực tế.

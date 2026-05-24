@@ -1,44 +1,86 @@
-import { useState, useEffect } from 'react';
-import { getStorageData, setStorageData, StorageProduct } from '@/utils/storage';
+import { useState, useEffect, useCallback } from 'react';
+import api from '@/services/api';
+import { message } from 'antd';
 import { Product } from '@/services/typing';
 
 export default function useMenuModel() {
   const [products, setProducts] = useState<Product[]>([]);
 
-  useEffect(() => {
-    const loadData = () => {
-      const data = getStorageData<StorageProduct>('products');
-      // Cast to Product to maintain compatibility with UI
-      setProducts(data as unknown as Product[]);
-    };
-    loadData();
-
-    window.addEventListener('storage', loadData);
-    return () => window.removeEventListener('storage', loadData);
+  const loadData = useCallback(async () => {
+    try {
+      const { data } = await api.get('/products');
+      setProducts(data);
+    } catch (error) {
+      console.error('Lỗi khi tải danh sách món ăn', error);
+    }
   }, []);
 
-  const updateProductAvailability = (id: string, isAvailable: boolean) => {
-    const updated = products.map(p => 
-      p.id === id ? { ...p, isAvailable, status: isAvailable ? 'available' : 'out_of_stock' } : p
-    );
-    setStorageData('products', updated);
+  useEffect(() => {
+    loadData();
+  }, [loadData]);
+
+  const updateProductAvailability = async (id: string, isAvailable: boolean) => {
+    try {
+      await api.put(`/products/${id}`, { isAvailable });
+      loadData(); // Gọi lại API để cập nhật state
+    } catch (error) {
+      message.error('Lỗi khi cập nhật trạng thái');
+    }
   };
 
-  const addProduct = (p: Product) => {
-    const newP = { ...p, status: p.isAvailable ? 'available' : 'out_of_stock' };
-    const updated = [...products, newP];
-    setStorageData('products', updated);
+  const addProduct = async (p: any, file?: File) => {
+    try {
+      const formData = new FormData();
+      formData.append('name', p.name);
+      formData.append('price', p.price.toString());
+      if (p.description) formData.append('description', p.description);
+      formData.append('isAvailable', String(p.isAvailable));
+      
+      if (file) {
+        formData.append('image', file); // Multer sẽ xử lý field 'image'
+      }
+
+      await api.post('/products', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      message.success('Thêm món thành công!');
+      loadData();
+    } catch (error) {
+      message.error('Lỗi khi thêm món mới');
+    }
   };
 
-  const updateProduct = (id: string, data: Partial<Product>) => {
-    const updated = products.map(p => p.id === id ? { ...p, ...data, status: (data.isAvailable !== undefined ? (data.isAvailable ? 'available' : 'out_of_stock') : (p.isAvailable ? 'available' : 'out_of_stock')) } : p);
-    setStorageData('products', updated);
+  const updateProduct = async (id: string, data: any, file?: File) => {
+    try {
+      const formData = new FormData();
+      if (data.name) formData.append('name', data.name);
+      if (data.price) formData.append('price', data.price.toString());
+      if (data.description) formData.append('description', data.description);
+      if (data.isAvailable !== undefined) formData.append('isAvailable', String(data.isAvailable));
+      
+      if (file) {
+        formData.append('image', file);
+      }
+
+      await api.put(`/products/${id}`, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' }
+      });
+      message.success('Cập nhật món thành công!');
+      loadData();
+    } catch (error) {
+      message.error('Lỗi khi cập nhật món');
+    }
   };
 
-  const deleteProduct = (id: string) => {
-    const updated = products.filter(p => p.id !== id);
-    setStorageData('products', updated);
+  const deleteProduct = async (id: string) => {
+    try {
+      await api.delete(`/products/${id}`);
+      message.success('Đã xóa món ăn');
+      loadData();
+    } catch (error) {
+      message.error('Lỗi khi xóa món ăn');
+    }
   };
 
-  return { products, updateProductAvailability, addProduct, updateProduct, deleteProduct };
+  return { products, updateProductAvailability, addProduct, updateProduct, deleteProduct, reloadMenu: loadData };
 }

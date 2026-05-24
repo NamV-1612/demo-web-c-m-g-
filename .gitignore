@@ -45,3 +45,6 @@ build
 # Sentry Auth Token
 #.sentryclirc
 
+# Mật khẩu và Key
+.env
+backend/.env

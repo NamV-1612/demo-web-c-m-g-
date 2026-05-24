@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { Redirect, useModel } from 'umi';
 
 const AuthCustomer: React.FC = ({ children }) => {

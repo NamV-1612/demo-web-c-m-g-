@@ -2,7 +2,7 @@ Mô tả:
 Ý tưởng chính: Xây dựng hệ thống web hỗ trợ quy trình đặt thức ăn mang về. Hệ thống cho phép khách hàng xem thực đơn, đặt món trước để đến lấy (không phục vụ tại chỗ) giúp tiết kiệm thời gian chờ đợi. Đồng thời cung cấp công cụ cho nhân viên/chủ quán tiếp nhận đơn hàng, quản lý thực đơn và thống kê doanh thu bán hàng.
 1.Phân hệ Khách vãng lai (Guest)
 -Xem thông tin: Khám phá trang chủ, xem thực đơn, sử dụng thanh tìm kiếm và bộ lọc món ăn.
--Chi tiết món ăn: Xem hình ảnh, giá cả, thành phần và các tùy chọn topping (nhưng không được thao tác chọn).
+-Chi tiết món ăn: Xem hình ảnh, giá cả, thành phần và các tùy chọn topping (nhưng không được thao tác chọn).1
 -Giới hạn quyền: Không có tính năng Giỏ hàng. Các nút hành động (như "Thêm vào giỏ", "Đặt món") đều được đổi thành "Đăng nhập để đặt món" và điều hướng sang trang xác thực.
 -Bảo vệ luồng (Protected Routes): Tự động đẩy (redirect) người dùng về trang Đăng nhập nếu cố tình truy cập các đường dẫn dành riêng cho thành viên như giỏ hàng hay lịch sử đơn.
 2.Phân hệ Khách hàng thành viên (User)
@@ -29,9 +29,14 @@ YÊU CẦU CHUNG:
 - Sử dụng framework ReactJS và base umiJS
 - Thư viện UI có sẵn: Ant Design
 2. Backend (server)
-- Sử dụng Mock API, localStorage
+- Nền tảng: Node.js
+- Framework: Express.js (với TypeScript)
+- Cơ sở dữ liệu: MongoDB (kết nối qua Mongoose)
+- Lưu trữ ảnh: Cloudinary (Sử dụng Multer để tự động upload ảnh)
+- Xác thực: JSON Web Token (JWT) và BcryptJS để mã hóa mật khẩu.
 3. Deploy 
-Deploy qua netlify (Kiểm tra xem nếu dùng mock api và localStorage thì có deploy được không)
+- Frontend: Triển khai qua Netlify.
+- Backend: Triển khai qua nền tảng đám mây miễn phí như Render.com hoặc Railway.app, kết nối với Frontend qua API thực tế thay vì localStorage.
 YÊU CẦU CHI TIẾT
 - Trong mục pages, mỗi mục sẽ cần chia nhỏ các components, index.tsx và style.less. Phần index.tsx chỉ dùng để hiển thị các phần đã làm, tách phần CSS ra các file style.less của mỗi mục tương ứng, tuyệt đối trong các file .tsx không được chứa inline CSS.
 - Sử dụng các control/component có sẵn của Antd/Project
