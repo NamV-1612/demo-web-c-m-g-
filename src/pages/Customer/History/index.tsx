@@ -10,7 +10,7 @@ const { Step } = Steps;
 const { TextArea } = Input;
 
 const CustomerHistory: React.FC = () => {
-  const { orders, rateOrder, updateOrderInfo, deleteOrder } = useModel('useOrderModel');
+  const { orders, rateOrder, updateOrderInfo, cancelOrder } = useModel('useOrderModel');
   const { currentUser } = useModel('useAuthModel');
   const { addToCart } = useModel('useCartModel');
 
@@ -245,12 +245,12 @@ const CustomerHistory: React.FC = () => {
                       setIsEditModalVisible(true);
                     }}>Sửa ĐC</Button>
                   )}
-                  {['COMPLETED', 'CANCELLED', 'PENDING'].includes(order.status?.toUpperCase()) && (
+                  {order.status?.toUpperCase() === 'PENDING' && (
                     <Popconfirm 
-                      title={order.status?.toUpperCase() === 'PENDING' ? "Hủy và xóa đơn hàng này?" : "Xóa lịch sử đơn hàng này?"} 
-                      onConfirm={() => deleteOrder(order.id)} okText="Có" cancelText="Không"
+                      title="Bạn có chắc chắn muốn hủy đơn hàng này?" 
+                      onConfirm={() => cancelOrder(order.id)} okText="Có, Hủy" cancelText="Không"
                     >
-                      <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>{order.status?.toUpperCase() === 'PENDING' ? "Hủy Đơn" : "Xóa"}</Button>
+                      <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>Hủy Đơn</Button>
                     </Popconfirm>
                   )}
                   {order.status?.toUpperCase() === 'COMPLETED' && (

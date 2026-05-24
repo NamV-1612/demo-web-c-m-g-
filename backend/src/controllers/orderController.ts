@@ -38,7 +38,7 @@ export const createOrder = async (req: any, res: Response) => {
 // @access  Private (Customer)
 export const getMyOrders = async (req: any, res: Response) => {
   try {
-    const orders = await Order.find({ customerId: req.user._id }).sort({ createdAt: -1 });
+    const orders = await Order.find({ customerId: req.user._id }).sort({ createdAt: -1 }).populate('items.productId');
     res.json(orders);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -50,33 +50,77 @@ export const getMyOrders = async (req: any, res: Response) => {
 // @access  Private/Admin/Staff
 export const getOrders = async (req: Request, res: Response) => {
   try {
-    const orders = await Order.find({}).sort({ createdAt: -1 });
+    const orders = await Order.find({}).sort({ createdAt: -1 }).populate('items.productId');
     res.json(orders);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }
 };
 
-// @desc    Cập nhật trạng thái đơn hàng
+// @desc    Cập nhật trạng thái đơn hàng (Staff/Admin có toàn quyền, Customer chỉ được Hủy khi đang PENDING)
 // @route   PUT /api/orders/:id/status
-// @access  Private/Admin/Staff
-export const updateOrderStatus = async (req: Request, res: Response) => {
+// @access  Private
+export const updateOrderStatus = async (req: any, res: Response) => {
   try {
     const order = await Order.findById(req.params.id);
 
-    if (order) {
-      order.status = req.body.status || order.status;
-      
-      // Nếu cập nhật thành COMPLETED thì coi như đã thanh toán (đối với tiền mặt)
-      if (req.body.status === 'COMPLETED' && order.paymentMethod === 'cash') {
-        order.isPaid = true;
-      }
-
-      const updatedOrder = await order.save();
-      res.json(updatedOrder);
-    } else {
-      res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+    if (!order) {
+      return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
     }
+
+    const { status } = req.body;
+
+    // Check Role
+    if (req.user.role === 'CUSTOMER') {
+      if (status !== 'CANCELLED') {
+        return res.status(403).json({ message: 'Khách hàng chỉ có quyền hủy đơn' });
+      }
+      if (order.status !== 'PENDING') {
+        return res.status(400).json({ message: 'Chỉ có thể hủy đơn khi đang ở trạng thái Chờ xác nhận' });
+      }
+      if (order.customerId?.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Không có quyền hủy đơn của người khác' });
+      }
+    }
+
+    order.status = status || order.status;
+    
+    // Nếu cập nhật thành COMPLETED thì coi như đã thanh toán (đối với tiền mặt)
+    if (status === 'COMPLETED' && order.paymentMethod === 'cash') {
+      order.isPaid = true;
+    }
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Sửa thông tin đơn hàng (Customer chỉ được sửa khi PENDING)
+// @route   PUT /api/orders/:id
+// @access  Private
+export const updateOrder = async (req: any, res: Response) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    if (req.user.role === 'CUSTOMER') {
+      if (order.status !== 'PENDING') {
+        return res.status(400).json({ message: 'Chỉ có thể sửa khi đơn đang Chờ xác nhận' });
+      }
+      if (order.customerId?.toString() !== req.user._id.toString()) {
+        return res.status(403).json({ message: 'Không có quyền sửa đơn này' });
+      }
+    }
+
+    order.customerPhone = req.body.customerPhone || order.customerPhone;
+    order.note = req.body.note || order.note;
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

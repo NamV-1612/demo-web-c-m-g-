@@ -1,9 +1,7 @@
 import axios from 'axios';
 
-// Base URL: Lúc code ở máy chạy localhost:5000, lúc đưa lên Netlify sẽ đổi thành URL thật
-const API_URL = process.env.NODE_ENV === 'production' 
-  ? 'https://your-backend-url.onrender.com/api' // Thay đổi sau khi deploy Backend
-  : 'http://localhost:5000/api';
+// Tạm thời fix cứng Localhost để test trên máy trước, khi nào xong sẽ đổi lại link Render sau
+const API_URL = 'http://localhost:5000/api';
 
 const api = axios.create({
   baseURL: API_URL,

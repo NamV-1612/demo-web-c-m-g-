@@ -16,8 +16,9 @@ const StaffLogin: React.FC = () => {
     }
   }, []);
 
-  const onLogin = (values: any) => {
-    if (login(values.username, values.password, ['STAFF', 'ADMIN'])) {
+  const onLogin = async (values: any) => {
+    const success = await login(values.username, values.password, ['STAFF', 'ADMIN']);
+    if (success) {
       history.push('/staff/dashboard');
     }
   };

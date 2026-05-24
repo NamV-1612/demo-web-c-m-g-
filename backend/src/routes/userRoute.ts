@@ -23,7 +23,8 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
     }
     
-    const newUser = new User({ name, phone, password, role });
+    // Thêm full_name (vì schema bắt buộc, ta lấy name làm full_name cho Staff)
+    const newUser = new User({ full_name: name, name, phone, password, role });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error: any) {

@@ -18,13 +18,15 @@ const CustomerLogin: React.FC = () => {
     }
   }, []);
 
-  const handleSubmit = (values: any) => {
+  const handleSubmit = async (values: any) => {
     if (activeTab === '1') {
-      if (login(values.username.trim(), values.password, ['CUSTOMER', 'ADMIN'])) {
+      const success = await login(values.username.trim(), values.password, ['CUSTOMER', 'ADMIN']);
+      if (success) {
         history.push('/customer/home');
       }
     } else {
-      if (register(values.name, values.username.trim(), values.phone, values.password)) {
+      const success = await register(values.name, values.username.trim(), values.phone, values.password);
+      if (success) {
         setActiveTab('1');
         form.resetFields();
       }

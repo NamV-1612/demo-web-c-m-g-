@@ -4,9 +4,8 @@ export interface User {
   password?: string;
   name: string;
   full_name?: string;
-  role: 'ADMIN' | 'STAFF' | 'CUSTOMER' | 'admin' | 'staff' | 'customer';
+  role: 'ADMIN' | 'STAFF' | 'CUSTOMER';
   status?: 'ACTIVE' | 'LOCKED';
-  isBanned?: boolean;
 }
 
 export interface Product {
@@ -14,7 +13,6 @@ export interface Product {
   name: string;
   price: number;
   category: string;
-  imageUrl: string;
   image?: string;
   description?: string;
   isAvailable: boolean;

@@ -25,11 +25,20 @@ export const createProduct = async (req: Request, res: Response) => {
       image = req.file.path; // Đường dẫn ảnh trên Cloudinary
     }
 
+    let toppingsArr = [];
+    let outOfStockArr = [];
+    try {
+      if (req.body.toppings) toppingsArr = typeof req.body.toppings === 'string' ? JSON.parse(req.body.toppings) : req.body.toppings;
+      if (req.body.outOfStockToppings) outOfStockArr = typeof req.body.outOfStockToppings === 'string' ? JSON.parse(req.body.outOfStockToppings) : req.body.outOfStockToppings;
+    } catch(e) {}
+
     const product = new Product({
       name,
       price,
       description,
-      categoryId,
+      category: req.body.category || 'Món chính',
+      toppings: toppingsArr,
+      outOfStockToppings: outOfStockArr,
       isAvailable,
       image,
     });
@@ -53,7 +62,20 @@ export const updateProduct = async (req: Request, res: Response) => {
       product.name = name || product.name;
       product.price = price || product.price;
       product.description = description || product.description;
-      product.categoryId = categoryId || product.categoryId;
+      product.category = req.body.category || product.category;
+      
+      // Parse toppings
+      if (req.body.toppings) {
+        try {
+          product.toppings = typeof req.body.toppings === 'string' ? JSON.parse(req.body.toppings) : req.body.toppings;
+        } catch(e) { product.toppings = req.body.toppings; }
+      }
+      if (req.body.outOfStockToppings) {
+        try {
+          product.outOfStockToppings = typeof req.body.outOfStockToppings === 'string' ? JSON.parse(req.body.outOfStockToppings) : req.body.outOfStockToppings;
+        } catch(e) { product.outOfStockToppings = req.body.outOfStockToppings; }
+      }
+
       if (isAvailable !== undefined) {
         product.isAvailable = isAvailable;
       }

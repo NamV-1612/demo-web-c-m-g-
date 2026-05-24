@@ -5,7 +5,9 @@ export interface IProduct extends Document {
   description?: string;
   price: number;
   image?: string;
-  categoryId?: mongoose.Types.ObjectId;
+  category?: string;
+  toppings?: string[];
+  outOfStockToppings?: string[];
   isAvailable: boolean;
   createdAt: Date;
 }
@@ -16,7 +18,9 @@ const ProductSchema: Schema = new Schema(
     description: { type: String },
     price: { type: Number, required: true, min: 0 },
     image: { type: String },
-    categoryId: { type: mongoose.Schema.Types.ObjectId, ref: 'Category' },
+    category: { type: String, default: 'Món chính' },
+    toppings: [{ type: String }],
+    outOfStockToppings: [{ type: String }],
     isAvailable: { type: Boolean, default: true }
   },
   {

@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrder, getMyOrders, getOrders, updateOrderStatus } from '../controllers/orderController';
+import { createOrder, getMyOrders, getOrders, updateOrderStatus, updateOrder } from '../controllers/orderController';
 import { protect, staffOrAdmin } from '../middleware/authMiddleware';
 
 const router = express.Router();
@@ -10,6 +10,7 @@ router.route('/')
 
 router.route('/myorders').get(protect, getMyOrders);
 
-router.route('/:id/status').put(protect, staffOrAdmin, updateOrderStatus);
+router.route('/:id/status').put(protect, updateOrderStatus);
+router.route('/:id').put(protect, updateOrder);
 
 export default router;

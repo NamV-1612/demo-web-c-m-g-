@@ -1,4 +1,4 @@
-﻿import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Modal, Checkbox, Input, Button, Typography, Space } from 'antd';
 import { MinusOutlined, PlusOutlined } from '@ant-design/icons';
 import { Product, CartItem } from '@/services/typing';
@@ -65,7 +65,7 @@ const ProductCustomizationModal: React.FC<Props> = ({ product, visible, onClose,
       ]}
       bodyStyle={{ padding: '16px 24px' }}
     >
-      <img src={product.imageUrl} alt={product.name} className="modal-image" />
+      <img src={product.image || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'} alt={product.name} className="modal-image" />
       
       {product.toppings && product.toppings.length > 0 && (
         <div className="section-margin">

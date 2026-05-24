@@ -26,7 +26,17 @@ export default function useOrderModel() {
         ? '/orders' 
         : '/orders/myorders';
       const { data } = await api.get(endpoint);
-      setOrders(data);
+      const formattedData = data.map((order: any) => ({
+        ...order,
+        items: order.items?.map((item: any) => ({
+          product: item.productId || { name: item.name, price: item.price, image: '' },
+          quantity: item.quantity,
+          selectedToppings: item.selectedToppings || [],
+          note: item.note,
+          totalPrice: item.price * item.quantity
+        })) || []
+      }));
+      setOrders(formattedData);
     } catch (error) {
       console.error('Lỗi tải đơn hàng', error);
     }
@@ -86,13 +96,21 @@ export default function useOrderModel() {
     message.warning('Tính năng đang được phát triển!');
   };
 
-  const updateOrderInfo = (id: string, info: { phone: string; address: string }) => {
-    message.warning('Tính năng đang được phát triển!');
+  const updateOrderInfo = async (id: string, info: { phone: string; address: string }) => {
+    try {
+      await api.put(`/orders/${id}`, { customerPhone: info.phone, note: 'Giao đến: ' + info.address });
+      message.success('Cập nhật thông tin nhận hàng thành công!');
+      loadData();
+    } catch (error) {
+      message.error('Lỗi khi cập nhật thông tin');
+    }
   };
 
-  const deleteOrder = (id: string) => {
-    message.warning('Không được phép xóa đơn hàng trực tiếp!');
+  const cancelOrder = async (id: string) => {
+    try {
+      await changeOrderStatus(id, 'CANCELLED');
+    } catch (error) {}
   };
 
-  return { orders, changeOrderStatus, rateOrder, togglePaymentStatus, submitOrder, addresses, addAddress, updateOrderInfo, deleteOrder, reloadOrders: loadData };
+  return { orders, changeOrderStatus, rateOrder, togglePaymentStatus, submitOrder, addresses, addAddress, updateOrderInfo, cancelOrder, reloadOrders: loadData };
 }

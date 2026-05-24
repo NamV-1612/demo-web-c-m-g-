@@ -17,14 +17,16 @@ const AdminLogin: React.FC = () => {
     }
   }, []);
 
-  const onLogin = (values: any) => {
-    if (login(values.username.trim(), values.password, ['ADMIN'])) {
+  const onLogin = async (values: any) => {
+    const success = await login(values.username.trim(), values.password, ['ADMIN']);
+    if (success) {
       history.push('/admin/dashboard');
     }
   };
 
-  const onRegister = (values: any) => {
-    if (register(values.name, values.username.trim(), values.phone, values.password, 'ADMIN')) {
+  const onRegister = async (values: any) => {
+    const success = await register(values.name, values.username.trim(), values.phone, values.password, 'ADMIN');
+    if (success) {
       history.push('/admin/dashboard');
     }
   };
