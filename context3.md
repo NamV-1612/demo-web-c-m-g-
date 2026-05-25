@@ -74,5 +74,6 @@ Hệ thống được chia thành 4 phân quyền với các nhóm tính năng c
 - **Lưu trữ ảnh**: Cloudinary (Upload tự động bằng Multer).
 
 **3. Triển khai (Deploy)**
-- **Frontend**: Triển khai qua Netlify.
-- **Backend**: Triển khai qua Render.com / Railway kết nối qua API thực tế.
+- **Frontend**: Triển khai qua Netlify / Vercel (Hỗ trợ SPA tốt, giao diện phản hồi nhanh).
+- **Backend**: Triển khai qua Render.com / Railway (Web Services) kết nối qua API thực tế. Yêu cầu thiết lập khởi chạy Server sau khi Database đã kết nối xong để tránh lỗi Buffering Timeout.
+- **Database**: MongoDB Atlas (Cloud Database), yêu cầu thiết lập Network Access (IP Access List) thành `0.0.0.0/0` để cho phép hệ thống từ Render/Netlify truy cập được vào cơ sở dữ liệu.

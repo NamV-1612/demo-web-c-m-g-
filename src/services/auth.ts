@@ -1,7 +1,7 @@
 import axios from 'axios';
 import { User } from './typing';
 
-const API_URL = 'http://localhost:5000/api/users';
+const API_URL = 'https://demo-web-c-m-g.onrender.com/api/users';
 
 export const getUsers = async (): Promise<User[]> => {
   try {

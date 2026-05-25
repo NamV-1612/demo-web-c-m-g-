@@ -20,7 +20,13 @@ app.use(express.json()); // Phân tích body của request dưới dạng JSON
 const MONGODB_URI = process.env.MONGODB_URI || '';
 mongoose
   .connect(MONGODB_URI)
-  .then(() => console.log('✅ Đã kết nối thành công tới MongoDB'))
+  .then(() => {
+    console.log('✅ Đã kết nối thành công tới MongoDB');
+    // Khởi chạy server sau khi DB đã kết nối để tránh lỗi timeout buffering
+    app.listen(PORT, () => {
+      console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
+    });
+  })
   .catch((err) => {
     console.error('❌ Lỗi kết nối MongoDB:', err.message);
     console.log('💡 Lưu ý: Hãy thay đổi MONGODB_URI trong file .env bằng đường dẫn thực tế của bạn');
@@ -37,7 +43,3 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 
-// Khởi chạy server
-app.listen(PORT, () => {
-  console.log(`🚀 Server đang chạy tại http://localhost:${PORT}`);
-});
