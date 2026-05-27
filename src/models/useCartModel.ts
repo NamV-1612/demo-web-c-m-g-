@@ -1,6 +1,6 @@
 import { useState, useCallback, useEffect } from 'react';
-import { CartItem, Promo } from '@/services/typing';
-import { getStorageData, StoragePromo } from '@/utils/storage';
+import { CartItem } from '@/services/typing';
+import api from '@/services/api';
 import { message } from 'antd';
 
 export default function useCartModel() {
@@ -97,39 +97,31 @@ export default function useCartModel() {
     setVoucher(null);
   }, [userId]);
 
-  const applyVoucher = useCallback((code: string) => {
+  const subTotal = cartItems.reduce((acc, curr) => acc + curr.totalPrice, 0);
+
+  const applyVoucher = useCallback(async (code: string) => {
     if (!code) {
       setVoucher(null);
       return false;
     }
     
-    const promos = getStorageData<StoragePromo>('promos');
-    const promo = promos.find(p => p.code.toUpperCase() === code.toUpperCase() && p.isActive);
-    
-    if (!promo) {
-      message.error('Mã khuyến mãi không tồn tại hoặc đã bị tắt!');
+    try {
+      const { data } = await api.post('/promos/verify', { code, orderValue: subTotal });
+      
+      setVoucher({ 
+        code: data.code, 
+        discount: data.discount,
+        type: 'AMOUNT', // API đã trả về số tiền cố định chính xác rồi nên luôn set là AMOUNT
+        value: data.discount
+      });
+      message.success(`Đã áp dụng mã ${data.code}`);
+      return true;
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Mã khuyến mãi không hợp lệ');
       setVoucher(null);
       return false;
     }
-    
-    if (promo.quantity <= 0) {
-      message.error('Mã khuyến mãi đã hết lượt sử dụng!');
-      setVoucher(null);
-      return false;
-    }
-
-    setVoucher({ 
-      code: promo.code, 
-      discount: 0, // calculated dynamically below
-      type: promo.discountType,
-      value: promo.discountValue,
-      max: promo.maxDiscountAmount
-    });
-    message.success(`Đã áp dụng mã ${promo.code}`);
-    return true;
-  }, []);
-
-  const subTotal = cartItems.reduce((acc, curr) => acc + curr.totalPrice, 0);
+  }, [subTotal]);
   
   let currentDiscount = 0;
   if (voucher) {
@@ -146,7 +138,6 @@ export default function useCartModel() {
   
   const totalCartPrice = Math.max(0, subTotal - currentDiscount);
   
-  // Provide a safe voucher object for UI that includes the calculated dynamic discount
   const safeVoucher = voucher ? { code: voucher.code, discount: currentDiscount } : null;
 
   return {

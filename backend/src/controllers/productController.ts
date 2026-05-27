@@ -6,7 +6,7 @@ import Product from '../models/productModel';
 // @access  Public
 export const getProducts = async (req: Request, res: Response) => {
   try {
-    const products = await Product.find({}).populate('categoryId', 'name');
+    const products = await Product.find({}).sort({ createdAt: -1 });
     res.json(products);
   } catch (error: any) {
     res.status(500).json({ message: error.message });
@@ -39,7 +39,7 @@ export const createProduct = async (req: Request, res: Response) => {
       category: req.body.category || 'Món chính',
       toppings: toppingsArr,
       outOfStockToppings: outOfStockArr,
-      isAvailable,
+      isAvailable: isAvailable === 'true' || isAvailable === true,
       image,
     });
 
@@ -61,7 +61,7 @@ export const updateProduct = async (req: Request, res: Response) => {
     if (product) {
       product.name = name || product.name;
       product.price = price || product.price;
-      product.description = description || product.description;
+      product.description = description !== undefined ? description : product.description;
       product.category = req.body.category || product.category;
       
       // Parse toppings
@@ -77,7 +77,7 @@ export const updateProduct = async (req: Request, res: Response) => {
       }
 
       if (isAvailable !== undefined) {
-        product.isAvailable = isAvailable;
+        product.isAvailable = isAvailable === 'true' || isAvailable === true;
       }
       
       if (req.file) {

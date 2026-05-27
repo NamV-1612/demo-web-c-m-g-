@@ -14,7 +14,7 @@ const generateToken = (id: string) => {
 // @access  Public
 export const registerUser = async (req: Request, res: Response) => {
   try {
-    const { full_name, name, phone, password, role } = req.body;
+    const { full_name, name, phone, password, role, address } = req.body;
 
     const userExists = await User.findOne({ $or: [{ phone }, { name }] });
     if (userExists) {
@@ -29,6 +29,7 @@ export const registerUser = async (req: Request, res: Response) => {
       full_name,
       name,
       phone,
+      address,
       password: hashedPassword,
       role: role || 'CUSTOMER',
     });
@@ -39,6 +40,7 @@ export const registerUser = async (req: Request, res: Response) => {
         full_name: user.full_name,
         name: user.name,
         phone: user.phone,
+        address: user.address,
         role: user.role,
         token: generateToken(user.id),
       });
@@ -81,6 +83,7 @@ export const loginUser = async (req: Request, res: Response) => {
       full_name: user.full_name,
       name: user.name,
       phone: user.phone,
+      address: user.address,
       role: user.role,
       token: generateToken(user.id),
     });
@@ -96,6 +99,35 @@ export const getMe = async (req: any, res: Response) => {
   try {
     const user = await User.findById(req.user.id).select('-password');
     res.json(user);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Cập nhật thông tin cá nhân (Địa chỉ, số điện thoại)
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req: any, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy user' });
+    }
+
+    if (req.body.address) user.address = req.body.address;
+    if (req.body.phone) user.phone = req.body.phone;
+    if (req.body.full_name) user.full_name = req.body.full_name;
+
+    const updatedUser = await user.save();
+    
+    res.json({
+      id: updatedUser._id,
+      full_name: updatedUser.full_name,
+      name: updatedUser.name,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      role: updatedUser.role,
+    });
   } catch (error: any) {
     res.status(500).json({ message: error.message });
   }

@@ -2,7 +2,9 @@ import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IPromo extends Document {
   code: string;
-  discount: number; // số tiền giảm (VNĐ)
+  discountType: 'PERCENT' | 'AMOUNT';
+  discountValue: number; // số tiền giảm (VNĐ) hoặc phần trăm giảm (%)
+  maxDiscountAmount?: number; // Số tiền giảm tối đa nếu dùng theo PERCENT
   quantity: number;
   minOrderValue: number;
   isActive: boolean;
@@ -12,7 +14,9 @@ export interface IPromo extends Document {
 const PromoSchema: Schema = new Schema(
   {
     code: { type: String, required: true, unique: true, uppercase: true },
-    discount: { type: Number, required: true, min: 0 },
+    discountType: { type: String, enum: ['PERCENT', 'AMOUNT'], default: 'AMOUNT' },
+    discountValue: { type: Number, required: true, min: 0 },
+    maxDiscountAmount: { type: Number },
     quantity: { type: Number, required: true, min: 0 },
     minOrderValue: { type: Number, default: 0 },
     isActive: { type: Boolean, default: true }

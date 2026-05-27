@@ -6,7 +6,7 @@ import Order from '../models/orderModel';
 // @access  Private (Customer)
 export const createOrder = async (req: any, res: Response) => {
   try {
-    const { items, customerName, customerPhone, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
+    const { items, customerName, customerPhone, customerAddress, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
 
     if (items && items.length === 0) {
       res.status(400).json({ message: 'Giỏ hàng rỗng' });
@@ -17,6 +17,7 @@ export const createOrder = async (req: any, res: Response) => {
       customerId: req.user._id,
       customerName,
       customerPhone,
+      customerAddress,
       items,
       totalAmount,
       note,
@@ -118,6 +119,47 @@ export const updateOrder = async (req: any, res: Response) => {
 
     order.customerPhone = req.body.customerPhone || order.customerPhone;
     order.note = req.body.note || order.note;
+    if (req.body.customerAddress) {
+      order.customerAddress = req.body.customerAddress;
+    }
+
+    const updatedOrder = await order.save();
+    res.json(updatedOrder);
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Đánh giá đơn hàng (Customer)
+// @route   PUT /api/orders/:id/rate
+// @access  Private
+export const rateOrder = async (req: any, res: Response) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) {
+      return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
+    }
+
+    // Check Role & Status
+    if (order.customerId?.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ message: 'Không có quyền đánh giá đơn này' });
+    }
+    if (order.status !== 'COMPLETED') {
+      return res.status(400).json({ message: 'Chỉ có thể đánh giá khi đơn hàng đã hoàn thành' });
+    }
+    if (order.rating && order.rating.stars) {
+      return res.status(400).json({ message: 'Đơn hàng này đã được đánh giá' });
+    }
+
+    const { stars, comment } = req.body;
+    if (!stars || stars < 1 || stars > 5) {
+      return res.status(400).json({ message: 'Số sao đánh giá không hợp lệ (1-5)' });
+    }
+
+    order.rating = {
+      stars,
+      comment: comment || ''
+    };
 
     const updatedOrder = await order.save();
     res.json(updatedOrder);

@@ -5,6 +5,7 @@ export interface IUser extends Document {
   name: string; // username in frontend
   phone: string;
   password?: string;
+  address?: string; // Bổ sung địa chỉ
   role: 'ADMIN' | 'STAFF' | 'CUSTOMER';
   status: 'ACTIVE' | 'LOCKED';
   createdAt: Date;
@@ -16,6 +17,7 @@ const UserSchema: Schema = new Schema(
     name: { type: String, required: true, unique: true },
     phone: { type: String, required: true, unique: true },
     password: { type: String },
+    address: { type: String }, // Bổ sung địa chỉ
     role: { type: String, enum: ['ADMIN', 'STAFF', 'CUSTOMER'], default: 'CUSTOMER' },
     status: { type: String, enum: ['ACTIVE', 'LOCKED'], default: 'ACTIVE' }
   },

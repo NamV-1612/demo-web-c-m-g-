@@ -8,13 +8,39 @@ export default function useOrderModel() {
   const [orders, setOrders] = useState<Order[]>([]);
   const { currentUser } = useAuthModel();
 
-  const [addresses, setAddresses] = useState<{id: string, name: string, phone: string, address: string}[]>([
-    { id: 'addr1', name: 'Nguyễn Văn A', phone: '0987654321', address: 'Tòa nhà C2, Bách Khoa, Hà Nội' }
-  ]);
+  const [addresses, setAddresses] = useState<{id: string, name: string, phone: string, address: string}[]>([]);
 
-  const addAddress = (addr: {name: string, phone: string, address: string}) => {
+  useEffect(() => {
+    // Populate default address from currentUser
+    if (currentUser) {
+      const userAddr = {
+        id: 'default',
+        name: currentUser.full_name || currentUser.name,
+        phone: currentUser.phone,
+        address: currentUser.address || ''
+      };
+      // Only set if they actually have an address to show, or just always provide a default option
+      setAddresses([userAddr]);
+    } else {
+      setAddresses([]);
+    }
+  }, [currentUser]);
+
+  const addAddress = async (addr: {name: string, phone: string, address: string}) => {
     const newAddr = { ...addr, id: 'addr' + Date.now() };
-    setAddresses([...addresses, newAddr]);
+    setAddresses(prev => [...prev, newAddr]);
+    
+    // Gọi API lưu địa chỉ làm mặc định cho User (chạy ngầm)
+    if (currentUser) {
+      try {
+        const { data } = await api.put('/auth/profile', { address: addr.address });
+        // Cập nhật lại user trong localStorage
+        localStorage.setItem('CURRENT_USER', JSON.stringify(data));
+      } catch (e) {
+        console.error('Không thể lưu địa chỉ mặc định', e);
+      }
+    }
+
     message.success('Đã lưu địa chỉ mới vào Sổ địa chỉ!');
     return newAddr;
   };
@@ -55,6 +81,7 @@ export default function useOrderModel() {
       const formattedOrder = {
         customerName: order.customerName,
         customerPhone: order.customerPhone,
+        customerAddress: order.customerAddress || order.note?.replace('Giao đến: ', ''), // Pass address to backend
         totalAmount: order.totalAmount,
         note: order.note,
         paymentMethod: order.paymentMethod,
@@ -73,8 +100,9 @@ export default function useOrderModel() {
 
       await api.post('/orders', formattedOrder);
       loadData(); // Tải lại danh sách
-    } catch (error) {
-      message.error('Lỗi đặt hàng');
+      message.success('Đặt hàng thành công!');
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi đặt hàng');
     }
   };
 
@@ -88,8 +116,14 @@ export default function useOrderModel() {
     }
   };
 
-  const rateOrder = (id: string, rating: { stars: number; comment: string }) => {
-    message.warning('Tính năng đánh giá đang được chuyển sang Backend!');
+  const rateOrder = async (id: string, rating: { stars: number; comment: string }) => {
+    try {
+      await api.put(`/orders/${id}/rate`, rating);
+      message.success('Đánh giá đơn hàng thành công! Cảm ơn bạn.');
+      loadData();
+    } catch (error: any) {
+      message.error(error.response?.data?.message || 'Lỗi khi gửi đánh giá');
+    }
   };
 
   const togglePaymentStatus = (id: string, isPaid: boolean) => {
@@ -98,7 +132,7 @@ export default function useOrderModel() {
 
   const updateOrderInfo = async (id: string, info: { phone: string; address: string }) => {
     try {
-      await api.put(`/orders/${id}`, { customerPhone: info.phone, note: 'Giao đến: ' + info.address });
+      await api.put(`/orders/${id}`, { customerPhone: info.phone, customerAddress: info.address, note: 'Giao đến: ' + info.address });
       message.success('Cập nhật thông tin nhận hàng thành công!');
       loadData();
     } catch (error) {

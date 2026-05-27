@@ -4,6 +4,7 @@ export interface IOrder extends Document {
   customerId?: mongoose.Types.ObjectId; // User ID
   customerName: string;
   customerPhone: string;
+  customerAddress?: string; // Địa chỉ giao hàng
   items: Array<{
     productId: mongoose.Types.ObjectId;
     name: string;
@@ -20,6 +21,10 @@ export interface IOrder extends Document {
   pickupTime: string; // 'asap' or specific time
   promoCode?: string;
   discountAmount?: number;
+  rating?: {
+    stars: number;
+    comment: string;
+  };
   createdAt: Date;
 }
 
@@ -28,6 +33,7 @@ const OrderSchema: Schema = new Schema(
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     customerName: { type: String, required: true },
     customerPhone: { type: String, required: true },
+    customerAddress: { type: String }, // Địa chỉ giao hàng
     items: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
@@ -49,7 +55,11 @@ const OrderSchema: Schema = new Schema(
     paymentMethod: { type: String, enum: ['cash', 'transfer'], default: 'cash' },
     pickupTime: { type: String, default: 'asap' },
     promoCode: { type: String },
-    discountAmount: { type: Number, default: 0 }
+    discountAmount: { type: Number, default: 0 },
+    rating: {
+      stars: { type: Number, min: 1, max: 5 },
+      comment: { type: String }
+    }
   },
   {
     timestamps: true,

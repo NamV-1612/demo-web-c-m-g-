@@ -35,6 +35,9 @@ export default function useMenuModel() {
       formData.append('price', p.price.toString());
       if (p.description) formData.append('description', p.description);
       formData.append('isAvailable', String(p.isAvailable));
+      if (p.category) formData.append('category', p.category);
+      if (p.toppings) formData.append('toppings', JSON.stringify(p.toppings));
+      if (p.outOfStockToppings) formData.append('outOfStockToppings', JSON.stringify(p.outOfStockToppings));
       
       if (file) {
         formData.append('image', file); // Multer sẽ xử lý field 'image'
@@ -54,9 +57,12 @@ export default function useMenuModel() {
     try {
       const formData = new FormData();
       if (data.name) formData.append('name', data.name);
-      if (data.price) formData.append('price', data.price.toString());
-      if (data.description) formData.append('description', data.description);
+      if (data.price !== undefined) formData.append('price', data.price.toString());
+      if (data.description !== undefined) formData.append('description', data.description);
       if (data.isAvailable !== undefined) formData.append('isAvailable', String(data.isAvailable));
+      if (data.category) formData.append('category', data.category);
+      if (data.toppings) formData.append('toppings', JSON.stringify(data.toppings));
+      if (data.outOfStockToppings) formData.append('outOfStockToppings', JSON.stringify(data.outOfStockToppings));
       
       if (file) {
         formData.append('image', file);
