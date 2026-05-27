@@ -7,6 +7,7 @@ import authRoutes from './routes/authRoute';
 import productRoutes from './routes/productRoute';
 import orderRoutes from './routes/orderRoute';
 import promoRoutes from './routes/promoRoute';
+import paymentRoutes from './routes/paymentRoute';
 // Nạp các biến môi trường từ file .env
 dotenv.config();
 
@@ -44,4 +45,5 @@ app.use('/api/auth', authRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/promos', promoRoutes);
+app.use('/api/payment', paymentRoutes);
 

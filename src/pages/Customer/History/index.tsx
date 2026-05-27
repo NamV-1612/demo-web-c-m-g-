@@ -258,9 +258,17 @@ const CustomerHistory: React.FC = () => {
                   )}
                 </div>
 
-                <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                  <Text style={{ fontSize: 15, color: '#595959', fontWeight: 500 }}>Tổng thanh toán:</Text>
-                  <Title level={3} style={{ margin: 0, color: '#BA1A21', fontWeight: 700 }}>{order.totalAmount.toLocaleString()}đ</Title>
+                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+                  {order.discountAmount > 0 && (
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8c8c8c' }}>
+                      <Text style={{ fontSize: 13 }}>Tạm tính: {(order.totalAmount + order.discountAmount).toLocaleString()}đ</Text>
+                      <Tag color="green" style={{ margin: 0 }}>Mã {order.promoCode}: -{order.discountAmount.toLocaleString()}đ</Tag>
+                    </div>
+                  )}
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+                    <Text style={{ fontSize: 15, color: '#595959', fontWeight: 500 }}>Tổng thanh toán:</Text>
+                    <Title level={3} style={{ margin: 0, color: '#BA1A21', fontWeight: 700 }}>{order.totalAmount.toLocaleString()}đ</Title>
+                  </div>
                 </div>
               </div>
             </div>

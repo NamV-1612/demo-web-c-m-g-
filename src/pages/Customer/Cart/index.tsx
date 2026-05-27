@@ -87,7 +87,43 @@ const CustomerCart: React.FC = () => {
     form.resetFields();
   };
 
-  const handleCheckout = () => {
+  const [isPaymentModalVisible, setIsPaymentModalVisible] = useState(false);
+  const [paymentSessionId, setPaymentSessionId] = useState<string | null>(null);
+  const pollingRef = useRef<any>(null);
+
+  const startPaymentPolling = (sessionId: string, pendingOrder: Order) => {
+    if (pollingRef.current) clearInterval(pollingRef.current);
+    
+    pollingRef.current = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/payment/session/${sessionId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.status === 'PAID') {
+            clearInterval(pollingRef.current);
+            setIsPaymentModalVisible(false);
+            
+            // Thực hiện đặt đơn hàng với trạng thái đã thanh toán
+            pendingOrder.isPaid = true;
+            pendingOrder.paymentMethod = 'transfer';
+            
+            if (voucher) {
+              decreasePromoQuantity(voucher.code);
+            }
+
+            submitOrder(pendingOrder);
+            clearCart();
+            message.success('Thanh toán thành công! Đơn hàng đã được tạo.');
+            history.push('/customer/history');
+          }
+        }
+      } catch (err) {
+        console.error('Polling payment status error:', err);
+      }
+    }, 3000);
+  };
+
+  const handleCheckout = async () => {
     if (!currentUser) return;
     
     const isDelivery = deliveryMethod === 'delivery';
@@ -130,15 +166,29 @@ const CustomerCart: React.FC = () => {
       discountAmount: voucher?.discount
     };
 
-    if (voucher) {
-      decreasePromoQuantity(voucher.code);
+    // Khởi tạo session thanh toán
+    try {
+      const res = await fetch('/api/payment/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ amount: totalCartPrice })
+      });
+      const data = await res.json();
+      
+      setPaymentSessionId(data.sessionId);
+      setIsPaymentModalVisible(true);
+      startPaymentPolling(data.sessionId, order);
+      
+    } catch (err) {
+      message.error('Có lỗi xảy ra khi tạo mã thanh toán.');
     }
-
-    submitOrder(order);
-    clearCart();
-    message.success('Đặt hàng thành công! Đang chờ quán xác nhận.');
-    history.push('/customer/history');
   };
+
+  useEffect(() => {
+    return () => {
+      if (pollingRef.current) clearInterval(pollingRef.current);
+    };
+  }, []);
 
   if (cartItems.length === 0) {
     return (
@@ -327,23 +377,6 @@ const CustomerCart: React.FC = () => {
                 <Button type="primary" size="large" onClick={handleApplyVoucher} style={{ borderRadius: '8px', flexShrink: 0 }}>Áp dụng</Button>
               </div>
  
-            <div className="qr-code-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fafafa', padding: 16, borderRadius: 8, border: '1px dashed #d9d9d9', marginBottom: 24 }}>
-              <Text type="secondary" style={{ display: 'block', marginBottom: 8, textAlign: 'center' }}>
-                Quét mã QR dưới đây để thực hiện chuyển khoản:
-              </Text>
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
-                alt="QR Code" 
-                style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 8, background: '#fff' }}
-              />
-              <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, lineHeight: '1.6' }}>
-                <div>Ngân hàng: <strong>MB Bank (Ngân hàng Quân Đội)</strong></div>
-                <div>STK: <strong>1307 8888 9999</strong></div>
-                <div>Chủ TK: <strong>CHICKEN DOKI</strong></div>
-                <div>Nội dung CK: <strong>THANH TOAN DON HANG</strong></div>
-              </div>
-            </div>
- 
             <div className="summary-section">
               <div className="summary-row">
                 <Text>Tạm tính:</Text>
@@ -362,11 +395,42 @@ const CustomerCart: React.FC = () => {
             </div>
  
             <Button type="primary" block className="checkout-btn" onClick={handleCheckout}>
-              Đặt đơn ngay
+              Thanh toán & Đặt đơn
             </Button>
           </div>
         </Col>
       </Row>
+
+      {/* Modal Thanh Toán QR */}
+      <Modal
+        title={<><QrcodeOutlined /> Quét mã để thanh toán</>}
+        visible={isPaymentModalVisible}
+        onCancel={() => {
+          setIsPaymentModalVisible(false);
+          if (pollingRef.current) clearInterval(pollingRef.current);
+        }}
+        footer={null}
+        centered
+        width={400}
+      >
+        <div style={{ textAlign: 'center', padding: '20px 0' }}>
+          <Text type="secondary" style={{ display: 'block', marginBottom: 16 }}>
+            Vui lòng sử dụng điện thoại quét mã QR dưới đây để tiến hành thanh toán. Đơn hàng sẽ tự động được tạo sau khi thanh toán thành công.
+          </Text>
+          {paymentSessionId && (
+            <img 
+              src={`https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(window.location.origin + '/customer/pay-qr?sessionId=' + paymentSessionId + '&amount=' + totalCartPrice)}`} 
+              alt="Payment QR"
+              style={{ borderRadius: 12, padding: 12, background: '#fff', border: '1px solid #f0f0f0', boxShadow: '0 4px 12px rgba(0,0,0,0.1)' }}
+            />
+          )}
+          <div style={{ marginTop: 24, padding: 16, background: '#fffbe6', borderRadius: 8, border: '1px solid #ffe58f' }}>
+            <Text strong style={{ color: '#d46b08', fontSize: 16 }}>{totalCartPrice.toLocaleString()}đ</Text>
+            <br/>
+            <Text style={{ color: '#d46b08', fontSize: 13 }}>Hệ thống đang chờ bạn quét mã...</Text>
+          </div>
+        </div>
+      </Modal>
  
       {/* Modal Thêm Địa chỉ */}
       <Modal 

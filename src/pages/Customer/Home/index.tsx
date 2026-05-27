@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Row, Col, Input, Typography, Badge, Button, Space } from 'antd';
 import { SearchOutlined, ShoppingCartOutlined, FireOutlined } from '@ant-design/icons';
 import ProductCard from './components/ProductCard';
@@ -15,9 +15,24 @@ const CustomerHome: React.FC = () => {
   const { products } = useModel('useMenuModel');
   const { cartItems, addToCart } = useModel('useCartModel');
   const { currentUser } = useModel('useAuthModel');
+  const { orders } = useModel('useOrderModel');
   const [searchTerm, setSearchTerm] = useState('');
   const [activeCategory, setActiveCategory] = useState('Tất cả');
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+
+  const topProductNames = useMemo(() => {
+    const completedOrders = orders.filter((o: any) => o.status === 'COMPLETED');
+    const sales: Record<string, number> = {};
+    completedOrders.forEach((o: any) => {
+      o.items.forEach((item: any) => {
+        const pName = item.product?.name || item.name;
+        if (!sales[pName]) sales[pName] = 0;
+        sales[pName] += item.quantity;
+      });
+    });
+    
+    return Object.keys(sales).sort((a, b) => sales[b] - sales[a]).slice(0, 2);
+  }, [orders]);
 
   const filteredProducts = products.filter(p => {
     const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -80,20 +95,23 @@ const CustomerHome: React.FC = () => {
         </div>
 
         <Row gutter={[24, 32]}>
-          {filteredProducts.map((product, index) => (
-            <Col 
-              xs={24} sm={12} md={8} lg={6} 
-              key={`${product.id}-${activeCategory}-${searchTerm}`}
-              className="fade-in-up"
-              style={{ animationDelay: `${index * 0.05}s` }}
-            >
-              <Badge.Ribbon text={index < 2 ? '🔥 Bán chạy' : ''} color={index < 2 ? 'volcano' : 'transparent'} style={{ display: index < 2 ? 'block' : 'none', zIndex: 10 }}>
-                <div style={{ height: '100%' }} className={index < 2 ? 'premium-fire-wrapper' : ''}>
-                  <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
-                </div>
-              </Badge.Ribbon>
-            </Col>
-          ))}
+          {filteredProducts.map((product, index) => {
+            const isTopSelling = topProductNames.includes(product.name);
+            return (
+              <Col 
+                xs={24} sm={12} md={8} lg={6} 
+                key={`${product.id}-${activeCategory}-${searchTerm}`}
+                className="fade-in-up"
+                style={{ animationDelay: `${index * 0.05}s` }}
+              >
+                <Badge.Ribbon text={isTopSelling ? '🔥 Bán chạy' : ''} color={isTopSelling ? 'volcano' : 'transparent'} style={{ display: isTopSelling ? 'block' : 'none', zIndex: 10 }}>
+                  <div style={{ height: '100%' }} className={isTopSelling ? 'premium-fire-wrapper' : ''}>
+                    <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
+                  </div>
+                </Badge.Ribbon>
+              </Col>
+            );
+          })}
         </Row>
       </section>
 

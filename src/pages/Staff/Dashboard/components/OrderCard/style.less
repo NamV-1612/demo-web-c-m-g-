@@ -12,6 +12,38 @@
     border-left-color: #1890ff;
   }
 
+  &.new-order-highlight {
+    animation: flashBorder 2s infinite;
+  }
+
+  @keyframes flashBorder {
+    0% { box-shadow: 0 0 0 0 rgba(186, 26, 33, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(186, 26, 33, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(186, 26, 33, 0); }
+  }
+
+  position: relative;
+
+  .new-badge {
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: #f5222d;
+    color: white;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    z-index: 10;
+    animation: bounce 1s infinite;
+  }
+
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
+
   .card-header {
     display: flex;
     justify-content: space-between;

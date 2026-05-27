@@ -25,7 +25,7 @@ const AdminDashboard: React.FC = () => {
     });
   }, [orders, dateRange]);
 
-  const validOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() !== 'CANCELLED');
+  const validOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'COMPLETED');
   const cancelledOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'CANCELLED');
   
   const totalRevenue = validOrders.reduce((sum: number, o: any) => sum + o.totalAmount, 0);

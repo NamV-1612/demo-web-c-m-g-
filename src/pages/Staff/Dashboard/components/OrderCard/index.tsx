@@ -16,13 +16,15 @@ interface Props {
 
 const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentChange }) => {
   const isUrgent = order.pickupTime !== 'asap' && moment(order.pickupTime, ['HH:mm', 'hh:mm A']).diff(moment(), 'minutes') < 10;
+  const isNewOrder = order.status === 'PENDING' && moment().diff(moment(order.createdAt), 'minutes') < 5;
   
   return (
     <Card 
       size="small" 
-      className={`order-card ${isUrgent ? 'urgent' : 'normal'}`}
+      className={`order-card ${isUrgent ? 'urgent' : 'normal'} ${isNewOrder ? 'new-order-highlight' : ''}`}
       bodyStyle={{ padding: '8px' }}
     >
+      {isNewOrder && <div className="new-badge">MỚI</div>}
       <div className="card-header" style={{ marginBottom: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <Text strong style={{ fontSize: 14 }}>#{order.id}</Text>
         <div style={{ fontSize: 12, textAlign: 'right' }}>
@@ -37,14 +39,7 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
           {order.pickupTime === 'asap' ? 'Ngay (15p)' : order.pickupTime}
         </Tag>
         <div className="payment-status" style={{ margin: 0, gap: 4, display: 'flex', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12 }}>{order.paymentMethod === 'cash' ? '💵' : '💳'}</Text>
-          <Switch 
-            size="small"
-            checkedChildren="Đã thu" 
-            unCheckedChildren="Chưa" 
-            checked={order.isPaid}
-            onChange={(checked) => onPaymentChange(order.id, checked)}
-          />
+          <Text style={{ fontSize: 12 }}>{order.paymentMethod === 'cash' ? '💵 Tiền mặt' : '💳 Chuyển khoản'}</Text>
         </div>
       </div>
 

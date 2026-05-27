@@ -14,52 +14,9 @@ const StaffDashboard: React.FC = () => {
   const [inventoryVisible, setInventoryVisible] = useState(false);
   const [prevOrdersCount, setPrevOrdersCount] = useState(orders.length);
   const [searchTerm, setSearchTerm] = useState('');
+  const [updateTick, setUpdateTick] = useState(0);
 
-  // New order popup listener
-  useEffect(() => {
-    if (orders.length > prevOrdersCount) {
-      const newOrdersCount = orders.length - prevOrdersCount;
-      // Get the newly added orders (usually prepended to the list)
-      const newOrders = orders.slice(0, newOrdersCount);
-      
-      newOrders.forEach(order => {
-        // Play synthesizer beep sound
-        try {
-          const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)();
-          const oscillator = audioCtx.createOscillator();
-          const gainNode = audioCtx.createGain();
-          
-          oscillator.type = 'sine';
-          oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // A5 note
-          gainNode.gain.setValueAtTime(0.15, audioCtx.currentTime);
-          
-          oscillator.connect(gainNode);
-          gainNode.connect(audioCtx.destination);
-          
-          oscillator.start();
-          oscillator.stop(audioCtx.currentTime + 0.3); // beep for 300ms
-        } catch (e) {
-          console.log('Web Audio notification sound blocked or not supported:', e);
-        }
-
-        // Show Antd alert
-        notification.open({
-          message: '🔔 ĐƠN HÀNG MỚI!',
-          description: `Đơn hàng ${order.id} từ ${order.customerName} (${order.customerPhone}) đang chờ duyệt. Tổng cộng: ${order.totalAmount.toLocaleString()}đ`,
-          duration: 8,
-          placement: 'topRight',
-          style: {
-            background: '#fffbe6',
-            border: '2px solid #BA1A21',
-            borderRadius: '8px',
-          }
-        });
-      });
-    }
-    setPrevOrdersCount(orders.length);
-  }, [orders, prevOrdersCount]);
-
-  const pendingOrders = orders.filter(o => o.status?.toUpperCase() === 'PENDING');
+  const pendingOrders = orders.filter(o => o.status?.toUpperCase() === 'PENDING').sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf());
   const cookingOrders = orders.filter(o => o.status?.toUpperCase() === 'PREPARING');
   const readyOrders = orders.filter(o => o.status?.toUpperCase() === 'READY');
   const completedOrders = orders.filter(o => o.status?.toUpperCase() === 'COMPLETED');
@@ -197,6 +154,10 @@ const StaffDashboard: React.FC = () => {
                             } else {
                               newOutOfStock.push(topping);
                             }
+                            // Optimistic UI Update
+                            item.outOfStockToppings = newOutOfStock;
+                            setUpdateTick(prev => prev + 1);
+
                             // Update topping availability
                             updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
                             message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
