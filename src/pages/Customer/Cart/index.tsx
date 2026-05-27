@@ -187,7 +187,8 @@ const CustomerCart: React.FC = () => {
                     dropdownClassName="premium-dropdown"
                   >
                     {addresses.map(addr => {
-                      const shortAddr = addr.address.length > 35 ? addr.address.substring(0, 35) + '...' : addr.address;
+                      const safeAddress = addr?.address || '';
+                      const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
                       return (
                         <Option key={addr.id} value={addr.id}>
                           <strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})
