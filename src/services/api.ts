@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Tạm thời fix cứng Localhost để test trên máy trước, khi nào xong sẽ đổi lại link Render sau
-const API_URL = 'http://localhost:5000/api';
+// Đổi lại link Render để deploy lên Netlify
+const API_URL = 'https://demo-web-c-m-g.onrender.com/api';
 
 const api = axios.create({
   baseURL: API_URL,
