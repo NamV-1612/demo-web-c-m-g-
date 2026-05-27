@@ -61,7 +61,6 @@ export default function useAuthModel() {
     if (user) {
       localStorage.removeItem('CURRENT_USER');
       window.dispatchEvent(new Event('storage'));
-      message.success('Đã đăng xuất!');
     }
   }, []);
 
