@@ -6,13 +6,16 @@ import { message } from 'antd';
 export default function usePromoModel() {
   const [promos, setPromos] = useState<Promo[]>([]);
 
-  const { currentUser } = useModel('useAuthModel');
-
   const loadData = useCallback(async () => {
-    // Chỉ lấy toàn bộ mã KM nếu là ADMIN hoặc STAFF
-    if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'STAFF')) return;
+    // Lấy thông tin user từ localStorage để tránh gọi hook useModel gây lỗi
+    const userStr = localStorage.getItem('CURRENT_USER');
+    if (!userStr) return;
     
     try {
+      const user = JSON.parse(userStr);
+      // Chỉ lấy toàn bộ mã KM nếu là ADMIN hoặc STAFF
+      if (user.role !== 'ADMIN' && user.role !== 'STAFF') return;
+      
       const { data } = await api.get('/promos');
       const formattedPromos = data.map((p: any) => ({
         id: p.id || p._id,
