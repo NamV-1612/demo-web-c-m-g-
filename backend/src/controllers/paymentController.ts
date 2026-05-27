@@ -18,23 +18,25 @@ export const createPaymentSession = (req: Request, res: Response) => {
 
 export const getPaymentStatus = (req: Request, res: Response) => {
   const { id } = req.params;
-  const session = paymentSessions[id];
+  const sessionId = String(id);
+  const session = paymentSessions[sessionId];
   
   if (!session) {
     return res.status(404).json({ message: 'Session not found' });
   }
   
-  res.json({ sessionId: id, ...session });
+  res.json({ sessionId, ...session });
 };
 
 export const confirmPayment = (req: Request, res: Response) => {
   const { id } = req.params;
-  const session = paymentSessions[id];
+  const sessionId = String(id);
+  const session = paymentSessions[sessionId];
   
   if (!session) {
     return res.status(404).json({ message: 'Session not found' });
   }
   
   session.status = 'PAID';
-  res.json({ message: 'Payment confirmed successfully', sessionId: id, status: 'PAID' });
+  res.json({ message: 'Payment confirmed successfully', sessionId, status: 'PAID' });
 };

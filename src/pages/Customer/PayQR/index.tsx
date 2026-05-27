@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, message, Result, Spin } from 'antd';
 import { CheckCircleOutlined, WalletOutlined } from '@ant-design/icons';
 import { history } from 'umi';
-
+import api from '@/services/api';
 const { Title, Text } = Typography;
 
 const PayQRPage: React.FC = () => {
@@ -23,10 +23,8 @@ const PayQRPage: React.FC = () => {
     
     setLoading(true);
     try {
-      const res = await fetch(`/api/payment/session/${sessionId}/confirm`, {
-        method: 'POST'
-      });
-      if (res.ok) {
+      const res = await api.post(`/payment/session/${sessionId}/confirm`);
+      if (res.data) {
         setSuccess(true);
         message.success('Thanh toán thành công!');
       } else {

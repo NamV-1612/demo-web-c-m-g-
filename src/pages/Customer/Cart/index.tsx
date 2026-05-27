@@ -4,6 +4,7 @@ import moment from 'moment';
 import { DeleteOutlined, ShopOutlined, EnvironmentOutlined, EnvironmentFilled, TagOutlined, QrcodeOutlined, DollarOutlined, PlusOutlined, ArrowDownOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import { Order } from '@/services/typing';
+import api from '@/services/api';
 import './style.less';
 
 const { Title, Text } = Typography;
@@ -96,26 +97,23 @@ const CustomerCart: React.FC = () => {
     
     pollingRef.current = setInterval(async () => {
       try {
-        const res = await fetch(`/api/payment/session/${sessionId}`);
-        if (res.ok) {
-          const data = await res.json();
-          if (data.status === 'PAID') {
-            clearInterval(pollingRef.current);
-            setIsPaymentModalVisible(false);
-            
-            // Thực hiện đặt đơn hàng với trạng thái đã thanh toán
-            pendingOrder.isPaid = true;
-            pendingOrder.paymentMethod = 'transfer';
-            
-            if (voucher) {
-              decreasePromoQuantity(voucher.code);
-            }
-
-            submitOrder(pendingOrder);
-            clearCart();
-            message.success('Thanh toán thành công! Đơn hàng đã được tạo.');
-            history.push('/customer/history');
+        const res = await api.get(`/payment/session/${sessionId}`);
+        if (res.data && res.data.status === 'PAID') {
+          clearInterval(pollingRef.current);
+          setIsPaymentModalVisible(false);
+          
+          // Thực hiện đặt đơn hàng với trạng thái đã thanh toán
+          pendingOrder.isPaid = true;
+          pendingOrder.paymentMethod = 'transfer';
+          
+          if (voucher) {
+            decreasePromoQuantity(voucher.code);
           }
+
+          submitOrder(pendingOrder);
+          clearCart();
+          message.success('Thanh toán thành công! Đơn hàng đã được tạo.');
+          history.push('/customer/history');
         }
       } catch (err) {
         console.error('Polling payment status error:', err);
@@ -168,12 +166,8 @@ const CustomerCart: React.FC = () => {
 
     // Khởi tạo session thanh toán
     try {
-      const res = await fetch('/api/payment/session', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ amount: totalCartPrice })
-      });
-      const data = await res.json();
+      const res = await api.post('/payment/session', { amount: totalCartPrice });
+      const data = res.data;
       
       setPaymentSessionId(data.sessionId);
       setIsPaymentModalVisible(true);
