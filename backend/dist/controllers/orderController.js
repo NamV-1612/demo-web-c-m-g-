@@ -14,6 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.rateOrder = exports.updateOrder = exports.updateOrderStatus = exports.getOrders = exports.getMyOrders = exports.createOrder = void 0;
 const orderModel_1 = __importDefault(require("../models/orderModel"));
+const promoModel_1 = __importDefault(require("../models/promoModel"));
 // @desc    Tạo đơn hàng mới
 // @route   POST /api/orders
 // @access  Private (Customer)
@@ -37,6 +38,13 @@ const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             promoCode,
             discountAmount
         });
+        if (promoCode) {
+            const promo = yield promoModel_1.default.findOne({ code: promoCode });
+            if (promo && promo.quantity > 0) {
+                promo.quantity -= 1;
+                yield promo.save();
+            }
+        }
         const createdOrder = yield order.save();
         res.status(201).json(createdOrder);
     }
@@ -94,10 +102,19 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
                 return res.status(403).json({ message: 'Không có quyền hủy đơn của người khác' });
             }
         }
+        const previousStatus = order.status;
         order.status = status || order.status;
-        // Nếu cập nhật thành COMPLETED thì coi như đã thanh toán (đối với tiền mặt)
-        if (status === 'COMPLETED' && order.paymentMethod === 'cash') {
+        // Nếu cập nhật thành PREPARING (Đang nấu) thì tự động coi như Đã thanh toán theo yêu cầu
+        if (status === 'PREPARING') {
             order.isPaid = true;
+        }
+        // Nếu hủy đơn và đơn có mã khuyến mãi, trả lại số lượng cho mã khuyến mãi
+        if (status === 'CANCELLED' && previousStatus !== 'CANCELLED' && order.promoCode) {
+            const promo = yield promoModel_1.default.findOne({ code: order.promoCode });
+            if (promo) {
+                promo.quantity += 1;
+                yield promo.save();
+            }
         }
         const updatedOrder = yield order.save();
         res.json(updatedOrder);

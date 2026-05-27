@@ -57,9 +57,12 @@ export default function useAuthModel() {
   }, []);
 
   const logout = useCallback(() => {
-    localStorage.removeItem('CURRENT_USER');
-    window.dispatchEvent(new Event('storage'));
-    message.success('Đã đăng xuất!');
+    const user = localStorage.getItem('CURRENT_USER');
+    if (user) {
+      localStorage.removeItem('CURRENT_USER');
+      window.dispatchEvent(new Event('storage'));
+      message.success('Đã đăng xuất!');
+    }
   }, []);
 
   const updateAccount = useCallback((phone: string, username: string, newPass: string) => {

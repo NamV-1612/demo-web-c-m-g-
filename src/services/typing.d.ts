@@ -34,6 +34,7 @@ export interface Order {
   customerId?: string; // Để lưu xem user nào đặt
   customerName: string;
   customerPhone: string;
+  customerAddress?: string;
   items: CartItem[];
   totalAmount: number;
   status: 'PENDING' | 'PREPARING' | 'READY' | 'COMPLETED' | 'CANCELLED';

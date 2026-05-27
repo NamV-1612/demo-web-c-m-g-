@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import Order from '../models/orderModel';
+import Promo from '../models/promoModel';
 
 // @desc    Tạo đơn hàng mới
 // @route   POST /api/orders
@@ -26,6 +27,14 @@ export const createOrder = async (req: any, res: Response) => {
       promoCode,
       discountAmount
     });
+
+    if (promoCode) {
+      const promo = await Promo.findOne({ code: promoCode });
+      if (promo && promo.quantity > 0) {
+        promo.quantity -= 1;
+        await promo.save();
+      }
+    }
 
     const createdOrder = await order.save();
     res.status(201).json(createdOrder);
@@ -84,11 +93,21 @@ export const updateOrderStatus = async (req: any, res: Response) => {
       }
     }
 
+    const previousStatus = order.status;
     order.status = status || order.status;
     
-    // Nếu cập nhật thành COMPLETED thì coi như đã thanh toán (đối với tiền mặt)
-    if (status === 'COMPLETED' && order.paymentMethod === 'cash') {
+    // Nếu cập nhật thành PREPARING (Đang nấu) thì tự động coi như Đã thanh toán theo yêu cầu
+    if (status === 'PREPARING') {
       order.isPaid = true;
+    }
+
+    // Nếu hủy đơn và đơn có mã khuyến mãi, trả lại số lượng cho mã khuyến mãi
+    if (status === 'CANCELLED' && previousStatus !== 'CANCELLED' && order.promoCode) {
+      const promo = await Promo.findOne({ code: order.promoCode });
+      if (promo) {
+        promo.quantity += 1;
+        await promo.save();
+      }
     }
 
     const updatedOrder = await order.save();

@@ -37,7 +37,12 @@ const StaffDashboard: React.FC = () => {
           <hr style="border: 1px dashed #000;"/>
           <p style="margin: 4px 0;">Khách hàng: ${order.customerName}</p>
           <p style="margin: 4px 0;">Điện thoại: ${order.customerPhone}</p>
-          <p style="margin: 4px 0;">Hẹn lúc: ${order.pickupTime === 'asap' ? 'Lấy ngay (15p)' : order.pickupTime}</p>
+          ${
+            order.pickupTime === 'asap' || order.note === 'Khách tự đến lấy' 
+              ? `<p style="margin: 4px 0;">Hình thức: <strong>Tự đến lấy tại quán</strong></p>` 
+              : `<p style="margin: 4px 0;">Địa chỉ nhận: <strong>${order.customerAddress || order.note?.replace('Giao đến: ', '') || 'Chưa cập nhật'}</strong></p>
+                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime}</p>`
+          }
           <p style="margin: 4px 0;">Thanh toán: ${order.paymentMethod === 'transfer' ? 'Chuyển khoản QR' : 'Tiền mặt'}</p>
           <p style="margin: 4px 0;">Trạng thái: <strong>${order.isPaid ? 'ĐÃ THANH TOÁN' : 'CHƯA THU TIỀN'}</strong></p>
           <hr style="border: 1px dashed #000;"/>

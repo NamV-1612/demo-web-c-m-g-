@@ -31,6 +31,14 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
           <Text strong>{order.customerName}</Text>
           <br />
           <Text type="secondary" style={{ fontSize: 11 }}>{order.customerPhone}</Text>
+          {order.note !== 'Khách tự đến lấy' && (
+            <>
+              <br />
+              <Text type="secondary" style={{ fontSize: 10, maxWidth: 140, display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                📍 {order.customerAddress || order.note?.replace('Giao đến: ', '')}
+              </Text>
+            </>
+          )}
         </div>
       </div>
       
