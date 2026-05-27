@@ -93,8 +93,8 @@ const CustomerCart: React.FC = () => {
     const isDelivery = deliveryMethod === 'delivery';
     const selectedAddr = addresses.find(a => a.id === selectedAddressId);
     
-    if (isDelivery && !selectedAddr) {
-      message.error('Vui lòng chọn hoặc thêm địa chỉ nhận hàng!');
+    if (isDelivery && (!selectedAddr || !selectedAddr.address.trim())) {
+      message.error('Vui lòng chọn hoặc điền thêm địa chỉ nhận hàng!');
       return;
     }
 
@@ -186,11 +186,14 @@ const CustomerCart: React.FC = () => {
                     className="premium-select"
                     dropdownClassName="premium-dropdown"
                   >
-                    {addresses.map(addr => (
-                      <Option key={addr.id} value={addr.id}>
-                        <strong>{addr.name}</strong> - {addr.phone} ({addr.address})
-                      </Option>
-                    ))}
+                    {addresses.map(addr => {
+                      const shortAddr = addr.address.length > 35 ? addr.address.substring(0, 35) + '...' : addr.address;
+                      return (
+                        <Option key={addr.id} value={addr.id}>
+                          <strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})
+                        </Option>
+                      );
+                    })}
                   </Select>
                   <Tooltip title="Thêm địa chỉ mới">
                     <Button 
@@ -215,7 +218,7 @@ const CustomerCart: React.FC = () => {
                 </div>
                 {selectedAddressId && (
                   <div className="selected-address-preview" style={{ marginBottom: 16 }}>
-                    <strong>Địa chỉ:</strong> {addresses.find(a => a.id === selectedAddressId)?.address}
+                    <strong>Địa chỉ:</strong> {addresses.find(a => a.id === selectedAddressId)?.address || <span style={{color: 'red'}}>Chưa điền địa chỉ, vui lòng cập nhật!</span>}
                   </div>
                 )}
               </>

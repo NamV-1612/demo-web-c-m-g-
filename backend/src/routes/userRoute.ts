@@ -13,6 +13,8 @@ router.get('/', async (req: Request, res: Response) => {
   }
 });
 
+import bcrypt from 'bcryptjs';
+
 // Thêm người dùng mới
 router.post('/', async (req: Request, res: Response) => {
   try {
@@ -23,8 +25,12 @@ router.post('/', async (req: Request, res: Response) => {
       return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
     }
     
+    // Băm (Hash) mật khẩu giống như trong authController để có thể đăng nhập được
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
     // Thêm full_name (vì schema bắt buộc, ta lấy name làm full_name cho Staff)
-    const newUser = new User({ full_name: name, name, phone, password, role });
+    const newUser = new User({ full_name: name, name, phone, password: hashedPassword, role });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error: any) {

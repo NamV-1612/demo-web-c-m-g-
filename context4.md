@@ -24,7 +24,7 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
   - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
   - Chức năng tiện ích: Đánh giá dịch vụ sau khi Hoàn thành; nút "Đặt lại" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
   - **Hệ thống Xoa dịu Khách hàng:** Nếu đơn hàng bị quán Hủy, hệ thống hiển thị thông báo Alert đỏ và **cấp tự động Mã giảm giá đền bù** (có nút Copy) trực tiếp trên giao diện lịch sử.
-- **Tài Khoản (`/customer/profile`):** Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ).
+- **Tài Khoản (`/customer/profile`):** Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ). Cập nhật địa chỉ nhận hàng mặc định.
 
 ### 3. Nhân Viên (Staff)
 - **Bảng Điều Phối Đơn Hàng (Kanban Board):** 
@@ -38,13 +38,13 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
 
 ### 4. Quản Trị Viên (Admin)
 - **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
-- **Quản lý Thực đơn (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa món ăn, cập nhật giá, mô tả, ảnh, và danh mục.
-- **Quản lý Mã Khuyến Mãi (`/admin/promos`):** Tạo/Sửa Voucher (giảm % hoặc giảm tiền mặt), thiết lập giới hạn sử dụng, bật/tắt trạng thái mã.
-- **Quản lý Đơn Hàng (`/admin/orders`):** Xem toàn bộ danh sách, làm nổi bật cột **Hẹn lấy** (thời gian khách cần hàng), hỗ trợ lọc trạng thái, hủy đơn khẩn cấp (có tự động đền bù như Staff), xuất dữ liệu ra file CSV.
+- **Quản lý Thực đơn (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa món ăn, cập nhật giá, mô tả, ảnh, và danh mục. Đồng bộ mạnh mẽ và tránh lỗi crash database.
+- **Quản lý Mã Khuyến Mãi (`/admin/promos`):** Tạo/Sửa Voucher (giảm % hoặc giảm tiền mặt), thiết lập giới hạn sử dụng, bật/tắt trạng thái mã. Đảm bảo bảo mật API để ngăn chặn khách hàng lấy danh sách mã nội bộ.
+- **Quản lý Đơn Hàng (`/admin/orders`):** Xem toàn bộ danh sách, phân loại trực quan nhãn **🛵 Giao hàng** và **🏪 Nhận tại quán**. Làm nổi bật cột Hẹn lấy, hỗ trợ lọc trạng thái, hủy đơn khẩn cấp (có tự động đền bù), xuất dữ liệu ra file CSV.
 - **Quản lý Người Dùng & Nhân Sự (`/admin/users`):**
   - Tách bạch thông tin Họ Tên và Tên Đăng Nhập cho các vai trò.
   - **Bảo Mật Dữ Liệu:** Tự động che giấu Số điện thoại (Tên đăng nhập) của Customer bằng chuỗi `***` để bảo vệ quyền riêng tư, chỉ hiển thị tên.
-  - Có quyền cấp tài khoản Staff, cũng như khóa (Ban/Block) tài khoản khách hàng có hành vi xấu.
+  - Có quyền cấp tài khoản Staff với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). Có tính năng khóa (Ban/Block) tài khoản khách hàng có hành vi xấu.
 
 ---
 

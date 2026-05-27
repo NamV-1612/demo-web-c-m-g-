@@ -55,6 +55,24 @@ const OrderManagement: React.FC = () => {
       sorter: (a: any, b: any) => a.totalAmount - b.totalAmount
     },
     {
+      title: 'Phân loại',
+      dataIndex: 'note',
+      render: (note: string) => {
+        if (note?.includes('Khách tự đến lấy')) {
+          return <Tag color="volcano" style={{ fontWeight: 'bold' }}>🏪 Nhận tại quán</Tag>;
+        }
+        return <Tag color="geekblue" style={{ fontWeight: 'bold' }}>🛵 Giao hàng</Tag>;
+      },
+      filters: [
+        { text: 'Nhận tại quán', value: 'pickup' },
+        { text: 'Giao hàng', value: 'delivery' },
+      ],
+      onFilter: (value: any, record: any) => {
+        const isPickup = record.note?.includes('Khách tự đến lấy');
+        return value === 'pickup' ? isPickup : !isPickup;
+      }
+    },
+    {
       title: 'Trạng thái',
       dataIndex: 'status',
       render: (status: string) => {

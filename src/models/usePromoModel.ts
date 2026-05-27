@@ -6,7 +6,12 @@ import { message } from 'antd';
 export default function usePromoModel() {
   const [promos, setPromos] = useState<Promo[]>([]);
 
+  const { currentUser } = useModel('useAuthModel');
+
   const loadData = useCallback(async () => {
+    // Chỉ lấy toàn bộ mã KM nếu là ADMIN hoặc STAFF
+    if (!currentUser || (currentUser.role !== 'ADMIN' && currentUser.role !== 'STAFF')) return;
+    
     try {
       const { data } = await api.get('/promos');
       const formattedPromos = data.map((p: any) => ({
@@ -23,7 +28,7 @@ export default function usePromoModel() {
       console.error('Lỗi tải danh sách mã khuyến mãi', error);
       message.error('Lỗi tải danh sách mã khuyến mãi');
     }
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     loadData();
@@ -42,8 +47,10 @@ export default function usePromoModel() {
       });
       message.success('Đã thêm mã khuyến mãi mới thành công!');
       loadData();
+      return true;
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Lỗi khi thêm mã khuyến mãi');
+      return false;
     }
   };
 
@@ -58,8 +65,10 @@ export default function usePromoModel() {
       });
       message.success('Đã cập nhật mã khuyến mãi thành công!');
       loadData();
+      return true;
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Lỗi khi cập nhật mã khuyến mãi');
+      return false;
     }
   };
 
@@ -68,8 +77,10 @@ export default function usePromoModel() {
       await api.delete(`/promos/${id}`);
       message.success('Đã xóa mã khuyến mãi!');
       loadData();
+      return true;
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Lỗi khi xóa mã khuyến mãi');
+      return false;
     }
   };
 

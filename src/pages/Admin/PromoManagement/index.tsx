@@ -16,7 +16,7 @@ const PromoManagement: React.FC = () => {
     setIsModalVisible(true);
   };
 
-  const handleSave = (values: any) => {
+  const handleSave = async (values: any) => {
     const promoData = {
       code: values.code.toUpperCase(),
       discountType: values.discountType,
@@ -26,9 +26,9 @@ const PromoManagement: React.FC = () => {
       isActive: values.isActive !== false,
     };
 
+    let success = false;
     if (values.id) {
-      updatePromo(values.id, promoData);
-      message.success('Đã cập nhật mã khuyến mãi thành công!');
+      success = await updatePromo(values.id, promoData);
     } else {
       // Check if code already exists
       const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
@@ -41,11 +41,12 @@ const PromoManagement: React.FC = () => {
         ...promoData,
         id: 'promo' + Date.now(),
       };
-      addPromo(newPromo as any);
-      message.success('Đã thêm mã khuyến mãi mới thành công!');
+      success = await addPromo(newPromo as any);
     }
     
-    setIsModalVisible(false);
+    if (success) {
+      setIsModalVisible(false);
+    }
   };
 
   const handleDelete = (id: string) => {
