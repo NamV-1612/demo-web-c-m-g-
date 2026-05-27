@@ -38,10 +38,10 @@ const StaffDashboard: React.FC = () => {
           <p style="margin: 4px 0;">Khách hàng: ${order.customerName}</p>
           <p style="margin: 4px 0;">Điện thoại: ${order.customerPhone}</p>
           ${
-            order.pickupTime === 'asap' || order.note === 'Khách tự đến lấy' 
+            order.note === 'Khách tự đến lấy' 
               ? `<p style="margin: 4px 0;">Hình thức: <strong>Tự đến lấy tại quán</strong></p>` 
               : `<p style="margin: 4px 0;">Địa chỉ nhận: <strong>${order.customerAddress || order.note?.replace('Giao đến: ', '') || 'Chưa cập nhật'}</strong></p>
-                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime}</p>`
+                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime === 'asap' ? 'Giao ngay' : order.pickupTime}</p>`
           }
           <p style="margin: 4px 0;">Thanh toán: ${order.paymentMethod === 'transfer' ? 'Chuyển khoản QR' : 'Tiền mặt'}</p>
           <p style="margin: 4px 0;">Trạng thái: <strong>${order.isPaid ? 'ĐÃ THANH TOÁN' : 'CHƯA THU TIỀN'}</strong></p>
