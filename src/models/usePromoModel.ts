@@ -31,7 +31,7 @@ export default function usePromoModel() {
       console.error('Lỗi tải danh sách mã khuyến mãi', error);
       message.error('Lỗi tải danh sách mã khuyến mãi');
     }
-  }, [currentUser]);
+  }, []);
 
   useEffect(() => {
     loadData();
