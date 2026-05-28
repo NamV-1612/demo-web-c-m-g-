@@ -70,13 +70,11 @@ const UserManagement: React.FC = () => {
       title: 'Họ tên', 
       key: 'fullName',
       render: (_: any, record: User) => {
-        // Khách hàng lưu họ tên ở full_name, Staff lưu ở name
-        const fullName = record.role?.toUpperCase() === 'CUSTOMER' ? record.full_name : record.name;
-        return <span>{fullName}</span>;
+        return <span>{record.full_name || record.name}</span>;
       },
       sorter: (a: User, b: User) => {
-        const nameA = (a.role?.toUpperCase() === 'CUSTOMER' ? a.full_name : a.name) || '';
-        const nameB = (b.role?.toUpperCase() === 'CUSTOMER' ? b.full_name : b.name) || '';
+        const nameA = a.full_name || a.name || '';
+        const nameB = b.full_name || b.name || '';
         return nameA.localeCompare(nameB);
       }
     },
@@ -84,7 +82,6 @@ const UserManagement: React.FC = () => {
       title: 'Tên đăng nhập', 
       key: 'username',
       render: (_: any, record: User) => {
-        // Khách hàng lưu username ở name, Staff lưu ở phone
         const username = record.role?.toUpperCase() === 'CUSTOMER' ? record.name : record.phone;
         return <strong>{username}</strong>;
       }

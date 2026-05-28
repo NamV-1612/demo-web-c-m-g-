@@ -51,7 +51,6 @@ const PromoManagement: React.FC = () => {
 
   const handleDelete = (id: string) => {
     deletePromo(id);
-    message.success('Đã xóa mã khuyến mãi!');
   };
 
   const columns = [

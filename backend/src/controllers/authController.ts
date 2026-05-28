@@ -126,6 +126,86 @@ export const updateProfile = async (req: any, res: Response) => {
       name: updatedUser.name,
       phone: updatedUser.phone,
       address: updatedUser.address,
+      addresses: updatedUser.addresses,
+      role: updatedUser.role,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Thêm địa chỉ mới vào sổ địa chỉ
+// @route   POST /api/auth/address
+// @access  Private
+export const addAddress = async (req: any, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy user' });
+    }
+
+    const { name, phone, address, isDefault } = req.body;
+    const newAddr = {
+      id: 'addr' + Date.now(),
+      name,
+      phone,
+      address,
+      isDefault: isDefault || false
+    };
+
+    if (!user.addresses) {
+      user.addresses = [];
+    }
+
+    // Nếu đặt làm mặc định, hủy mặc định của các địa chỉ khác
+    if (newAddr.isDefault) {
+      user.addresses.forEach(a => a.isDefault = false);
+      user.address = newAddr.address; // Cập nhật luôn field address cũ cho tương thích
+    } else if (user.addresses.length === 0) {
+      // Nếu là địa chỉ đầu tiên thì tự làm mặc định
+      newAddr.isDefault = true;
+      user.address = newAddr.address;
+    }
+
+    user.addresses.push(newAddr);
+    const updatedUser = await user.save();
+
+    res.json({
+      id: updatedUser._id,
+      full_name: updatedUser.full_name,
+      name: updatedUser.name,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      addresses: updatedUser.addresses,
+      role: updatedUser.role,
+    });
+  } catch (error: any) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// @desc    Xóa địa chỉ
+// @route   DELETE /api/auth/address/:addressId
+// @access  Private
+export const deleteAddress = async (req: any, res: Response) => {
+  try {
+    const user = await User.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({ message: 'Không tìm thấy user' });
+    }
+
+    if (user.addresses) {
+      user.addresses = user.addresses.filter(a => a.id !== req.params.addressId);
+    }
+    const updatedUser = await user.save();
+
+    res.json({
+      id: updatedUser._id,
+      full_name: updatedUser.full_name,
+      name: updatedUser.name,
+      phone: updatedUser.phone,
+      address: updatedUser.address,
+      addresses: updatedUser.addresses,
       role: updatedUser.role,
     });
   } catch (error: any) {

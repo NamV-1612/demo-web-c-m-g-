@@ -44,7 +44,7 @@ const OrderManagement: React.FC = () => {
 
   const columns = [
     { title: 'Mã đơn', dataIndex: 'id', key: 'id', render: (val: string) => <strong>{val}</strong> },
-    { title: 'Ngày tạo', dataIndex: 'createdAt', render: (val: number) => moment(val).format('DD/MM/YYYY HH:mm'), sorter: (a: any, b: any) => a.createdAt - b.createdAt },
+    { title: 'Ngày tạo', dataIndex: 'createdAt', render: (val: number) => moment(val).format('DD/MM/YYYY HH:mm'), sorter: (a: any, b: any) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf() },
     { title: 'Hẹn lấy', dataIndex: 'pickupTime', render: (val: string) => val === 'asap' ? 'Lấy ngay' : (val || 'Không có') },
     { title: 'Khách hàng', dataIndex: 'customerName', key: 'customerName' },
     { title: 'SĐT', dataIndex: 'customerPhone', key: 'customerPhone' },

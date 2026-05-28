@@ -11,37 +11,71 @@ export default function useOrderModel() {
   const [addresses, setAddresses] = useState<{id: string, name: string, phone: string, address: string}[]>([]);
 
   useEffect(() => {
-    // Populate default address from currentUser
+    // Populate addresses from currentUser
     if (currentUser) {
-      const userAddr = {
-        id: 'default',
-        name: currentUser.full_name || currentUser.name,
-        phone: currentUser.phone,
-        address: currentUser.address || ''
-      };
-      // Only set if they actually have an address to show, or just always provide a default option
-      setAddresses([userAddr]);
+      if (currentUser.addresses && currentUser.addresses.length > 0) {
+        setAddresses(currentUser.addresses);
+      } else if (currentUser.address) {
+        // Fallback for old data
+        const userAddr = {
+          id: 'default',
+          name: currentUser.full_name || currentUser.name,
+          phone: currentUser.phone,
+          address: currentUser.address
+        };
+        setAddresses([userAddr]);
+      } else {
+        setAddresses([]);
+      }
     } else {
       setAddresses([]);
     }
   }, [currentUser]);
 
   const addAddress = async (addr: {name: string, phone: string, address: string}) => {
-    // Gọi API lưu địa chỉ làm mặc định cho User (chạy ngầm)
+    let newAddr: any = null;
     if (currentUser) {
       try {
-        const { data } = await api.put('/auth/profile', { address: addr.address });
-        // Cập nhật lại user trong localStorage nhưng giữ nguyên token
+        const { data } = await api.post('/auth/address', addr);
         const updatedUser = { ...currentUser, ...data, token: currentUser.token };
         localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
         window.dispatchEvent(new Event('storage'));
+        
+        // Find the newly added address to return its ID so the UI can select it
+        newAddr = updatedUser.addresses[updatedUser.addresses.length - 1];
       } catch (e) {
-        console.error('Không thể lưu địa chỉ mặc định', e);
+        console.error('Không thể lưu địa chỉ mới', e);
       }
+    }
+    
+    if (!newAddr) {
+      // Fallback for non-logged in or offline
+      newAddr = { id: 'addr' + Date.now(), ...addr };
+      setAddresses(prev => [...prev, newAddr]);
     }
 
     message.success('Đã lưu địa chỉ mới vào Sổ địa chỉ!');
-    return { id: 'default', ...addr };
+    return newAddr;
+  };
+
+  const removeAddress = async (id: string) => {
+    if (currentUser) {
+      try {
+        const { data } = await api.delete(`/auth/address/${id}`);
+        const updatedUser = { ...currentUser, ...data, token: currentUser.token };
+        localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
+        window.dispatchEvent(new Event('storage'));
+        message.success('Đã xóa địa chỉ!');
+        return true;
+      } catch (e) {
+        console.error('Không thể xóa địa chỉ', e);
+        message.error('Lỗi khi xóa địa chỉ');
+        return false;
+      }
+    }
+    // Fallback locally
+    setAddresses(prev => prev.filter(a => a.id !== id));
+    return true;
   };
 
   const loadData = useCallback(async () => {
@@ -157,5 +191,5 @@ export default function useOrderModel() {
     } catch (error) {}
   };
 
-  return { orders, changeOrderStatus, rateOrder, togglePaymentStatus, submitOrder, addresses, addAddress, updateOrderInfo, cancelOrder, reloadOrders: loadData };
+  return { orders, changeOrderStatus, rateOrder, togglePaymentStatus, submitOrder, addresses, addAddress, removeAddress, updateOrderInfo, cancelOrder, reloadOrders: loadData };
 }

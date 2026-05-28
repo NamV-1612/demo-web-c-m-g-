@@ -6,6 +6,13 @@ export interface IUser extends Document {
   phone: string;
   password?: string;
   address?: string; // Bổ sung địa chỉ
+  addresses?: Array<{
+    id: string;
+    name: string;
+    phone: string;
+    address: string;
+    isDefault: boolean;
+  }>;
   role: 'ADMIN' | 'STAFF' | 'CUSTOMER';
   status: 'ACTIVE' | 'LOCKED';
   createdAt: Date;
@@ -18,6 +25,15 @@ const UserSchema: Schema = new Schema(
     phone: { type: String, required: true, unique: true },
     password: { type: String },
     address: { type: String }, // Bổ sung địa chỉ
+    addresses: [
+      {
+        id: { type: String, required: true },
+        name: { type: String, required: true },
+        phone: { type: String, required: true },
+        address: { type: String, required: true },
+        isDefault: { type: Boolean, default: false }
+      }
+    ],
     role: { type: String, enum: ['ADMIN', 'STAFF', 'CUSTOMER'], default: 'CUSTOMER' },
     status: { type: String, enum: ['ACTIVE', 'LOCKED'], default: 'ACTIVE' }
   },

@@ -14,7 +14,7 @@ const { Option } = Select;
 
 const CustomerCart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart, subTotal, totalCartPrice, voucher, applyVoucher, updateQuantity } = useModel('useCartModel');
-  const { submitOrder, addresses, addAddress } = useModel('useOrderModel');
+  const { submitOrder, addresses, addAddress, removeAddress } = useModel('useOrderModel');
   const { currentUser } = useModel('useAuthModel');
   const { decreasePromoQuantity } = useModel('usePromoModel');
 
@@ -184,13 +184,31 @@ const CustomerCart: React.FC = () => {
                     size="large"
                     className="premium-select"
                     dropdownClassName="premium-dropdown"
+                    optionLabelProp="label"
                   >
                     {addresses.map(addr => {
-                      const safeAddress = addr?.address || '';
+                      const safeAddress = addr.address || '';
                       const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
                       return (
-                        <Option key={addr.id} value={addr.id}>
-                          <strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})
+                        <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${safeAddress}`}>
+                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span><strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})</span>
+                            {addr.id !== 'default' && (
+                              <Button 
+                                type="text" 
+                                danger 
+                                icon={<DeleteOutlined />} 
+                                size="small"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  removeAddress(addr.id);
+                                  if (selectedAddressId === addr.id) {
+                                    setSelectedAddressId(addresses[0]?.id || '');
+                                  }
+                                }}
+                              />
+                            )}
+                          </div>
                         </Option>
                       );
                     })}

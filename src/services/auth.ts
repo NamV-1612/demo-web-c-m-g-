@@ -12,7 +12,7 @@ export const getUsers = async (): Promise<User[]> => {
       phone: u.phone,
       password: u.password,
       name: u.name,
-      full_name: u.name,
+      full_name: u.full_name || u.name,
       role: u.role,
       status: u.status
     }));
