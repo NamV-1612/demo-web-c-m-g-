@@ -19,7 +19,7 @@ const CustomerCart: React.FC = () => {
   const { decreasePromoQuantity } = useModel('usePromoModel');
 
   const timeOptions = [1, 2, 3, 4].map(h => {
-    const time = moment().add(h, 'hours').add(moment().minute() > 0 ? 1 : 0, 'hours').startOf('hour').format('hh:00 A');
+    const time = moment().startOf('hour').add(h, 'hours').format('hh:00 A');
     return {
       value: time,
       label: time.replace('AM', 'SA').replace('PM', 'CH')

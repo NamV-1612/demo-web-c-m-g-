@@ -35,7 +35,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, onClick, className }
     >
       <div className="product-info">
         <span className="product-title">{product.name}</span>
-        <span className="product-price">{product.price.toLocaleString()}đ</span>
+        {product.description && <div className="product-desc" style={{ fontSize: '12px', color: '#8c8c8c', marginTop: '4px', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical', overflow: 'hidden', textOverflow: 'ellipsis' }}>{product.description}</div>}
+        <span className="product-price" style={{ marginTop: '4px' }}>{product.price.toLocaleString()}đ</span>
       </div>
       {!isGuest ? (
         <Button 

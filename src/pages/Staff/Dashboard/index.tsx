@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Row, Col, Typography, Button, Drawer, List, Switch, notification, message, Space, Tag, Input } from 'antd';
 import { AppstoreOutlined, SearchOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
+import useAuthModel from '@/models/useAuthModel';
 import OrderCard from './components/OrderCard';
 import { Order } from '@/services/typing';
 import moment from 'moment';
@@ -12,6 +13,7 @@ const { Title, Text } = Typography;
 const StaffDashboard: React.FC = () => {
   const { orders, changeOrderStatus, togglePaymentStatus } = useModel('useOrderModel');
   const { products, updateProductAvailability, updateProduct } = useModel('useMenuModel');
+  const { currentUser } = useModel('useAuthModel');
   const [inventoryVisible, setInventoryVisible] = useState(false);
   const [prevOrdersCount, setPrevOrdersCount] = useState(orders.length);
   const [searchTerm, setSearchTerm] = useState('');
@@ -38,10 +40,10 @@ const StaffDashboard: React.FC = () => {
           <p style="margin: 4px 0;">Khách hàng: ${order.customerName}</p>
           <p style="margin: 4px 0;">Điện thoại: ${order.customerPhone}</p>
           ${
-            order.note === 'Khách tự đến lấy' 
+            order.pickupTime === 'asap' || order.note === 'Khách tự đến lấy' 
               ? `<p style="margin: 4px 0;">Hình thức: <strong>Tự đến lấy tại quán</strong></p>` 
               : `<p style="margin: 4px 0;">Địa chỉ nhận: <strong>${order.customerAddress || order.note?.replace('Giao đến: ', '') || 'Chưa cập nhật'}</strong></p>
-                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime === 'asap' ? 'Giao ngay' : order.pickupTime}</p>`
+                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime}</p>`
           }
           <p style="margin: 4px 0;">Thanh toán: ${order.paymentMethod === 'transfer' ? 'Chuyển khoản QR' : 'Tiền mặt'}</p>
           <p style="margin: 4px 0;">Trạng thái: <strong>${order.isPaid ? 'ĐÃ THANH TOÁN' : 'CHƯA THU TIỀN'}</strong></p>
@@ -87,7 +89,10 @@ const StaffDashboard: React.FC = () => {
   return (
     <div className="kanban-container">
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <Title level={3} style={{ margin: 0 }}>Kanban Điều Phối Đơn Hàng (Real-time)</Title>
+        <div>
+          <Title level={3} style={{ margin: 0 }}>Kanban Điều Phối Đơn Hàng (Real-time)</Title>
+          <Text type="secondary">Xin chào, <strong>{currentUser?.name || currentUser?.full_name || 'Nhân viên'}</strong></Text>
+        </div>
         <Button type="primary" icon={<AppstoreOutlined />} onClick={() => setInventoryVisible(true)} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
           Quản lý Tồn Kho Cấp Tốc
         </Button>

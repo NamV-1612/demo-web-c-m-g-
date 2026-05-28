@@ -109,6 +109,16 @@ export default function useOrderModel() {
   const changeOrderStatus = async (id: string, newStatus: string) => {
     try {
       await api.put(`/orders/${id}/status`, { status: newStatus.toUpperCase() });
+      
+      if (newStatus.toUpperCase() === 'CANCELLED') {
+        const order = orders.find(o => o.id === id);
+        if (order && order.promoCode) {
+          // Gửi request khôi phục mã giảm giá
+          api.post('/promos/restore', { code: order.promoCode }).catch(() => {});
+          message.info(`Đã hoàn lại mã khuyến mãi ${order.promoCode} vào kho`);
+        }
+      }
+      
       message.success('Cập nhật trạng thái thành công');
       loadData();
     } catch (error) {

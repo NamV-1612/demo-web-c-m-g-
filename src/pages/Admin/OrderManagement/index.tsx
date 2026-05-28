@@ -96,7 +96,7 @@ const OrderManagement: React.FC = () => {
         return (
           <Space>
             {s !== 'COMPLETED' && s !== 'CANCELLED' && (
-              <Popconfirm title="Bạn có chắc muốn hủy khẩn cấp đơn này?" onConfirm={() => handleEmergencyCancel(record.id)} okText="Có, Hủy đơn" cancelText="Không">
+              <Popconfirm overlayStyle={{ minWidth: 250 }} overlayClassName="custom-popconfirm" title="Bạn có chắc muốn hủy khẩn cấp đơn này?" onConfirm={() => handleEmergencyCancel(record.id)} okText="Có, Hủy đơn" cancelText="Không" okButtonProps={{ danger: true }}>
                 <Button danger size="small" icon={<CloseCircleOutlined />}>Hủy khẩn cấp</Button>
               </Popconfirm>
             )}

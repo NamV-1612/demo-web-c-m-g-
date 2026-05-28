@@ -31,10 +31,16 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
           <Text strong>{order.customerName}</Text>
           <br />
           <Text type="secondary" style={{ fontSize: 11 }}>{order.customerPhone}</Text>
+          <br />
+          {order.note === 'Khách tự đến lấy' ? (
+            <Tag color="volcano" style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>🏪 Tự lấy</Tag>
+          ) : (
+            <Tag color="geekblue" style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>🛵 Nhờ ship</Tag>
+          )}
           {order.note !== 'Khách tự đến lấy' && (
             <>
               <br />
-              <Text type="secondary" style={{ fontSize: 10, maxWidth: 140, display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+              <Text type="secondary" style={{ fontSize: 10, maxWidth: 140, display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 4 }}>
                 📍 {order.customerAddress || order.note?.replace('Giao đến: ', '')}
               </Text>
             </>

@@ -9,6 +9,7 @@ const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm();
 
   const loadUsers = async () => {
@@ -158,18 +159,31 @@ const UserManagement: React.FC = () => {
     <div className="admin-page" style={{ padding: 24 }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Quản lý Người dùng & Nhân sự</h2>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
-          onClick={() => { form.resetFields(); setIsModalVisible(true); }}
-          style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
-        >
-          Cấp tài khoản Nhân viên (Staff)
-        </Button>
+        <Space>
+          <Input.Search 
+            placeholder="Tìm theo Tên, Username hoặc SĐT..." 
+            allowClear 
+            onSearch={setSearchText} 
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 300 }} 
+          />
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={() => { form.resetFields(); setIsModalVisible(true); }}
+            style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
+          >
+            Cấp tài khoản Nhân viên (Staff)
+          </Button>
+        </Space>
       </div>
       <Table 
         columns={columns} 
-        dataSource={users} 
+        dataSource={users.filter(u => 
+          (u.name || '').toLowerCase().includes(searchText.toLowerCase()) || 
+          (u.full_name || '').toLowerCase().includes(searchText.toLowerCase()) || 
+          (u.phone || '').toLowerCase().includes(searchText.toLowerCase())
+        )} 
         rowKey="id" 
         pagination={{ pageSize: 10 }} 
         loading={loading}

@@ -315,7 +315,7 @@ const CustomerHistory: React.FC = () => {
         okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
       >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }]}>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ' }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>

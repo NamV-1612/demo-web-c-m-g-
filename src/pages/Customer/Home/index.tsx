@@ -39,6 +39,12 @@ const CustomerHome: React.FC = () => {
     const matchCategory = activeCategory === 'Tất cả' || p.category === activeCategory;
     const matchAvailable = p.isAvailable !== false;
     return matchSearch && matchCategory && matchAvailable;
+  }).sort((a, b) => {
+    const isATop = topProductNames.includes(a.name);
+    const isBTop = topProductNames.includes(b.name);
+    if (isATop && !isBTop) return -1;
+    if (!isATop && isBTop) return 1;
+    return 0;
   });
 
   const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
