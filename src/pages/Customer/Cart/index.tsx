@@ -101,10 +101,7 @@ const CustomerCart: React.FC = () => {
     }
 
     if (isDelivery && pickupTimeType === 'specific') {
-      if (!/^([0-1]?[0-9]|2[0-3]):[0-5][0-9]$/.test(pickupTimeText)) {
-        message.error('Vui lòng nhập đúng định dạng giờ (VD: 14:30)');
-        return;
-      }
+
       const selectedTime = moment(pickupTimeText, 'hh:00 A');
       const minTime = moment().add(1, 'hours');
       if (selectedTime.isBefore(minTime)) {
@@ -132,14 +129,14 @@ const CustomerCart: React.FC = () => {
       discountAmount: voucher?.discount
     };
 
-    if (voucher) {
-      decreasePromoQuantity(voucher.code);
+    const success = await submitOrder(order);
+    if (success) {
+      if (voucher) {
+        decreasePromoQuantity(voucher.code);
+      }
+      clearCart();
+      history.push('/customer/history');
     }
-
-    submitOrder(order);
-    clearCart();
-    message.success('Đặt hàng thành công! Đang chờ quán xác nhận.');
-    history.push('/customer/history');
   };
 
   if (cartItems.length === 0) {
@@ -376,7 +373,7 @@ const CustomerCart: React.FC = () => {
       <Modal 
         title="Thêm địa chỉ giao hàng" 
         visible={isAddressModalVisible} 
-        onCancel={() => setIsAddressModalVisible(false)} 
+        onCancel={() => { setIsAddressModalVisible(false); form.resetFields(); }} 
         onOk={() => form.submit()}
         okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white' } }}
         cancelButtonProps={{ style: { borderRadius: '8px' } }}
@@ -385,7 +382,7 @@ const CustomerCart: React.FC = () => {
           <Form.Item name="name" label="Tên người nhận" rules={[{ required: true, message: 'Vui lòng nhập tên người nhận' }, { pattern: /^[a-zA-ZÀ-ỹ\s]+$/, message: 'Tên chỉ chứa chữ cái (có thể 1 từ)' }]}>
             <Input placeholder="VD: Nam" />
           </Form.Item>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
             <Input placeholder="VD: 0987654321" />
           </Form.Item>
           <Form.Item label="Địa chỉ cụ thể" style={{ marginBottom: 0 }}>

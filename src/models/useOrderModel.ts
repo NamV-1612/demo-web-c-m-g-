@@ -34,8 +34,10 @@ export default function useOrderModel() {
     if (currentUser) {
       try {
         const { data } = await api.put('/auth/profile', { address: addr.address });
-        // Cập nhật lại user trong localStorage
-        localStorage.setItem('CURRENT_USER', JSON.stringify(data));
+        // Cập nhật lại user trong localStorage nhưng giữ nguyên token
+        const updatedUser = { ...currentUser, ...data, token: currentUser.token };
+        localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
+        window.dispatchEvent(new Event('storage'));
       } catch (e) {
         console.error('Không thể lưu địa chỉ mặc định', e);
       }
@@ -101,8 +103,10 @@ export default function useOrderModel() {
       await api.post('/orders', formattedOrder);
       loadData(); // Tải lại danh sách
       message.success('Đặt hàng thành công!');
+      return true;
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Lỗi đặt hàng');
+      return false;
     }
   };
 

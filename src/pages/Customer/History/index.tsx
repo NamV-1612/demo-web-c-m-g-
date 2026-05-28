@@ -308,14 +308,14 @@ const CustomerHistory: React.FC = () => {
       <Modal
         title="Sửa thông tin giao hàng"
         visible={isEditModalVisible}
-        onCancel={() => setIsEditModalVisible(false)}
+        onCancel={() => { setIsEditModalVisible(false); form.resetFields(); }}
         onOk={() => form.submit()}
         okText="Lưu thay đổi"
         cancelText="Hủy"
         okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
       >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ' }]}>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
             <Input />
           </Form.Item>
           <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>

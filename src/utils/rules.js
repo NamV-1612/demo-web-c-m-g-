@@ -106,8 +106,8 @@ const rules = {
 	],
 	soDienThoai: [
 		{
-			pattern: new RegExp(/(^(09|03|07|08|05|01|02|04|06){1}[0-9]{8}$){1}/g),
-			message: 'Số điện thoại không đúng định dạng (10 số, không bao gồm kí tự đặc biệt)',
+			pattern: /^(0[35789])[0-9]{8}$/,
+			message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)',
 		},
 	],
 	ngaySinh: [

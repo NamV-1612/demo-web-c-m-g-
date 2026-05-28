@@ -88,7 +88,7 @@ const CustomerLogin: React.FC = () => {
             <div className={`expandable-field ${activeTab === '2' ? 'expanded' : ''}`}>
               <Form.Item name="phone" rules={activeTab === '2' ? [
                 { required: true, message: 'Vui lòng nhập Số điện thoại!' },
-                { pattern: /^\d{10}$/, message: 'Số điện thoại phải gồm 10 chữ số!' }
+                { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }
               ] : []}>
                 <Input prefix={<PhoneOutlined />} placeholder="Số điện thoại" tabIndex={activeTab === '1' ? -1 : 0} />
               </Form.Item>
@@ -158,7 +158,7 @@ const CustomerLogin: React.FC = () => {
           </Form.Item>
           <Form.Item name="phone" label="Số điện thoại" rules={[
             { required: true, message: 'Vui lòng nhập số điện thoại!' },
-            { pattern: /^\d{10}$/, message: 'Số điện thoại phải gồm 10 chữ số!' }
+            { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }
           ]}>
             <Input prefix={<PhoneOutlined />} placeholder="Nhập số điện thoại" />
           </Form.Item>
