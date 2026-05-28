@@ -1,0 +1,135 @@
+﻿import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Form, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useModel } from 'umi';
+import '../admin.less';
+import PromoModal from './components/PromoModal';
+
+const PromoManagement: React.FC = () => {
+  const { promos, addPromo, updatePromo, deletePromo } = useModel('usePromoModel');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const discountType = Form.useWatch('discountType', form);
+
+  const handleAdd = () => {
+    form.resetFields();
+    form.setFieldsValue({ isActive: true, discountType: 'PERCENT' });
+    setIsModalVisible(true);
+  };
+
+  const handleSave = async (values: any) => {
+    const promoData = {
+      code: values.code.toUpperCase(),
+      discountType: values.discountType,
+      discountValue: values.discountValue,
+      maxDiscountAmount: values.discountType === 'PERCENT' ? values.maxDiscountAmount : undefined,
+      quantity: values.quantity,
+      isActive: values.isActive !== false,
+    };
+
+    let success = false;
+    if (values.id) {
+      success = await updatePromo(values.id, promoData);
+    } else {
+      const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
+      if (exists) {
+        message.error('MÃ£ khuyáº¿n mÃ£i nÃ y Ä‘Ã£ tá»“n táº¡i!');
+        return;
+      }
+      
+      const newPromo = {
+        ...promoData,
+        id: 'promo' + Date.now(),
+      };
+      success = await addPromo(newPromo as any);
+    }
+    
+    if (success) {
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    deletePromo(id);
+  };
+
+  const columns = [
+    { 
+      title: 'MÃ£ Khuyáº¿n MÃ£i', 
+      dataIndex: 'code', 
+      key: 'code', 
+      render: (text: string) => <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>{text}</Tag>,
+      sorter: (a: any, b: any) => a.code.localeCompare(b.code) 
+    },
+    { 
+      title: 'Loáº¡i Giáº£m GiÃ¡', 
+      dataIndex: 'discountType', 
+      key: 'discountType',
+      render: (type: string) => (
+        <span>{type === 'PERCENT' ? 'Theo %' : 'Sá»‘ tiá»n cá»‘ Ä‘á»‹nh'}</span>
+      )
+    },
+    { 
+      title: 'Má»©c Giáº£m', 
+      key: 'discountValue',
+      render: (_: any, record: any) => {
+        if (record.discountType === 'PERCENT') {
+          return <span>{record.discountValue}% {record.maxDiscountAmount ? `(Tá»‘i Ä‘a ${record.maxDiscountAmount.toLocaleString()}Ä‘)` : ''}</span>;
+        }
+        return <span>{record.discountValue.toLocaleString()}Ä‘</span>;
+      }
+    },
+    { 
+      title: 'Sá»‘ lÆ°á»£ng cÃ²n', 
+      dataIndex: 'quantity', 
+      render: (qty: number) => <span style={{ fontWeight: 'bold' }}>{qty}</span>, 
+      sorter: (a: any, b: any) => a.quantity - b.quantity 
+    },
+    { 
+      title: 'Tráº¡ng thÃ¡i', 
+      dataIndex: 'isActive', 
+      render: (isActive: boolean) => (
+        <Tag color={isActive ? 'green' : 'red'}>
+          {isActive ? 'Äang hoáº¡t Ä‘á»™ng' : 'ÄÃ£ táº¯t'}
+        </Tag>
+      ) 
+    },
+    {
+      title: 'HÃ nh Ä‘á»™ng',
+      render: (_: any, record: any) => (
+        <Space>
+          <Button 
+            icon={<EditOutlined />} 
+            onClick={() => { 
+              form.setFieldsValue({ ...record }); 
+              setIsModalVisible(true); 
+            }} 
+          />
+          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="admin-page" style={{ padding: 24 }}>
+      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2 style={{ margin: 0 }}>Quáº£n lÃ½ MÃ£ Khuyáº¿n MÃ£i</h2>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+          ThÃªm mÃ£ khuyáº¿n mÃ£i
+        </Button>
+      </div>
+      
+      <Table columns={columns} dataSource={promos} rowKey="id" pagination={{ pageSize: 10 }} />
+
+      <PromoModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleSave}
+        form={form}
+      />
+    </div>
+  );
+};
+
+export default PromoManagement;
