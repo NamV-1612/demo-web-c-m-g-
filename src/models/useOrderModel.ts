@@ -27,9 +27,6 @@ export default function useOrderModel() {
   }, [currentUser]);
 
   const addAddress = async (addr: {name: string, phone: string, address: string}) => {
-    const newAddr = { ...addr, id: 'addr' + Date.now() };
-    setAddresses(prev => [...prev, newAddr]);
-    
     // Gọi API lưu địa chỉ làm mặc định cho User (chạy ngầm)
     if (currentUser) {
       try {
@@ -44,7 +41,7 @@ export default function useOrderModel() {
     }
 
     message.success('Đã lưu địa chỉ mới vào Sổ địa chỉ!');
-    return newAddr;
+    return { id: 'default', ...addr };
   };
 
   const loadData = useCallback(async () => {

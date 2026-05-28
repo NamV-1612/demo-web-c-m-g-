@@ -81,8 +81,8 @@ const CustomerCart: React.FC = () => {
     applyVoucher(voucherInput);
   };
 
-  const handleAddAddress = (values: any) => {
-    const newAddr = addAddress(values);
+  const handleAddAddress = async (values: any) => {
+    const newAddr = await addAddress(values);
     setSelectedAddressId(newAddr.id);
     setIsAddressModalVisible(false);
     form.resetFields();

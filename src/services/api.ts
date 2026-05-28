@@ -37,9 +37,11 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response && error.response.status === 401) {
-      // localStorage.removeItem('CURRENT_USER');
-      // window.dispatchEvent(new Event('storage'));
-      // Lỗi 401: Không có quyền hoặc token hết hạn
+      if (localStorage.getItem('CURRENT_USER')) {
+        localStorage.removeItem('CURRENT_USER');
+        window.dispatchEvent(new Event('storage'));
+        window.location.href = '/customer/login';
+      }
     }
     return Promise.reject(error);
   }
