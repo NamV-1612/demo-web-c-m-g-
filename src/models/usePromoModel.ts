@@ -35,6 +35,11 @@ export default function usePromoModel() {
 
   useEffect(() => {
     loadData();
+    const handleStorageChange = () => {
+      loadData();
+    };
+    window.addEventListener('storage', handleStorageChange);
+    return () => window.removeEventListener('storage', handleStorageChange);
   }, [loadData]);
 
   const addPromo = async (p: Promo) => {

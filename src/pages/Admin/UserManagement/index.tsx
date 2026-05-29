@@ -82,8 +82,14 @@ const UserManagement: React.FC = () => {
       title: 'Tên đăng nhập', 
       key: 'username',
       render: (_: any, record: User) => {
-        const username = record.role?.toUpperCase() === 'CUSTOMER' ? record.name : record.phone;
-        return <strong>{username}</strong>;
+        return <strong>{record.name}</strong>;
+      }
+    },
+    { 
+      title: 'Số điện thoại', 
+      key: 'phone',
+      render: (_: any, record: User) => {
+        return <span>{record.phone}</span>;
       }
     },
     { 
