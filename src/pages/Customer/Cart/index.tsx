@@ -180,7 +180,7 @@ const CustomerCart: React.FC = () => {
                   <Select 
                     value={selectedAddressId} 
                     onChange={setSelectedAddressId} 
-                    style={{ flex: 1 }} 
+                    style={{ flex: 1, minWidth: 0 }} 
                     size="large"
                     className="premium-select"
                     dropdownClassName="premium-dropdown"
@@ -190,7 +190,7 @@ const CustomerCart: React.FC = () => {
                       const safeAddress = addr.address || '';
                       const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
                       return (
-                        <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${safeAddress}`}>
+                        <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${shortAddr || 'Chưa điền địa chỉ'}`}>
                           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                             <span><strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})</span>
                             {addr.id !== 'default' && (
