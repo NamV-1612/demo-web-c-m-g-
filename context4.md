@@ -6,7 +6,9 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
 
 ## PHẦN I: TỔNG QUAN CHỨC NĂNG THEO PHÂN QUYỀN
 
-### 1. Khách Vãng Lai (Guest)
+### 1. Khách Vãng Lai (Guest / Public)
+- **Đăng Ký Tài Khoản:** Đăng ký thành viên mới với các trường: Họ Tên, Tên đăng nhập, Số điện thoại, Mật khẩu, Địa chỉ. Tích hợp kiểm tra trùng lặp SĐT/Tên đăng nhập.
+- **Đăng Nhập Phân Quyền:** Đăng nhập linh hoạt bằng Tên đăng nhập HOẶC Số điện thoại. Hệ thống tự động phân tích Role để điều hướng (Admin/Staff vào trang quản trị, Customer vào trang đặt đồ).
 - **Khám phá Thực đơn:** Xem danh sách món ăn, tìm kiếm bằng từ khóa, lọc theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
 - **Xem Chi tiết Món:** Xem ảnh, giá cả, thành phần nguyên liệu, và danh sách các tùy chọn Topping.
 - **Cơ chế Bảo mật Điều hướng:** Nếu cố gắng thực hiện các thao tác yêu cầu định danh (như nhấn "Thêm vào giỏ", truy cập URL `/customer/cart`, `/customer/history`), hệ thống sẽ tự động chặn và chuyển hướng sang trang Đăng nhập.
@@ -17,14 +19,17 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
   - Quản lý tùy chọn nhận hàng: Nhờ quán giao tận nơi (Ship) hoặc Tự đến lấy tại quán.
   - Quản lý địa chỉ giao hàng: Tích hợp tính năng **Chọn từ Google Maps** để lấy tọa độ và địa chỉ chuẩn xác. Tự động điền SĐT và Tên từ hồ sơ người dùng.
   - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
-  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá; hỗ trợ tạo mã QR chuyển khoản tự động kèm nội dung và số tiền.
+  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá. Tích hợp **Phiên thanh toán ảo (Mock Payment Session)** hỗ trợ tạo mã QR chuyển khoản tự động kèm nội dung và số tiền để xác nhận thanh toán.
   - Điều chỉnh số lượng món, xóa món trong giỏ.
 - **Lịch Sử Đơn Hàng (`/customer/history`):**
   - Theo dõi trạng thái đơn hàng thời gian thực: Chờ duyệt -> Đang nấu -> Chờ lấy -> Hoàn thành.
   - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
-  - Chức năng tiện ích: Đánh giá dịch vụ sau khi Hoàn thành; nút "Đặt lại" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
+  - Chức năng tiện ích: Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
   - **Hệ thống Xoa dịu Khách hàng:** Nếu đơn hàng bị quán Hủy, hệ thống hiển thị thông báo Alert đỏ và **cấp tự động Mã giảm giá đền bù** (có nút Copy) trực tiếp trên giao diện lịch sử.
-- **Tài Khoản (`/customer/profile`):** Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ). Cập nhật địa chỉ nhận hàng mặc định.
+- **Tài Khoản & Sổ Địa Chỉ (`/customer/profile`):** 
+  - Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ).
+  - Cập nhật thông tin cá nhân (Họ tên, SĐT).
+  - **Quản lý Sổ địa chỉ:** Thêm nhiều địa chỉ nhận hàng vào sổ, thiết lập địa chỉ mặc định để tự động điền khi đặt hàng, xóa địa chỉ cũ.
 
 ### 3. Nhân Viên (Staff)
 - **Bảng Điều Phối Đơn Hàng (Kanban Board):** 
@@ -34,7 +39,7 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
 - **Hệ Thống Hủy Tự Động & Đền Bù:**
   - **Auto Cancel:** Quét và tự động hủy các đơn "Chờ duyệt" bị treo quá 30 phút, đồng thời ngầm gửi **Voucher đền bù 5.000đ** cho khách.
   - **Hủy Thủ Công:** Nếu Staff buộc phải hủy đơn (VD: hết nguyên liệu), hệ thống tự động sinh **Voucher đền bù 15.000đ** tặng khách hàng.
-- **Quản lý Tồn Kho Nhanh:** Bật/tắt trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) mà không cần vào menu Admin.
+- **Quản lý Tồn Kho Nhanh:** Bật/tắt trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
 
 ### 4. Quản Trị Viên (Admin)
 - **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
@@ -44,7 +49,7 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
 - **Quản lý Người Dùng & Nhân Sự (`/admin/users`):**
   - Tách bạch thông tin Họ Tên và Tên Đăng Nhập cho các vai trò.
   - **Bảo Mật Dữ Liệu:** Tự động che giấu Số điện thoại (Tên đăng nhập) của Customer bằng chuỗi `***` để bảo vệ quyền riêng tư, chỉ hiển thị tên.
-  - Có quyền cấp tài khoản Staff với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). Có tính năng khóa (Ban/Block) tài khoản khách hàng có hành vi xấu.
+  - Có quyền cấp tài khoản Staff với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). Có tính năng khóa (Ban/Block/LOCKED) tài khoản khách hàng có hành vi xấu để ngăn chặn đăng nhập vào hệ thống.
 
 ---
 
