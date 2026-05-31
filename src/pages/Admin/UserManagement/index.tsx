@@ -1,78 +1,96 @@
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Space, message, Popconfirm, Modal, Form, Input } from 'antd';
 import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
-import { getUsers, updateUsers } from '@/services/auth';
+import { getUsers, createStaff, toggleUserStatus } from '@/services/auth';
 import { User } from '@/services/typing';
 import '../admin.less';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
+  const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
+  const [searchText, setSearchText] = useState('');
   const [form] = Form.useForm();
 
-  const loadUsers = () => {
-    setUsers(getUsers());
+  const loadUsers = async () => {
+    setLoading(true);
+    const data = await getUsers();
+    setUsers(data);
+    setLoading(false);
   };
 
   useEffect(() => {
     loadUsers();
-    window.addEventListener('storage', loadUsers);
-    return () => window.removeEventListener('storage', loadUsers);
+    // Bỏ event listener storage vì giờ gọi API thật
   }, []);
 
-  const toggleBan = (id: string, isBanned: boolean) => {
-    const rawUsers = getUsers();
-    const index = rawUsers.findIndex(u => u.id === id);
-    if (index > -1) {
-      const targetUser = rawUsers[index];
-      if (targetUser.role?.toUpperCase() === 'ADMIN') {
-        message.error('Không thể khóa tài khoản Admin!');
-        return;
-      }
-      
-      rawUsers[index].status = isBanned ? 'LOCKED' : 'ACTIVE';
-      updateUsers(rawUsers);
-      loadUsers(); // refresh local state
-      message.success(isBanned ? `Đã khóa tài khoản của ${targetUser.name}!` : `Đã mở khóa tài khoản của ${targetUser.name}!`);
-    }
-  };
-
-  const handleAddStaff = (values: any) => {
-    const rawUsers = getUsers();
-    const cleanPhone = values.phone.trim();
-    if (rawUsers.find(u => u.phone === cleanPhone)) {
-      message.error('Số điện thoại (Tên đăng nhập) này đã tồn tại!');
+  const toggleBan = async (id: string, isBanned: boolean) => {
+    const targetUser = users.find(u => u.id === id);
+    if (targetUser?.role?.toUpperCase() === 'ADMIN') {
+      message.error('Không thể khóa tài khoản Admin!');
       return;
     }
     
-    const newStaff: User = {
-      id: 's' + Date.now(),
+    setLoading(true);
+    const res = await toggleUserStatus(id, isBanned);
+    if (res.success) {
+      message.success(isBanned ? `Đã khóa tài khoản!` : `Đã mở khóa tài khoản!`);
+      loadUsers(); // Refresh từ server
+    } else {
+      message.error(res.message);
+      setLoading(false);
+    }
+  };
+
+  const handleAddStaff = async (values: any) => {
+    const cleanPhone = values.phone.trim();
+    
+    setLoading(true);
+    const res = await createStaff({
       name: values.name.trim(),
       phone: cleanPhone,
       password: values.password,
       role: 'STAFF',
       status: 'ACTIVE'
-    };
+    });
     
-    rawUsers.push(newStaff);
-    updateUsers(rawUsers);
-    loadUsers(); // refresh local state
-    setIsModalVisible(false);
-    message.success('Đã cấp phát tài khoản Nhân viên mới thành công!');
+    if (res.success) {
+      message.success('Đã cấp phát tài khoản Nhân viên mới thành công!');
+      setIsModalVisible(false);
+      form.resetFields();
+      loadUsers(); // Tải lại danh sách
+    } else {
+      message.error(res.message);
+      setLoading(false);
+    }
   };
 
   const columns = [
     { 
       title: 'Họ tên', 
-      dataIndex: 'name', 
-      key: 'name',
-      sorter: (a: User, b: User) => (a.name || '').localeCompare(b.name || '')
+      key: 'fullName',
+      render: (_: any, record: User) => {
+        return <span>{record.full_name || record.name}</span>;
+      },
+      sorter: (a: User, b: User) => {
+        const nameA = a.full_name || a.name || '';
+        const nameB = b.full_name || b.name || '';
+        return nameA.localeCompare(nameB);
+      }
+    },
+    { 
+      title: 'Tên đăng nhập', 
+      key: 'username',
+      render: (_: any, record: User) => {
+        return <strong>{record.name}</strong>;
+      }
     },
     { 
       title: 'Số điện thoại', 
-      dataIndex: 'phone', 
       key: 'phone',
-      render: (phone: string) => <strong>{phone}</strong>
+      render: (_: any, record: User) => {
+        return <span>{record.phone}</span>;
+      }
     },
     { 
       title: 'Vai trò', 
@@ -116,7 +134,7 @@ const UserManagement: React.FC = () => {
             {s === 'ACTIVE' ? (
               <Popconfirm 
                 title={`Bạn có chắc muốn KHÓA tài khoản của ${record.name}?`} 
-                onConfirm={() => toggleBan(record.id, true)}
+                onConfirm={() => toggleBan(record.id!, true)}
                 okText="Khóa tài khoản"
                 cancelText="Hủy"
                 okButtonProps={{ danger: true }}
@@ -129,7 +147,7 @@ const UserManagement: React.FC = () => {
                 icon={<SafetyOutlined />} 
                 size="small" 
                 style={{ background: '#52c41a', borderColor: '#52c41a' }} 
-                onClick={() => toggleBan(record.id, false)}
+                onClick={() => toggleBan(record.id!, false)}
               >
                 Mở khóa
               </Button>
@@ -144,16 +162,35 @@ const UserManagement: React.FC = () => {
     <div className="admin-page" style={{ padding: 24 }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Quản lý Người dùng & Nhân sự</h2>
-        <Button 
-          type="primary" 
-          icon={<PlusOutlined />} 
-          onClick={() => { form.resetFields(); setIsModalVisible(true); }}
-          style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
-        >
-          Cấp tài khoản Nhân viên (Staff)
-        </Button>
+        <Space>
+          <Input.Search 
+            placeholder="Tìm theo Tên, Username hoặc SĐT..." 
+            allowClear 
+            onSearch={setSearchText} 
+            onChange={(e) => setSearchText(e.target.value)}
+            style={{ width: 300 }} 
+          />
+          <Button 
+            type="primary" 
+            icon={<PlusOutlined />} 
+            onClick={() => { form.resetFields(); setIsModalVisible(true); }}
+            style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
+          >
+            Cấp tài khoản Nhân viên (Staff)
+          </Button>
+        </Space>
       </div>
-      <Table columns={columns} dataSource={users} rowKey="id" pagination={{ pageSize: 10 }} />
+      <Table 
+        columns={columns} 
+        dataSource={users.filter(u => 
+          (u.name || '').toLowerCase().includes(searchText.toLowerCase()) || 
+          (u.full_name || '').toLowerCase().includes(searchText.toLowerCase()) || 
+          (u.phone || '').toLowerCase().includes(searchText.toLowerCase())
+        )} 
+        rowKey="id" 
+        pagination={{ pageSize: 10 }} 
+        loading={loading}
+      />
 
       <Modal 
         title="Cấp phát tài khoản Nhân viên (Staff)" 
@@ -162,7 +199,7 @@ const UserManagement: React.FC = () => {
         onOk={() => form.submit()}
         okText="Tạo tài khoản"
         cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
       >
         <Form form={form} layout="vertical" onFinish={handleAddStaff}>
           <Form.Item 
