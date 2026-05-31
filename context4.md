@@ -7,49 +7,49 @@ Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** the
 ## PHẦN I: TỔNG QUAN CHỨC NĂNG THEO PHÂN QUYỀN
 
 ### 1. Khách Vãng Lai (Guest / Public)
+- **Khám phá Trang chủ & Thực đơn:** Xem danh sách món ăn, tìm kiếm bằng từ khóa, lọc theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
+- **Xem Chi tiết Món:** Xem ảnh, giá cả, thành phần nguyên liệu, và danh sách các tùy chọn Topping (nhưng không được thao tác chọn mua).
 - **Đăng Ký Tài Khoản:** Đăng ký thành viên mới với các trường: Họ Tên, Tên đăng nhập, Số điện thoại, Mật khẩu, Địa chỉ. Tích hợp kiểm tra trùng lặp SĐT/Tên đăng nhập.
 - **Đăng Nhập Phân Quyền:** Đăng nhập linh hoạt bằng Tên đăng nhập HOẶC Số điện thoại. Hệ thống tự động phân tích Role để điều hướng (Admin/Staff vào trang quản trị, Customer vào trang đặt đồ).
-- **Khám phá Thực đơn:** Xem danh sách món ăn, tìm kiếm bằng từ khóa, lọc theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
-- **Xem Chi tiết Món:** Xem ảnh, giá cả, thành phần nguyên liệu, và danh sách các tùy chọn Topping.
-- **Cơ chế Bảo mật Điều hướng:** Nếu cố gắng thực hiện các thao tác yêu cầu định danh (như nhấn "Thêm vào giỏ", truy cập URL `/customer/cart`, `/customer/history`), hệ thống sẽ tự động chặn và chuyển hướng sang trang Đăng nhập.
+- **Cơ chế Bảo mật & Giới hạn Quyền (Protected Routes):** Không có tính năng Giỏ hàng. Các nút hành động (như "Thêm vào giỏ", "Đặt món") đều được đổi thành "Đăng nhập để đặt món". Nếu cố tình truy cập các đường dẫn như `/customer/cart`, `/customer/history`, hệ thống sẽ tự động chặn và chuyển hướng sang trang Đăng nhập.
 
-### 2. Khách Hàng Thành Viên (Customer)
+### 2. Khách Hàng Thành Viên (Customer / User)
 *Sở hữu toàn bộ tính năng của Guest, cộng thêm:*
 - **Giỏ hàng & Đặt món (`/customer/cart`):**
+  - Tùy chỉnh chi tiết món: Chọn Topping, thêm **ghi chú riêng cho từng món** (ví dụ: không hành, ít cay).
   - Quản lý tùy chọn nhận hàng: Nhờ quán giao tận nơi (Ship) hoặc Tự đến lấy tại quán.
   - Quản lý địa chỉ giao hàng: Tích hợp tính năng **Chọn từ Google Maps** để lấy tọa độ và địa chỉ chuẩn xác. Tự động điền SĐT và Tên từ hồ sơ người dùng.
-  - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
-  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá. Tích hợp **Phiên thanh toán ảo (Mock Payment Session)** hỗ trợ tạo mã QR chuyển khoản tự động kèm nội dung và số tiền để xác nhận thanh toán.
+  - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ khoảng thời gian đến lấy/nhận đồ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
+  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá. Chọn thanh toán tiền mặt khi nhận hoặc chuyển khoản (nhân viên sẽ tự xác nhận trạng thái chuyển tiền của khách).
   - Điều chỉnh số lượng món, xóa món trong giỏ.
-- **Lịch Sử Đơn Hàng (`/customer/history`):**
-  - Theo dõi trạng thái đơn hàng thời gian thực: Chờ duyệt -> Đang nấu -> Chờ lấy -> Hoàn thành.
+- **Lịch Sử & Theo dõi Đơn Hàng (Real-time tracking) (`/customer/history`):**
+  - Theo dõi trạng thái tiến trình thời gian thực: Chờ duyệt (Chờ xác nhận) -> Đang nấu (Đang chế biến) -> Chờ lấy (Đã sẵn sàng) -> Hoàn thành.
   - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
-  - Chức năng tiện ích: Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
-  - **Hệ thống Xoa dịu Khách hàng:** Nếu đơn hàng bị quán Hủy, hệ thống hiển thị thông báo Alert đỏ và **cấp tự động Mã giảm giá đền bù** (có nút Copy) trực tiếp trên giao diện lịch sử.
+  - Chức năng tiện ích: Xem lại đơn cũ, Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại đơn này" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
 - **Tài Khoản & Sổ Địa Chỉ (`/customer/profile`):** 
   - Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ).
   - Cập nhật thông tin cá nhân (Họ tên, SĐT).
   - **Quản lý Sổ địa chỉ:** Thêm nhiều địa chỉ nhận hàng vào sổ, thiết lập địa chỉ mặc định để tự động điền khi đặt hàng, xóa địa chỉ cũ.
 
 ### 3. Nhân Viên (Staff)
-- **Bảng Điều Phối Đơn Hàng (Kanban Board):** 
+- **Giao diện Bảng Điều Phối Đơn Hàng (Kanban Board / List):** 
   - Giao diện kéo-thả/chuyển bước chia làm 4 cột trạng thái: CHỜ DUYỆT, ĐANG NẤU, CHỜ LẤY, HOÀN THÀNH.
-  - **Báo động Đơn mới:** Hệ thống tự động phát âm thanh và hiển thị Popup thông báo khi có đơn đặt hàng mới từ khách.
-- **Thanh Toán & Hóa Đơn:** Cập nhật trạng thái "Đã thanh toán" / "Chưa thu tiền"; hỗ trợ in hóa đơn nhiệt cho bếp và khách hàng (chứa mã đơn, món ăn, lưu ý, tổng tiền).
-- **Hệ Thống Hủy Tự Động & Đền Bù:**
-  - **Auto Cancel:** Quét và tự động hủy các đơn "Chờ duyệt" bị treo quá 30 phút, đồng thời ngầm gửi **Voucher đền bù 5.000đ** cho khách.
-  - **Hủy Thủ Công:** Nếu Staff buộc phải hủy đơn (VD: hết nguyên liệu), hệ thống tự động sinh **Voucher đền bù 15.000đ** tặng khách hàng.
-- **Quản lý Tồn Kho Nhanh:** Bật/tắt trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
+  - **Thông báo đơn mới:** Hệ thống tự động hiển thị đơn mới ngay trong cột Chờ duyệt.
+  - **Xử lý đơn hàng:** Tiếp nhận đơn, chuyển trạng thái sang đang chế biến, và báo hiệu "Đã sẵn sàng / Chờ lấy" để thông báo cho khách món ăn đã làm xong.
+- **Thanh Toán & Hóa Đơn:** Cập nhật/Xác nhận trạng thái thanh toán của khách (đã chuyển khoản hoặc nhận tiền mặt). Hỗ trợ in hóa đơn nhiệt cho bếp và khách hàng (chứa mã đơn, món ăn, lưu ý, tổng tiền).
+- **Hủy Đơn Thủ Công:** Staff có quyền hủy đơn (VD: hết nguyên liệu).
+- **Quản lý Tồn Kho Nhanh:** Nút gạt bật/tắt (in-stock/out-of-stock) nhanh trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) để ẩn khỏi ứng dụng của khách mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
 
 ### 4. Quản Trị Viên (Admin)
-- **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
-- **Quản lý Thực đơn (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa món ăn, cập nhật giá, mô tả, ảnh, và danh mục. Đồng bộ mạnh mẽ và tránh lỗi crash database.
+- **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, tổng quan doanh thu trong ngày/tuần/tháng, tổng số đơn, thống kê top các món bán chạy nhất và biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
+- **Quản lý Thực đơn (CRUD) (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa danh mục và chi tiết món ăn, cập nhật giá, mô tả, ảnh minh họa. Đồng bộ mạnh mẽ và tránh lỗi crash database.
 - **Quản lý Mã Khuyến Mãi (`/admin/promos`):** Tạo/Sửa Voucher (giảm % hoặc giảm tiền mặt), thiết lập giới hạn sử dụng, bật/tắt trạng thái mã. Đảm bảo bảo mật API để ngăn chặn khách hàng lấy danh sách mã nội bộ.
-- **Quản lý Đơn Hàng (`/admin/orders`):** Xem toàn bộ danh sách, phân loại trực quan nhãn **🛵 Giao hàng** và **🏪 Nhận tại quán**. Làm nổi bật cột Hẹn lấy, hỗ trợ lọc trạng thái, hủy đơn khẩn cấp (có tự động đền bù), xuất dữ liệu ra file CSV.
+- **Quản lý Đơn Hàng (`/admin/orders`):** Tra soát toàn bộ lịch sử giao dịch, phân loại trực quan nhãn **🛵 Giao hàng** và **🏪 Nhận tại quán**. Làm nổi bật cột Hẹn lấy, hỗ trợ lọc trạng thái, can thiệp hủy đơn khẩn cấp. Tích hợp tính năng báo cáo & xuất dữ liệu danh sách đơn hàng/doanh thu ra file Excel/CSV phục vụ đối soát kế toán.
 - **Quản lý Người Dùng & Nhân Sự (`/admin/users`):**
   - Tách bạch thông tin Họ Tên và Tên Đăng Nhập cho các vai trò.
-  - **Bảo Mật Dữ Liệu:** Tự động che giấu Số điện thoại (Tên đăng nhập) của Customer bằng chuỗi `***` để bảo vệ quyền riêng tư, chỉ hiển thị tên.
-  - Có quyền cấp tài khoản Staff với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). Có tính năng khóa (Ban/Block/LOCKED) tài khoản khách hàng có hành vi xấu để ngăn chặn đăng nhập vào hệ thống.
+  - **Hiển thị thông tin:** Hiển thị đầy đủ Tên, Tên đăng nhập và Số điện thoại của người dùng.
+  - Cấp phát/Khóa tài khoản nhân viên (Staff) với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). 
+  - Khóa/Mở khóa (Ban/Unban/LOCKED) tài khoản khách hàng nếu có hành vi xấu (spam) để ngăn chặn đăng nhập vào hệ thống.
 
 ---
 
@@ -105,6 +105,25 @@ CLOUDINARY_CLOUD_NAME=ddmow44bt
 CLOUDINARY_API_KEY=297692159679124
 CLOUDINARY_API_SECRET=q3uMLzl3H2bDhePuRppEcejOMYA
 ```
+
+---
+
+## PHẦN III: CÁC TÍNH NĂNG CHƯA HOÀN THIỆN & ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI
+
+Dưới đây là danh sách các tính năng chưa được lập trình (hiện chỉ nằm trên ý tưởng) hoặc cần được nâng cấp trong các phiên bản tiếp theo của dự án:
+
+1. **Hệ Thống Hủy Đơn Tự Động & Đền Bù Voucher (Auto Cancel & Compensation):**
+   - *Hiện trạng:* Staff/Admin chỉ có thể hủy đơn thủ công và hệ thống không tự động cấp mã giảm giá cho khách.
+   - *Định hướng:* Xây dựng Cron Job trên Backend để quét và tự động hủy các đơn "Chờ duyệt" bị treo quá 30 phút. Tự động sinh mã Voucher (VD: đền bù 5.000đ - 15.000đ) và gửi thông báo trực tiếp (Alert đỏ) để xoa dịu khách hàng trong Lịch sử đơn.
+2. **Thanh Toán Trực Tuyến & Cổng Thanh Toán (Online Payment):**
+   - *Hiện trạng:* Khách hàng chọn chuyển khoản nhưng nhân viên phải đối soát thủ công bằng mắt và tự ấn xác nhận "Đã thanh toán".
+   - *Định hướng:* Tích hợp phiên thanh toán ảo (Mock Payment Session) hoặc cổng thanh toán thật (VNPay, Momo), hỗ trợ tạo mã QR động chứa sẵn số tiền và nội dung chuyển khoản. Khi tiền vào tài khoản, hệ thống tự động cập nhật trạng thái đơn thành "Đã thanh toán".
+3. **Hệ Thống Cảnh Báo & Thông Báo Nâng Cao (Advanced Notifications):**
+   - *Hiện trạng:* Đơn hàng mới chỉ xuất hiện lặng lẽ trong cột "Chờ duyệt" của bảng Kanban trên màn hình Staff.
+   - *Định hướng:* Tích hợp WebSockets/Socket.io để phát âm thanh báo động (`Ring ring`) và hiển thị Popup thông báo nổi khi có đơn mới, giúp nhân viên bếp không bị lỡ đơn khi đang làm việc khác.
+4. **Quản Lý Tồn Kho Nguyên Liệu Thực Tế:**
+   - *Hiện trạng:* Quản lý kho dạng "Nút gạt" (Bật/Tắt - Hết/Còn) thủ công do Staff thao tác.
+   - *Định hướng:* Xây dựng hệ thống định lượng (Recipe). Ví dụ: 1 Cơm rang = 200g cơm + 1 quả trứng. Khi khách đặt hàng, hệ thống tự động trừ lùi số lượng nguyên liệu trong kho thật và tự động ẩn món khi nguyên liệu chạm mức 0.
 
 ---
 **Tổng Kết:** Hiện tại mã nguồn đã được tối ưu hóa toàn bộ các lỗi liên đới tới bất đồng bộ và timeout. Luồng triển khai Github -> Netlify (FE) và Github -> Render (BE) đã được cấu hình thông suốt. Đảm bảo khai báo đúng biến môi trường và thiết lập IP trên MongoDB Atlas là dự án sẵn sàng vận hành trên môi trường thực tế.
