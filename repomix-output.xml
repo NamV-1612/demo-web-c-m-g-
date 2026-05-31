@@ -101,9 +101,6 @@ config/defaultSettings.ts
 config/oneapi.json
 config/proxy.ts
 config/routes.ts
-context.md
-context2.md
-context3.md
 context4.md
 Dockerfile
 Huong_Dan_Ket_Noi_API.md
@@ -375,7 +372,6 @@ src/locales/vi-VN/pages/index.ts
 src/locales/vi-VN/pages/login.ts
 src/models/danhmuc/chucvu.ts
 src/models/import.ts
-src/models/randomuser.ts
 src/models/thongbao/nhansu.ts
 src/models/thongbao/noticeicon.ts
 src/models/thongbao/receiver.ts
@@ -392,13 +388,24 @@ src/models/usePromoModel.ts
 src/pages/Admin/admin.less
 src/pages/Admin/Dashboard/index.tsx
 src/pages/Admin/Dashboard/style.less
+src/pages/Admin/MenuManagement/components/ProductModal.tsx
 src/pages/Admin/MenuManagement/index.tsx
 src/pages/Admin/OrderManagement/index.tsx
+src/pages/Admin/PromoManagement/components/PromoModal.tsx
 src/pages/Admin/PromoManagement/index.tsx
+src/pages/Admin/UserManagement/components/UserModal.tsx
 src/pages/Admin/UserManagement/index.tsx
+src/pages/Customer/Cart/components/AddressModal.tsx
+src/pages/Customer/Cart/components/CartItem.tsx
+src/pages/Customer/Cart/components/CartMapModal.tsx
+src/pages/Customer/Cart/components/CheckoutForm.tsx
+src/pages/Customer/Cart/components/CheckoutSummary.tsx
 src/pages/Customer/Cart/index.tsx
 src/pages/Customer/Cart/style.less
 src/pages/Customer/customer.less
+src/pages/Customer/History/components/MapModal.tsx
+src/pages/Customer/History/components/OrderCard.tsx
+src/pages/Customer/History/components/RatingModal.tsx
 src/pages/Customer/History/index.tsx
 src/pages/Customer/History/style.less
 src/pages/Customer/Home/components/ProductCard/index.tsx
@@ -423,10 +430,10 @@ src/pages/exception/403/index.tsx
 src/pages/exception/404/index.tsx
 src/pages/exception/500/index.tsx
 src/pages/exception/DangCapNhat/index.tsx
-src/pages/RandomUser/Form.tsx
-src/pages/RandomUser/index.tsx
+src/pages/Staff/Dashboard/components/KanbanColumn.tsx
 src/pages/Staff/Dashboard/components/OrderCard/index.tsx
 src/pages/Staff/Dashboard/components/OrderCard/style.less
+src/pages/Staff/Dashboard/components/QuickInventoryDrawer.tsx
 src/pages/Staff/Dashboard/index.tsx
 src/pages/Staff/Dashboard/style.less
 src/pages/Staff/Login/index.tsx
@@ -467,8 +474,6 @@ src/services/DanhMuc/ChucVu/typing.d.ts
 src/services/DanhMuc/constant.ts
 src/services/menu.ts
 src/services/order.ts
-src/services/RandomUser/index.ts
-src/services/RandomUser/typings.d.ts
 src/services/ThongBao/constant.ts
 src/services/ThongBao/index.ts
 src/services/ThongBao/typing.d.ts
@@ -2938,80 +2943,6 @@ export default {
     },
   },
 };
-</file>
-
-<file path="context2.md">
-# Các Chức Năng Chi Tiết Theo Từng Phân Quyền
-
-Hệ thống được chia thành 4 phân quyền với các nhóm tính năng cụ thể bám sát với mã nguồn hiện hành (React/UmiJS):
-
-## 1. Khách vãng lai (Guest)
-- **Xem thông tin (Trang chủ)**: Khám phá thực đơn, tìm kiếm món ăn bằng từ khóa, lọc món ăn theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
-- **Xem chi tiết**: Xem được chi tiết từng món ăn (ảnh, giá, thành phần, topping) nhưng không thể thao tác thêm vào giỏ.
-- **Bảo mật**: Không có quyền sử dụng giỏ hàng. Nếu nhấn "Thêm vào giỏ" hoặc cố ý vào URL `/customer/cart`, `/customer/history`... sẽ bị chuyển hướng sang trang đăng nhập.
-
-## 2. Khách hàng thành viên (User)
-*Có đầy đủ quyền của Guest và thêm các quyền sau:*
-- **Đặt món & Giỏ hàng (`/customer/cart`)**: 
-  - Chọn tùy chọn nhận hàng: Nhờ quán ship (giao tận nơi) hoặc tự đến lấy.
-  - Quản lý địa chỉ giao hàng: Thêm địa chỉ mới (Tên, SĐT, địa chỉ cụ thể).
-  - Chọn thời gian nhận đồ (VD: Lấy ngay trong 15p, hoặc hẹn các khung giờ từ 11:00 đến 20:00).
-  - Áp dụng mã khuyến mãi (voucher) để được giảm giá (theo % hoặc số tiền).
-  - Thanh toán: Hỗ trợ tự động tạo mã QR chuyển khoản MB Bank chứa sẵn số tiền và nội dung chuyển.
-  - Điều chỉnh số lượng món, xóa món trong giỏ.
-- **Lịch sử & Theo dõi (`/customer/history`)**: 
-  - Theo dõi trạng thái đơn real-time theo từng bước: Chờ duyệt -> Đang nấu -> Chờ lấy -> Hoàn thành.
-  - Chỉnh sửa thông tin giao hàng (SĐT, địa chỉ) hoặc **Hủy đơn** khi đơn đang ở trạng thái "Chờ duyệt" (Pending).
-  - Đánh giá chất lượng dịch vụ (Rate 1-5 sao + bình luận) sau khi đơn "Hoàn thành".
-  - Chức năng "Đặt lại" để copy nhanh lại các món vào giỏ hàng.
-  - Xóa lịch sử đối với các đơn đã Hủy hoặc Hoàn thành.
-- **Quản lý Tài khoản (`/customer/profile`)**: Cập nhật tên hiển thị, đổi mật khẩu (có xác thực mật khẩu cũ).
-
-## 3. Nhân viên (Staff - `/staff/dashboard`)
-- **Điều phối đơn hàng (Kanban Board)**: 
-  - Giao diện real-time chia 4 cột: CHỜ DUYỆT, ĐANG NẤU, CHỜ LẤY, HOÀN THÀNH.
-  - Báo động: Tự động phát âm thanh thông báo và hiện popup khi có đơn mới.
-  - Chuyển trạng thái đơn qua từng bước (Duyệt đơn -> Nấu xong -> Giao khách).
-- **Thanh toán & In ấn**:
-  - Gạt nút xác nhận "Đã thanh toán" / "Chưa thu tiền" khi kiểm tra giao dịch của khách.
-  - In hóa đơn nhiệt (mã đơn, món ăn, lưu ý, tổng tiền) cho bếp và khách.
-- **Quản lý tồn kho cấp tốc (Drawer)**:
-  - Bật/tắt trạng thái món ăn (Hết hàng / Còn hàng) trực tiếp.
-  - Bật/tắt trạng thái **cho từng Topping** của món ăn (VD: Tạm hết trân châu, hết xúc xích...).
-
-## 4. Quản trị viên (Admin - `/admin/*`)
-- **Dashboard Tổng quan**: Theo dõi các số liệu báo cáo, doanh thu tổng hợp.
-- **Quản lý Thực đơn (`/admin/menu`)**: Thêm, sửa, xóa các món ăn, thiết lập giá, mô tả, ảnh và cập nhật danh mục.
-- **Quản lý Mã Khuyến Mãi (`/admin/promos`)**:
-  - Tạo/Sửa mã giảm giá (VD: TET2024).
-  - Cấu hình loại giảm (Theo % hoặc cố định số tiền), giới hạn mức giảm tối đa.
-  - Quản lý số lượng mã và trạng thái Bật/Tắt (isActive).
-- **Quản lý Đơn hàng (`/admin/orders`)**:
-  - Xem toàn bộ danh sách đơn hàng của hệ thống.
-  - Bộ lọc thông minh theo trạng thái.
-  - Hủy khẩn cấp các đơn hàng (trừ các đơn đã hoàn thành hoặc đã hủy).
-  - Xuất báo cáo danh sách đơn hàng ra file CSV để phục vụ đối soát.
-- **Quản lý Người dùng & Nhân sự (`/admin/users`)**:
-  - Chủ động tạo và cấp phát tài khoản cho Nhân viên bếp (Staff) với Tên đăng nhập và Mật khẩu khởi tạo.
-  - Quản lý danh sách mọi tài khoản, dùng nút "Khóa tài khoản" (Ban/Block) đối với khách hàng có hành vi xấu (Admin không thể tự khóa chính mình).
-
-## YÊU CẦU CHUNG VỀ KỸ THUẬT
-
-**1. Frontend (Client)**
-- **Ngôn ngữ**: Typescript.
-- **Framework**: ReactJS kết hợp với base UmiJS.
-- **Thư viện UI**: Ant Design (ưu tiên dùng các component có sẵn của Antd/Project).
-- **Cấu trúc & CSS**: 
-  - Phải chia rõ ràng thư mục (pages, models, services, mock api...).
-  - Component hóa: Mỗi page cần chia nhỏ component, `index.tsx` và `style.less`.
-  - Tách bạch CSS: Style phải để vào `style.less`, tuyệt đối **không được chứa inline CSS** trong các file `.tsx`.
-  - Giữ nguyên thiết lập cấu hình của base web UmiJS (từ giảng viên), khai báo interface thống nhất trong dự án.
-
-**2. Backend (Server)**
-- Sử dụng **Mock API** và lưu trữ dữ liệu tại máy khách bằng **localStorage**.
-
-**3. Triển khai (Deploy)**
-- Dự án sẽ được **Deploy qua Netlify**.
 </file>
 
 <file path="Dockerfile">
@@ -13602,41 +13533,6 @@ export default () => {
 };
 </file>
 
-<file path="src/models/randomuser.ts">
-import { getData } from '@/services/RandomUser';
-import { useState } from 'react';
-
-export default () => {
-	const [data, setData] = useState([]);
-	const [visible, setVisible] = useState<boolean>(false);
-	const [isEdit, setIsEdit] = useState<boolean>(false);
-	const [row, setRow] = useState<RandomUser.Record>();
-
-	const getDataUser = async () => {
-		const dataLocal: any = JSON.parse(localStorage.getItem('data') as any);
-		if (!dataLocal?.length) {
-			const res = await getData();
-			localStorage.setItem('data', JSON.stringify(res?.data ?? []));
-			setData(res?.data ?? []);
-			return;
-		}
-		setData(dataLocal);
-	};
-
-	return {
-		data,
-		visible,
-		setVisible,
-		row,
-		setRow,
-		isEdit,
-		setIsEdit,
-		setData,
-		getDataUser,
-	};
-};
-</file>
-
 <file path="src/models/thongbao/nhansu.ts">
 import type { TFilter } from '@/components/Table/typing';
 import { postReceiver } from '@/services/ThongBao';
@@ -13969,6 +13865,1201 @@ export default () => {
 		...objInit,
 	};
 };
+</file>
+
+<file path="src/pages/Admin/MenuManagement/components/ProductModal.tsx">
+import React from 'react';
+import { Modal, Form, Input, InputNumber, Switch, Button, Upload } from 'antd';
+import { UploadOutlined } from '@ant-design/icons';
+import { FormInstance } from 'antd/es/form';
+
+interface ProductModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onSave: (values: any) => void;
+  form: FormInstance<any>;
+  setSelectedFile: (file: File | null) => void;
+}
+
+const ProductModal: React.FC<ProductModalProps> = ({ visible, onCancel, onSave, form, setSelectedFile }) => {
+  return (
+    <Modal 
+      title={form.getFieldValue('id') ? "Chỉnh sửa món ăn" : "Thêm món ăn mới"} 
+      visible={visible} 
+      onCancel={onCancel} 
+      onOk={() => form.submit()}
+      okText="Lưu"
+      cancelText="Hủy"
+      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+    >
+      <Form form={form} layout="vertical" onFinish={onSave}>
+        <Form.Item name="id" hidden><Input /></Form.Item>
+        <Form.Item name="name" label="Tên món" rules={[{ required: true, message: 'Vui lòng nhập tên món!' }]}><Input /></Form.Item>
+        <Form.Item name="category" label="Danh mục" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}><Input placeholder="VD: Cơm rang, Món ăn kèm, Đồ uống" /></Form.Item>
+        <Form.Item name="price" label="Giá tiền (VNĐ)" rules={[{ required: true, message: 'Vui lòng nhập giá món!' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item>
+        <Form.Item label="Hình ảnh">
+          <Upload 
+            beforeUpload={(file) => {
+              setSelectedFile(file);
+              return false; // Ngăn không cho upload tự động
+            }}
+            maxCount={1}
+            onRemove={() => setSelectedFile(null)}
+          >
+            <Button icon={<UploadOutlined />}>Chọn ảnh từ máy tính (Cloudinary)</Button>
+          </Upload>
+          {form.getFieldValue('id') && <div style={{marginTop: 8, fontSize: 12, color: 'gray'}}>Nếu không chọn ảnh mới, hệ thống sẽ giữ nguyên ảnh cũ.</div>}
+        </Form.Item>
+        <Form.Item name="toppings" label="Toppings (cách nhau bởi dấu phẩy)"><Input placeholder="VD: Thêm trứng, Thêm xúc xích, Thêm lạp xưởng" /></Form.Item>
+        <Form.Item name="description" label="Mô tả"><Input.TextArea placeholder="Mô tả món ăn" /></Form.Item>
+        <Form.Item name="isAvailable" label="Đang bán?" valuePropName="checked"><Switch /></Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default ProductModal;
+</file>
+
+<file path="src/pages/Admin/PromoManagement/components/PromoModal.tsx">
+import React from 'react';
+import { Modal, Form, Input, InputNumber, Switch, Select } from 'antd';
+import { FormInstance } from 'antd/es/form';
+
+interface PromoModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onSave: (values: any) => void;
+  form: FormInstance<any>;
+}
+
+const PromoModal: React.FC<PromoModalProps> = ({ visible, onCancel, onSave, form }) => {
+  const discountType = Form.useWatch('discountType', form);
+
+  return (
+    <Modal 
+      title={form.getFieldValue('id') ? "Chỉnh sửa mã khuyến mãi" : "Thêm mã khuyến mãi mới"} 
+      visible={visible} 
+      onCancel={onCancel} 
+      onOk={() => form.submit()}
+      okText="Lưu"
+      cancelText="Hủy"
+      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+    >
+      <Form form={form} layout="vertical" onFinish={onSave}>
+        <Form.Item name="id" hidden><Input /></Form.Item>
+        <Form.Item 
+          name="code" 
+          label="Mã Khuyến Mãi (Code)" 
+          rules={[
+            { required: true, message: 'Vui lòng nhập mã!' },
+            { pattern: /^[A-Za-z0-9]+$/, message: 'Mã chỉ chứa chữ không dấu và số, không có khoảng trắng!' }
+          ]}
+        >
+          <Input placeholder="VD: TET2024, GIAM20K" style={{ textTransform: 'uppercase' }} />
+        </Form.Item>
+        
+        <Form.Item name="discountType" label="Loại giảm giá" rules={[{ required: true }]}>
+          <Select>
+            <Select.Option value="PERCENT">Giảm theo %</Select.Option>
+            <Select.Option value="AMOUNT">Giảm số tiền cố định</Select.Option>
+          </Select>
+        </Form.Item>
+
+        <Form.Item 
+          name="discountValue" 
+          label={discountType === 'PERCENT' ? "Phần trăm giảm (%)" : "Số tiền giảm (VNĐ)"} 
+          rules={[{ required: true, message: 'Vui lòng nhập mức giảm!' }]}
+        >
+          <InputNumber 
+            style={{ width: '100%' }} 
+            min={0} 
+            max={discountType === 'PERCENT' ? 100 : undefined}
+          />
+        </Form.Item>
+
+        {discountType === 'PERCENT' && (
+          <Form.Item name="maxDiscountAmount" label="Số tiền giảm tối đa (VNĐ) (Tùy chọn)">
+            <InputNumber style={{ width: '100%' }} min={0} placeholder="Không giới hạn nếu để trống" />
+          </Form.Item>
+        )}
+
+        <Form.Item name="quantity" label="Số lượng mã" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+          <InputNumber style={{ width: '100%' }} min={0} />
+        </Form.Item>
+
+        <Form.Item name="isActive" label="Trạng thái kích hoạt" valuePropName="checked">
+          <Switch />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default PromoModal;
+</file>
+
+<file path="src/pages/Admin/UserManagement/components/UserModal.tsx">
+import React from 'react';
+import { Modal, Form, Input } from 'antd';
+import { FormInstance } from 'antd/es/form';
+
+interface UserModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onSave: (values: any) => void;
+  form: FormInstance<any>;
+  loading: boolean;
+}
+
+const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, loading }) => {
+  return (
+    <Modal 
+      title="Cấp phát tài khoản Nhân viên (Staff)" 
+      visible={visible} 
+      onCancel={onCancel} 
+      onOk={() => form.submit()}
+      okText="Tạo tài khoản"
+      cancelText="Hủy"
+      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
+    >
+      <Form form={form} layout="vertical" onFinish={onSave}>
+        <Form.Item 
+          name="name" 
+          label="Họ tên Nhân viên" 
+          rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
+        >
+          <Input placeholder="VD: Nguyễn Văn Hùng" />
+        </Form.Item>
+        <Form.Item 
+          name="phone" 
+          label="Tên đăng nhập (Số điện thoại)" 
+          rules={[
+            { required: true, message: 'Vui lòng nhập số điện thoại!' },
+            { pattern: /^[0-9A-Za-z]+$/, message: 'Chỉ chứa số hoặc chữ viết liền không dấu!' }
+          ]}
+        >
+          <Input placeholder="VD: 0912345678 hoặc STAFF2" />
+        </Form.Item>
+        <Form.Item 
+          name="password" 
+          label="Mật khẩu khởi tạo" 
+          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu khởi tạo!' }]}
+        >
+          <Input.Password placeholder="VD: 123456" />
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default UserModal;
+</file>
+
+<file path="src/pages/Customer/Cart/components/AddressModal.tsx">
+import React, { useEffect } from 'react';
+import { Modal, Form, Input, Button } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
+
+interface AddressModalProps {
+  visible: boolean;
+  currentUser: any;
+  onCancel: () => void;
+  onSubmit: (values: any) => void;
+  onOpenMap: () => void;
+}
+
+const AddressModal: React.FC<AddressModalProps> = ({ visible, currentUser, onCancel, onSubmit, onOpenMap }) => {
+  const [form] = Form.useForm();
+
+  useEffect(() => {
+    if (visible && currentUser) {
+      form.setFieldsValue({
+        phone: form.getFieldValue('phone') || currentUser.phone,
+        name: form.getFieldValue('name') || currentUser.full_name || currentUser.name
+      });
+    }
+  }, [visible, currentUser, form]);
+
+  useEffect(() => {
+    const handleMapAddress = (e: any) => {
+      form.setFieldsValue({ address: e.detail });
+    };
+    window.addEventListener('map-address-selected', handleMapAddress);
+    return () => window.removeEventListener('map-address-selected', handleMapAddress);
+  }, [form]);
+
+  return (
+    <Modal 
+      title="Thêm địa chỉ giao hàng" 
+      visible={visible} 
+      onCancel={() => { form.resetFields(); onCancel(); }} 
+      onOk={() => form.submit()}
+      okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white' } }}
+      cancelButtonProps={{ style: { borderRadius: '8px' } }}
+    >
+      <Form form={form} layout="vertical" onFinish={onSubmit}>
+        <Form.Item name="name" label="Tên người nhận" rules={[{ required: true, message: 'Vui lòng nhập tên người nhận' }, { pattern: /^[a-zA-ZÀ-ỹ\s]+$/, message: 'Tên chỉ chứa chữ cái (có thể 1 từ)' }]}>
+          <Input placeholder="VD: Nam" />
+        </Form.Item>
+        <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ' }]}>
+          <Input placeholder="VD: 0987654321" />
+        </Form.Item>
+        <Form.Item label="Địa chỉ cụ thể" style={{ marginBottom: 0 }}>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+            <Button type="dashed" onClick={onOpenMap} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+              Chọn từ Google Maps
+            </Button>
+          </div>
+          <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập hoặc chọn địa chỉ' }]}>
+            <Input.TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
+          </Form.Item>
+        </Form.Item>
+      </Form>
+    </Modal>
+  );
+};
+
+export default AddressModal;
+</file>
+
+<file path="src/pages/Customer/Cart/components/CartItem.tsx">
+import React from 'react';
+import { Card, Typography, Tag, Button } from 'antd';
+import { DeleteOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
+
+interface CartItemProps {
+  item: any;
+  onUpdateQuantity: (cartItemId: string, change: number) => void;
+  onRemove: (cartItemId: string) => void;
+}
+
+const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove }) => {
+  return (
+    <Card className="cart-item-card" bordered={false}>
+      <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
+        <img 
+          src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 
+          alt={item.product?.name || 'Food'}
+          style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #f0f0f0' }}
+        />
+        <div style={{ flex: 1 }}>
+          <Text strong className="item-name" style={{ fontSize: 16 }}>{item.product.name}</Text>
+          
+          <div className="quantity-control" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 12 }}>
+            <Button 
+              size="small" 
+              shape="circle" 
+              onClick={() => onUpdateQuantity(item.cartItemId, -1)} 
+              disabled={item.quantity <= 1}
+            >-</Button>
+            <Text strong style={{ fontSize: '15px', minWidth: '20px', textAlign: 'center' }}>{item.quantity}</Text>
+            <Button 
+              size="small" 
+              shape="circle" 
+              onClick={() => onUpdateQuantity(item.cartItemId, 1)}
+            >+</Button>
+          </div>
+          <div style={{ margin: '8px 0' }}>
+            {(item.selectedToppings || []).map((t: string) => <Tag key={t} color="orange" style={{ borderRadius: 12 }}>{t}</Tag>)}
+          </div>
+          {item.note && <div className="item-note" style={{ fontSize: 13, color: '#BA1A21', fontStyle: 'italic' }}>* Ghi chú: {item.note}</div>}
+        </div>
+        <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 80 }}>
+          <div className="item-price" style={{ fontSize: 16, fontWeight: 'bold', color: '#BA1A21' }}>{item.totalPrice.toLocaleString()}đ</div>
+          <Button type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(item.cartItemId)} style={{ marginTop: 'auto' }}>
+            Xóa
+          </Button>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default CartItem;
+</file>
+
+<file path="src/pages/Customer/Cart/components/CartMapModal.tsx">
+import React, { useRef, useState } from 'react';
+import { Modal, Input, AutoComplete, message, Typography } from 'antd';
+import { EnvironmentOutlined, EnvironmentFilled } from '@ant-design/icons';
+
+const { Text } = Typography;
+
+interface CartMapModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onConfirm: (address: string) => void;
+}
+
+const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfirm }) => {
+  const [mapSearchText, setMapSearchText] = useState('');
+  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542'); // Hoan Kiem coords
+  const [mapOptions, setMapOptions] = useState<any[]>([]);
+  const searchTimeoutRef = useRef<any>(null);
+
+  const handleMapSearch = (value: string) => {
+    if (!value.trim()) {
+      setMapOptions([]);
+      return;
+    }
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=vn`);
+        const data = await res.json();
+        const newOptions = data.map((item: any) => ({
+          value: item.display_name,
+          label: item.display_name,
+          lat: item.lat,
+          lon: item.lon
+        }));
+        setMapOptions(newOptions);
+      } catch (err) {
+        console.error('Map search error:', err);
+      }
+    }, 600);
+  };
+
+  return (
+    <Modal 
+      title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
+      visible={visible} 
+      onCancel={onCancel} 
+      onOk={() => {
+        const finalAddress = mapSearchText.trim() ? mapSearchText : 'Hồ Hoàn Kiếm, Hà Nội';
+        onConfirm(finalAddress);
+        message.success('Đã chọn vị trí từ bản đồ!');
+      }}
+      okText="Xác nhận vị trí này"
+      cancelText="Hủy"
+      width={700}
+      zIndex={1001}
+      bodyStyle={{ padding: 0 }}
+      okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
+      cancelButtonProps={{ style: { borderRadius: '8px' } }}
+    >
+      <div style={{ position: 'relative', width: '100%', height: '450px', overflow: 'hidden' }}>
+        <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 20 }}>
+          <AutoComplete
+            options={mapOptions}
+            style={{ width: '100%' }}
+            onSearch={handleMapSearch}
+            onSelect={(value, option: any) => {
+              setMapSearchText(value);
+              if (option.lat && option.lon) {
+                setSubmittedSearchText(`${option.lat},${option.lon}`);
+              } else {
+                setSubmittedSearchText(value);
+              }
+              message.loading({ content: 'Đang tải vị trí...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã tìm thấy vị trí!', key: 'map-search' }));
+            }}
+            value={mapSearchText}
+            onChange={setMapSearchText}
+          >
+            <Input.Search 
+              className="map-search-input"
+              placeholder="Tìm kiếm trên Google Maps (Mô phỏng)..." 
+              enterButton="Tìm"
+              size="large"
+              style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.3)', borderRadius: 8 }}
+              onSearch={(value) => {
+                const newSearch = value.trim() || 'Hồ Hoàn Kiếm, Hà Nội';
+                setSubmittedSearchText(newSearch);
+                message.loading({ content: 'Đang tìm kiếm...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã di chuyển tới vị trí!', key: 'map-search' }));
+              }}
+            />
+          </AutoComplete>
+        </div>
+        <iframe 
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
+          width="100%" 
+          height="100%" 
+          style={{ border: 0 }} 
+          allowFullScreen 
+          loading="lazy"
+          title="Map"
+        ></iframe>
+        <EnvironmentFilled 
+          style={{ 
+            position: 'absolute', 
+            top: '50%', 
+            left: '50%', 
+            transform: 'translate(-50%, -100%)', 
+            fontSize: 42, 
+            color: '#BA1A21', 
+            pointerEvents: 'none', 
+            zIndex: 10, 
+            filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' 
+          }} 
+        />
+      </div>
+      <div style={{ padding: '12px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <EnvironmentOutlined style={{ color: '#BA1A21' }} />
+        <Text type="secondary">Kéo bản đồ để ghim chính xác vào vị trí nhận hàng của bạn.</Text>
+      </div>
+    </Modal>
+  );
+};
+
+export default CartMapModal;
+</file>
+
+<file path="src/pages/Customer/Cart/components/CheckoutForm.tsx">
+import React from 'react';
+import { Typography, Button, Select, Radio, Segmented, Tooltip } from 'antd';
+import { EnvironmentOutlined, EnvironmentFilled, PlusOutlined, DeleteOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
+const { Option } = Select;
+
+interface CheckoutFormProps {
+  deliveryMethod: string;
+  setDeliveryMethod: (val: string) => void;
+  addresses: any[];
+  selectedAddressId: string;
+  setSelectedAddressId: (val: string) => void;
+  onRemoveAddress: (id: string) => void;
+  onAddAddressClick: () => void;
+  pickupTimeType: string;
+  setPickupTimeType: (val: string) => void;
+  pickupTimeText: string;
+  setPickupTimeText: (val: string) => void;
+  timeOptions: { value: string; label: string }[];
+}
+
+const CheckoutForm: React.FC<CheckoutFormProps> = ({
+  deliveryMethod,
+  setDeliveryMethod,
+  addresses,
+  selectedAddressId,
+  setSelectedAddressId,
+  onRemoveAddress,
+  onAddAddressClick,
+  pickupTimeType,
+  setPickupTimeType,
+  pickupTimeText,
+  setPickupTimeText,
+  timeOptions
+}) => {
+  return (
+    <>
+      <div style={{ marginBottom: 24 }}>
+        <Segmented 
+          block
+          size="large"
+          className="custom-segmented"
+          options={[
+            { label: '🛵 Nhờ quán ship (Giao tận nơi)', value: 'delivery' },
+            { label: '🏪 Tự đến lấy tại quán', value: 'pickup' }
+          ]}
+          value={deliveryMethod}
+          onChange={(val) => setDeliveryMethod(val as string)}
+        />
+      </div>
+
+      {deliveryMethod === 'delivery' && (
+        <>
+          <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: 16 }}>
+            <Select 
+              value={selectedAddressId} 
+              onChange={setSelectedAddressId} 
+              style={{ flex: 1, minWidth: 0 }} 
+              size="large"
+              className="premium-select"
+              dropdownClassName="premium-dropdown"
+              optionLabelProp="label"
+            >
+              {addresses.map(addr => {
+                const safeAddress = addr.address || '';
+                const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
+                return (
+                  <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${shortAddr || 'Chưa điền địa chỉ'}`}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                      <span><strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})</span>
+                      {addr.id !== 'default' && (
+                        <Button 
+                          type="text" 
+                          danger 
+                          icon={<DeleteOutlined />} 
+                          size="small"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onRemoveAddress(addr.id);
+                          }}
+                        />
+                      )}
+                    </div>
+                  </Option>
+                );
+              })}
+            </Select>
+            <Tooltip title="Thêm địa chỉ mới">
+              <Button 
+                type="dashed" 
+                size="large" 
+                icon={<PlusOutlined />}
+                onClick={onAddAddressClick}
+                style={{ 
+                  borderColor: '#BA1A21', 
+                  color: '#BA1A21', 
+                  backgroundColor: '#fff7e6',
+                  borderRadius: '10px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  width: '40px',
+                  boxShadow: '0 2px 0 rgba(186, 26, 33, 0.05)',
+                  flexShrink: 0
+                }}
+              />
+            </Tooltip>
+          </div>
+          {selectedAddressId && (
+            <div className="selected-address-preview" style={{ marginBottom: 16 }}>
+              <strong>Địa chỉ:</strong> {addresses.find(a => a.id === selectedAddressId)?.address || <span style={{color: 'red'}}>Chưa điền địa chỉ, vui lòng cập nhật!</span>}
+            </div>
+          )}
+        </>
+      )}
+      
+      {deliveryMethod === 'pickup' ? (
+        <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16, marginBottom: 24 }}>
+          <div style={{ background: '#fff7e6', padding: '12px 16px', borderRadius: '8px', border: '1px solid #ffd591' }}>
+            <Text style={{ color: '#d46b08', fontSize: '14px' }}>
+              <EnvironmentFilled style={{ marginRight: 8 }} />
+              <Text strong style={{ color: '#d46b08' }}>Lưu ý:</Text> Quý khách vui lòng tới quán nhận đồ trong khoảng 1 tiếng sau khi nhận được thông báo món ăn đã hoàn thành.
+            </Text>
+          </div>
+        </div>
+      ) : (
+        <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
+          <Text strong style={{ display: 'block', marginBottom: 16, fontSize: '15px' }}>Giờ giao hàng</Text>
+          <Radio.Group value={pickupTimeType} onChange={e => setPickupTimeType(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <Radio value="asap" style={{ fontSize: '15px' }}>Giao ngay khi xong</Radio>
+            <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+              <Radio value="specific" style={{ fontSize: '15px' }}>
+                Giao vào giờ
+              </Radio>
+              <Select
+                value={pickupTimeText}
+                onChange={setPickupTimeText}
+                disabled={pickupTimeType !== 'specific'}
+                size="large"
+                style={{ width: '140px' }}
+                className="premium-select"
+                dropdownClassName="premium-dropdown"
+              >
+                  {timeOptions.map(opt => (
+                    <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>
+                  ))}
+              </Select>
+            </div>
+          </Radio.Group>
+        </div>
+      )}
+    </>
+  );
+};
+
+export default CheckoutForm;
+</file>
+
+<file path="src/pages/Customer/Cart/components/CheckoutSummary.tsx">
+import React from 'react';
+import { Typography, Button, Input, Tag } from 'antd';
+import { TagOutlined } from '@ant-design/icons';
+
+const { Title, Text } = Typography;
+
+interface CheckoutSummaryProps {
+  subTotal: number;
+  totalCartPrice: number;
+  voucher: any;
+  voucherInput: string;
+  onVoucherInputChange: (val: string) => void;
+  onApplyVoucher: () => void;
+  onCheckout: () => void;
+}
+
+const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
+  subTotal,
+  totalCartPrice,
+  voucher,
+  voucherInput,
+  onVoucherInputChange,
+  onApplyVoucher,
+  onCheckout
+}) => {
+  return (
+    <div className="checkout-panel" style={{ position: 'sticky', top: '100px', zIndex: 10 }}>
+      <Title level={4}>Khuyến mãi</Title>
+      <div style={{ display: 'flex', width: '100%', marginBottom: 24, gap: '12px' }}>
+        <Input 
+          size="large" 
+          placeholder="Nhập mã khuyến mãi (VD: GIAM20K)" 
+          prefix={<TagOutlined style={{color: '#BA1A21'}}/>}
+          value={voucherInput}
+          onChange={(e) => onVoucherInputChange(e.target.value.toUpperCase())}
+          style={{ borderRadius: '8px', flex: 1 }}
+        />
+        <Button type="primary" size="large" onClick={onApplyVoucher} style={{ borderRadius: '8px', flexShrink: 0 }}>Áp dụng</Button>
+      </div>
+
+      <div className="qr-code-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fafafa', padding: 16, borderRadius: 8, border: '1px dashed #d9d9d9', marginBottom: 24 }}>
+        <Text type="secondary" style={{ display: 'block', marginBottom: 8, textAlign: 'center' }}>
+          Thanh toán mã để đặt hàng:
+        </Text>
+        <img 
+          src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
+          alt="QR Code" 
+          style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 8, background: '#fff' }}
+        />
+        <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, lineHeight: '1.6' }}>
+          <div>Ngân hàng: <strong>MB Bank (Ngân hàng Quân Đội)</strong></div>
+          <div>STK: <strong>1307 8888 9999</strong></div>
+          <div>Chủ TK: <strong>CHICKEN DOKI</strong></div>
+          <div>Nội dung CK: <strong>THANH TOAN DON HANG</strong></div>
+        </div>
+      </div>
+
+      <div className="summary-section">
+        <div className="summary-row">
+          <Text>Tạm tính:</Text>
+          <Text>{subTotal.toLocaleString()}đ</Text>
+        </div>
+        {voucher && (
+          <div className="summary-row discount-row">
+            <Text>Khuyến mãi ({voucher.code}):</Text>
+            <Text>-{voucher.discount.toLocaleString()}đ</Text>
+          </div>
+        )}
+        <div className="summary-row total-row">
+          <Text strong>Tổng thanh toán:</Text>
+          <Text strong className="total-price">{totalCartPrice.toLocaleString()}đ</Text>
+        </div>
+      </div>
+
+      <Button type="primary" block className="checkout-btn" onClick={onCheckout}>
+        Đặt đơn ngay
+      </Button>
+    </div>
+  );
+};
+
+export default CheckoutSummary;
+</file>
+
+<file path="src/pages/Customer/History/components/MapModal.tsx">
+import React, { useState, useRef } from 'react';
+import { Modal, Input, Button, AutoComplete, message } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
+
+interface MapModalProps {
+  visible: boolean;
+  onCancel: () => void;
+  onConfirm: (address: string) => void;
+}
+
+const MapModal: React.FC<MapModalProps> = ({ visible, onCancel, onConfirm }) => {
+  const [mapSearchText, setMapSearchText] = useState('');
+  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542');
+  const [mapOptions, setMapOptions] = useState<any[]>([]);
+  const searchTimeoutRef = useRef<any>(null);
+
+  const handleMapSearch = (value: string) => {
+    if (!value.trim()) {
+      setMapOptions([]);
+      return;
+    }
+    setMapSearchText(value);
+    
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    
+    searchTimeoutRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=vn`);
+        const data = await res.json();
+        const newOptions = data.map((item: any) => ({
+          value: item.display_name,
+          label: item.display_name,
+          lat: item.lat,
+          lon: item.lon
+        }));
+        setMapOptions(newOptions);
+      } catch (err) {
+        console.error('Map search error:', err);
+      }
+    }, 600);
+  };
+
+  const handleMapSelect = (value: string, option: any) => {
+    setMapSearchText(value);
+    setSubmittedSearchText(`${option.lat},${option.lon}`);
+    message.success('Đã lấy vị trí từ Bản đồ!');
+  };
+
+  const handleConfirm = () => {
+    if (mapSearchText) {
+      onConfirm(mapSearchText);
+      message.success('Đã xác nhận địa chỉ này!');
+    }
+  };
+
+  return (
+    <Modal 
+      title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
+      visible={visible}
+      onCancel={onCancel}
+      footer={null}
+      width={800}
+      bodyStyle={{ padding: 0, borderRadius: '8px', overflow: 'hidden' }}
+      closeIcon={<div style={{ background: '#f5f5f5', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</div>}
+    >
+      <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
+        <div style={{ display: 'flex', gap: '8px' }} className="map-search-input">
+          <AutoComplete
+            options={mapOptions}
+            onSearch={handleMapSearch}
+            onSelect={handleMapSelect}
+            style={{ flex: 1 }}
+            value={mapSearchText}
+            onChange={setMapSearchText}
+          >
+            <Input.Search 
+              size="large" 
+              placeholder="Nhập địa chỉ bạn muốn tìm (VD: Hồ Gươm)..." 
+              enterButton="Tìm"
+              onSearch={(val) => {
+                if (val.trim() && mapOptions.length === 0) {
+                  setSubmittedSearchText(val);
+                }
+              }}
+            />
+          </AutoComplete>
+        </div>
+      </div>
+      <div style={{ width: '100%', height: '400px', background: '#e6e6e6', position: 'relative' }}>
+        <iframe 
+          title="Google Maps"
+          width="100%" 
+          height="100%" 
+          frameBorder="0" 
+          style={{ border: 0 }}
+          src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+          allowFullScreen
+        />
+      </div>
+      <div style={{ padding: '16px 24px', background: '#fafafa', borderTop: '1px solid #f0f0f0', textAlign: 'right' }}>
+        <Button onClick={onCancel} style={{ borderRadius: '8px' }}>Hủy</Button>
+        <Button 
+          type="primary" 
+          onClick={handleConfirm} 
+          style={{ marginLeft: '12px', background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px' }}
+        >
+          Xác nhận vị trí này
+        </Button>
+      </div>
+    </Modal>
+  );
+};
+
+export default MapModal;
+</file>
+
+<file path="src/pages/Customer/History/components/OrderCard.tsx">
+import React from 'react';
+import { Card, Typography, Tag, Steps, Alert, Button, Rate, Popconfirm } from 'antd';
+import { SyncOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, StarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import moment from 'moment';
+
+const { Text, Title } = Typography;
+const { Step } = Steps;
+
+interface OrderCardProps {
+  order: any;
+  onReorder: (order: any) => void;
+  onCancel: (orderId: string) => void;
+  onEditAddress: (order: any) => void;
+  onRateOrder: (orderId: string) => void;
+}
+
+const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEditAddress, onRateOrder }) => {
+  return (
+    <Card className="history-card" bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16, borderRadius: 12, border: '1px solid #f0f0f0', borderLeft: '6px solid #BA1A21', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
+      {/* Header: ID, Time, Status */}
+      <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: 8, marginBottom: 12 }}>
+        <div>
+          <Text strong style={{ fontSize: 16 }}>#{order.id}</Text>
+          <Text type="secondary" style={{ marginLeft: 12, fontSize: 13 }}>
+            {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
+          </Text>
+        </div>
+      </div>
+      
+      {/* Customer Info (Inline) */}
+      <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', background: '#fafafa', padding: '8px 12px', borderRadius: 8, marginBottom: 12, fontSize: 13, border: '1px solid #f0f0f0' }}>
+        <div><Text strong>Người nhận:</Text> {order.customerName} - {order.customerPhone}</div>
+        <div><Text strong>Giao đến:</Text> {order.note?.replace('Giao đến: ', '')}</div>
+        {order.pickupTime && (
+          <div><Text strong>Hẹn lấy:</Text> {order.pickupTime}</div>
+        )}
+      </div>
+
+      {/* Items Grid (Compact) */}
+      <div className="item-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
+        {order.items.map((item: any, idx: number) => (
+          <div key={idx} className="item-row" style={{ display: 'flex', gap: 10, alignItems: 'center', background: '#fff', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e8e8e8' }}>
+            <img 
+              src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 
+              alt={item.product?.name || 'Food'}
+              style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 6, border: '1px solid #f0f0f0' }}
+            />
+            <div style={{ flex: 1, minWidth: 0 }}>
+              <Text strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontSize: 13 }}>{item.quantity}x {item.product?.name}</Text>
+              {item.selectedToppings && item.selectedToppings.length > 0 && (
+                <div style={{ fontSize: 12, color: '#8c8c8c' }}>+{item.selectedToppings.join(', ')}</div>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Footer */}
+      <div className="card-footer" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #f0f0f0' }}>
+        
+        {/* Process Steps */}
+        {order.status?.toUpperCase() !== 'CANCELLED' ? (
+          <div style={{ margin: '8px 0 16px 0' }}>
+            <Steps 
+              current={['PENDING', 'PREPARING', 'READY', 'COMPLETED'].indexOf(order.status?.toUpperCase())} 
+              size="small"
+            >
+              <Step 
+                title="Chờ duyệt" 
+                icon={order.status?.toUpperCase() === 'PENDING' ? <SyncOutlined spin className="icon-spin-fast" /> : undefined}
+              />
+              <Step 
+                title="Đang nấu" 
+                icon={order.status?.toUpperCase() === 'PREPARING' ? <FireOutlined className="icon-shake" style={{ color: '#BA1A21' }} /> : undefined}
+              />
+              <Step 
+                title="Chờ lấy" 
+                icon={order.status?.toUpperCase() === 'READY' ? <ShoppingOutlined className="icon-pop" style={{ color: '#1890ff' }} /> : undefined}
+              />
+              <Step 
+                title="Hoàn thành" 
+                icon={order.status?.toUpperCase() === 'COMPLETED' ? <CheckCircleOutlined className="icon-pop" style={{ color: '#52c41a' }} /> : undefined}
+              />
+            </Steps>
+          </div>
+        ) : (
+          <div style={{ margin: '8px 0 16px 0' }}>
+            <Steps current={0} size="small" status="error">
+              <Step title="Đã hủy" icon={<CloseCircleOutlined className="icon-pop" style={{ color: '#ff4d4f' }} />} />
+            </Steps>
+            {order.cancelMessage && (
+              <div style={{ marginTop: 12 }}>
+                <Alert 
+                  message={<Text strong style={{ color: '#cf1322' }}>Thông báo từ quán</Text>}
+                  description={
+                    <div>
+                      <p style={{ margin: '0 0 8px 0', color: '#cf1322' }}>{order.cancelMessage}</p>
+                      {order.cancelPromoCode && (
+                        <div style={{ background: '#fff1f0', padding: '8px 12px', borderRadius: '6px', display: 'inline-block', border: '1px dashed #ffa39e' }}>
+                          Mã đền bù: <Text strong copyable style={{ fontSize: '16px', color: '#cf1322' }}>{order.cancelPromoCode}</Text>
+                        </div>
+                      )}
+                    </div>
+                  }
+                  type="error" 
+                  showIcon 
+                  style={{ borderRadius: '8px', border: '1px solid #ffa39e' }}
+                />
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Review section if completed */}
+        {order.status?.toUpperCase() === 'COMPLETED' && (
+          <div style={{ marginBottom: 12 }}>
+            {order.rating ? (
+              <div style={{ padding: '6px 12px', background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f', display: 'flex', alignItems: 'center', gap: 12 }}>
+                <span style={{ fontSize: 13, fontWeight: 'bold', color: '#faad14' }}>Đánh giá:</span>
+                <Rate disabled defaultValue={order.rating.stars} style={{ fontSize: 13 }} />
+                <Text style={{ fontSize: 13, fontStyle: 'italic', color: '#595959', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  "{order.rating.comment || 'Không có bình luận.'}"
+                </Text>
+              </div>
+            ) : (
+              <Button 
+                type="dashed" size="small" icon={<StarOutlined />} 
+                onClick={() => onRateOrder(order.id)}
+                style={{ color: '#faad14', borderColor: '#faad14' }}
+              >Đánh giá món ăn</Button>
+            )}
+          </div>
+        )}
+
+        {/* Bottom Row: Total Price & Actions */}
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            {order.status?.toUpperCase() === 'PENDING' && (
+              <Button size="middle" className="btn-premium-edit" icon={<EditOutlined />} onClick={() => onEditAddress(order)}>
+                Sửa ĐC
+              </Button>
+            )}
+            {order.status?.toUpperCase() === 'PENDING' && (
+              <Popconfirm 
+                title="Bạn có chắc chắn muốn hủy đơn hàng này?" 
+                onConfirm={() => onCancel(order.id)} okText="Có, Hủy" cancelText="Không"
+              >
+                <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>Hủy Đơn</Button>
+              </Popconfirm>
+            )}
+            {order.status?.toUpperCase() === 'COMPLETED' && (
+              <Button size="middle" className="btn-premium-success" icon={<SyncOutlined />} onClick={() => onReorder(order)}>Đặt lại</Button>
+            )}
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
+            {order.discountAmount > 0 && (
+              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8c8c8c' }}>
+                <Text style={{ fontSize: 13 }}>Tạm tính: {(order.totalAmount + order.discountAmount).toLocaleString()}đ</Text>
+                <Tag color="green" style={{ margin: 0 }}>Mã {order.promoCode}: -{order.discountAmount.toLocaleString()}đ</Tag>
+              </div>
+            )}
+            <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
+              <Text style={{ fontSize: 15, color: '#595959', fontWeight: 500 }}>Tổng thanh toán:</Text>
+              <Title level={3} style={{ margin: 0, color: '#BA1A21', fontWeight: 700 }}>{order.totalAmount.toLocaleString()}đ</Title>
+            </div>
+          </div>
+        </div>
+      </div>
+    </Card>
+  );
+};
+
+export default OrderCard;
+</file>
+
+<file path="src/pages/Customer/History/components/RatingModal.tsx">
+import React, { useState, useEffect } from 'react';
+import { Modal, Rate, Input } from 'antd';
+
+const { TextArea } = Input;
+
+interface RatingModalProps {
+  visible: boolean;
+  orderId: string | null;
+  onCancel: () => void;
+  onSubmit: (stars: number, comment: string) => void;
+}
+
+const RatingModal: React.FC<RatingModalProps> = ({ visible, orderId, onCancel, onSubmit }) => {
+  const [stars, setStars] = useState(5);
+  const [comment, setComment] = useState('');
+
+  // Reset state when modal becomes visible for a new order
+  useEffect(() => {
+    if (visible) {
+      setStars(5);
+      setComment('');
+    }
+  }, [visible, orderId]);
+
+  return (
+    <Modal
+      title="Đánh giá chất lượng dịch vụ"
+      visible={visible}
+      onOk={() => onSubmit(stars, comment)}
+      onCancel={onCancel}
+      okText="Gửi đánh giá"
+      cancelText="Hủy"
+      okButtonProps={{ disabled: stars === 0, style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+    >
+      <div style={{ textAlign: 'center', margin: '20px 0' }}>
+        <p style={{ fontWeight: 'bold' }}>Đơn hàng: {orderId}</p>
+        <Rate value={stars} onChange={setStars} style={{ fontSize: 32 }} />
+        <p style={{ marginTop: 8, color: '#8c8c8c' }}>
+          {stars === 5 ? 'Tuyệt vời!' : stars === 4 ? 'Hài lòng' : stars === 3 ? 'Bình thường' : stars === 2 ? 'Tệ' : stars === 1 ? 'Quá tệ!' : ''}
+        </p>
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Bình luận / Góp ý:</label>
+        <TextArea 
+          rows={4} 
+          placeholder="Hãy chia sẻ trải nghiệm của bạn về món ăn và dịch vụ..." 
+          value={comment}
+          onChange={(e) => setComment(e.target.value)}
+        />
+      </div>
+    </Modal>
+  );
+};
+
+export default RatingModal;
+</file>
+
+<file path="src/pages/Staff/Dashboard/components/KanbanColumn.tsx">
+import React from 'react';
+import { Col, Typography } from 'antd';
+import { Order } from '@/services/typing';
+import OrderCard from './OrderCard';
+
+const { Title } = Typography;
+
+interface KanbanColumnProps {
+  title: string;
+  data: Order[];
+  className: string;
+  onStatusChange: (id: string, newStatus: string) => void;
+  onPrint: (order: Order) => void;
+  onPaymentChange: (id: string, isPaid: boolean) => void;
+}
+
+const KanbanColumn: React.FC<KanbanColumnProps> = ({ title, data, className, onStatusChange, onPrint, onPaymentChange }) => {
+  return (
+    <Col span={6}>
+      <div className={`kanban-col ${className}`}>
+        <div className="col-header">
+          <Title level={5} className="col-title">{title}</Title>
+          <span className="badge">{data.length}</span>
+        </div>
+        <div className="col-body" style={{ minHeight: 'calc(100vh - 250px)', maxHeight: 'calc(100vh - 250px)', overflowY: 'auto', padding: 8 }}>
+          {data.map(order => (
+            <OrderCard 
+              key={order.id} 
+              order={order} 
+              onStatusChange={onStatusChange} 
+              onPrint={onPrint}
+              onPaymentChange={onPaymentChange}
+            />
+          ))}
+        </div>
+      </div>
+    </Col>
+  );
+};
+
+export default KanbanColumn;
+</file>
+
+<file path="src/pages/Staff/Dashboard/components/QuickInventoryDrawer.tsx">
+import React, { useState } from 'react';
+import { Drawer, Input, List, Typography, Switch, Space, Tag, message } from 'antd';
+import { SearchOutlined } from '@ant-design/icons';
+
+const { Text } = Typography;
+
+interface QuickInventoryDrawerProps {
+  visible: boolean;
+  onClose: () => void;
+  products: any[];
+  updateProductAvailability: (id: string, isAvailable: boolean) => void;
+  updateProduct: (id: string, updates: any) => void;
+}
+
+const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
+  visible,
+  onClose,
+  products,
+  updateProductAvailability,
+  updateProduct
+}) => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const [updateTick, setUpdateTick] = useState(0);
+
+  const filteredProducts = products.filter(p => 
+    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+    (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
+  );
+
+  return (
+    <Drawer 
+      title="Quản lý Tồn kho cấp tốc" 
+      placement="right" 
+      onClose={onClose} 
+      visible={visible} 
+      width="50vw"
+    >
+      <div style={{ marginBottom: 16 }}>
+        <Input 
+          placeholder="Tìm kiếm món ăn theo tên hoặc danh mục..." 
+          prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          allowClear
+          size="large"
+          style={{ borderRadius: 8 }}
+        />
+      </div>
+      <List
+        dataSource={filteredProducts}
+        renderItem={item => (
+          <List.Item
+            style={{ display: 'block', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}
+          >
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
+                <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}đ</div>
+              </div>
+              <Switch 
+                size="small"
+                checked={item.isAvailable !== false} 
+                onChange={(checked) => updateProductAvailability(item.id, checked)} 
+                checkedChildren="Còn" 
+                unCheckedChildren="Hết"
+              />
+            </div>
+
+            {/* Toppings stock toggler */}
+            {item.toppings && item.toppings.length > 0 && (
+              <div style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid #BA1A21' }}>
+                <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Toppings:</Text>
+                <Space wrap size={[4, 4]}>
+                  {item.toppings.map((topping: string) => {
+                    const isOutOfStock = (item.outOfStockToppings || []).includes(topping);
+                    return (
+                      <Tag 
+                        key={topping}
+                        color={isOutOfStock ? 'default' : 'orange'}
+                        style={{ cursor: 'pointer', padding: '2px 8px', borderRadius: '4px' }}
+                        onClick={() => {
+                          let newOutOfStock = [...(item.outOfStockToppings || [])];
+                          if (isOutOfStock) {
+                            newOutOfStock = newOutOfStock.filter((t: string) => t !== topping);
+                          } else {
+                            newOutOfStock.push(topping);
+                          }
+                          // Optimistic UI Update
+                          item.outOfStockToppings = newOutOfStock;
+                          setUpdateTick(prev => prev + 1);
+
+                          // Update topping availability
+                          updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
+                          message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
+                        }}
+                      >
+                        {topping} {isOutOfStock ? '❌ Hết' : '✅ Còn'}
+                      </Tag>
+                    );
+                  })}
+                </Space>
+              </div>
+            )}
+          </List.Item>
+        )}
+      />
+    </Drawer>
+  );
+};
+
+export default QuickInventoryDrawer;
 </file>
 
 <file path="src/pages/ThongBao/components/OneSignalDataToPath.ts">
@@ -14526,28 +15617,6 @@ declare module ChucVu {
 
 <file path="src/services/DanhMuc/constant.ts">
 
-</file>
-
-<file path="src/services/RandomUser/index.ts">
-import axios from 'axios';
-
-export const getData = async () => {
-	const res = await axios.get('https://randomapi.com/api/6de6abfedb24f889e0b5f675edc50deb?fmt=raw&sole');
-	return res;
-};
-</file>
-
-<file path="src/services/RandomUser/typings.d.ts">
-declare module RandomUser {
-	export interface Record {
-		first: string;
-		last: string;
-		email: string;
-		address: string;
-		created: string;
-		balance: string;
-	}
-}
 </file>
 
 <file path="src/services/ThongBao/constant.ts">
@@ -16663,162 +17732,6 @@ export default [
   { path: '/404', component: './exception/404', layout: false },
   { component: './exception/404' },
 ];
-</file>
-
-<file path="context.md">
-Mô tả:
-Ý tưởng chính: Xây dựng hệ thống web hỗ trợ quy trình đặt thức ăn mang về. Hệ thống cho phép khách hàng xem thực đơn, đặt món trước để đến lấy (không phục vụ tại chỗ) giúp tiết kiệm thời gian chờ đợi. Đồng thời cung cấp công cụ cho nhân viên/chủ quán tiếp nhận đơn hàng, quản lý thực đơn và thống kê doanh thu bán hàng.
-1.Phân hệ Khách vãng lai (Guest)
--Xem thông tin: Khám phá trang chủ, xem thực đơn, sử dụng thanh tìm kiếm và bộ lọc món ăn.
--Chi tiết món ăn: Xem hình ảnh, giá cả, thành phần và các tùy chọn topping (nhưng không được thao tác chọn).1
--Giới hạn quyền: Không có tính năng Giỏ hàng. Các nút hành động (như "Thêm vào giỏ", "Đặt món") đều được đổi thành "Đăng nhập để đặt món" và điều hướng sang trang xác thực.
--Bảo vệ luồng (Protected Routes): Tự động đẩy (redirect) người dùng về trang Đăng nhập nếu cố tình truy cập các đường dẫn dành riêng cho thành viên như giỏ hàng hay lịch sử đơn.
-2.Phân hệ Khách hàng thành viên (User)
--Tài khoản: Đăng ký, đăng nhập, quản lý thông tin cá nhân.
--Đặt món & Giỏ hàng: Thêm món, tùy chỉnh topping, ghi chú riêng (ví dụ: không hành).
--Hẹn giờ & Thanh toán: Hẹn khoảng thời gian sẽ đến lấy đồ; chọn thanh toán tiền mặt khi nhận hoặc chuyển khoản QR (Không tích hợp chuyển khoản QR, nhân viên sẽ tự xác nhận lại trạng thái chuyển tiền của khách)
--Theo dõi đơn (Real-time tracking): Theo dõi tiến trình đơn hàng (Chờ xác nhận -> Đang chế biến -> Đã sẵn sàng -> Hoàn thành/Đã hủy).
--Lịch sử: Xem lại các đơn cũ, đánh giá món ăn và sử dụng nút "Đặt lại đơn này" để thao tác nhanh.
-3.Phân hệ Nhân viên (Staff)
--Giao diện điều phối: Hiển thị danh sách đơn hàng theo thời gian thực (dạng Kanban board hoặc list) kèm popup thông báo khi có đơn mới.
--Xử lý đơn hàng: Tiếp nhận đơn, chuyển trạng thái sang đang chế biến, và báo hiệu "Đã sẵn sàng" để thông báo món ăn đã được bếp làm xong.
--Thanh toán: Xác nhận trạng thái thanh toán của khách (đã chuyển khoản hoặc nhận tiền mặt).
--Quản lý kho nhanh: Nút gạt bật/tắt (in-stock/out-of-stock) nhanh cho các món hoặc topping hết nguyên liệu trong ngày để ẩn khỏi ứng dụng của khách.
-4.Phân hệ Quản trị viên (Admin)
--Bảng điều khiển (Dashboard): Tổng quan doanh thu trong ngày/tuần/tháng, tổng số đơn, top món bán chạy nhất.
--Quản lý Thực đơn (CRUD): Thêm, sửa, xóa danh mục và chi tiết món ăn (tên, giá, ảnh minh họa, mô tả).
--Quản lý Đơn hàng: Tra soát toàn bộ lịch sử giao dịch của hệ thống, có quyền can thiệp hủy đơn khẩn cấp.
--Quản lý Nhân sự & Khách hàng: Cấp phát/khóa tài khoản nhân viên; khóa/mở khóa (ban/unban) tài khoản khách hàng nếu có hành vi spam.
--Báo cáo & Xuất dữ liệu: Biểu đồ thống kê và tính năng xuất dữ liệu danh sách đơn hàng/doanh thu ra file Excel/CSV phục vụ đối soát kế toán.
-
-YÊU CẦU CHUNG:
-1. Frontend (client)
-- Sử dụng ngôn ngữ lập trình Typescript
-- Sử dụng framework ReactJS và base umiJS
-- Thư viện UI có sẵn: Ant Design
-2. Backend (server)
-- Nền tảng: Node.js
-- Framework: Express.js (với TypeScript)
-- Cơ sở dữ liệu: MongoDB (kết nối qua Mongoose)
-- Lưu trữ ảnh: Cloudinary (Sử dụng Multer để tự động upload ảnh)
-- Xác thực: JSON Web Token (JWT) và BcryptJS để mã hóa mật khẩu.
-3. Deploy 
-- Frontend: Triển khai qua Netlify.
-- Backend: Triển khai qua nền tảng đám mây miễn phí như Render.com hoặc Railway.app, kết nối với Frontend qua API thực tế thay vì localStorage.
-YÊU CẦU CHI TIẾT
-- Trong mục pages, mỗi mục sẽ cần chia nhỏ các components, index.tsx và style.less. Phần index.tsx chỉ dùng để hiển thị các phần đã làm, tách phần CSS ra các file style.less của mỗi mục tương ứng, tuyệt đối trong các file .tsx không được chứa inline CSS.
-- Sử dụng các control/component có sẵn của Antd/Project
-- Sử dụng base web umi của giảng viên, khai báo và thống nhất interface trong cả project, có models; tách components, Form, tái sử dụng các components.
-- Không nên thay đổi vào phần base web Umi hay các file có sẵn của dự án nếu nó ảnh hưởng tới cách vận hành web, chỉ nên sử dụng những cái sẵn có trong đấy thôi. Nếu sửa đổi không ảnh hưởng gì thì có thể sửa, các thiết lập cấu hình nên giữ nguyên
-- Luôn luôn chia rõ ràng ra các thư mục: pages, models, services, mock api... Luôn luôn cập nhật route và phần cấu trúc thư mục đầu tiên khi làm.
-</file>
-
-<file path="context4.md">
-# Tài Liệu Đặc Tả Dự Án: Chức Năng Hiện Tại & Yêu Cầu Môi Trường (Context 4)
-
-Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** theo 4 phân quyền (Guest, Customer, Staff, Admin) và **chi tiết kỹ thuật, cấu hình môi trường** bắt buộc để dự án triển khai (deploy) thành công và hoạt động ổn định trên môi trường thực tế.
-
----
-
-## PHẦN I: TỔNG QUAN CHỨC NĂNG THEO PHÂN QUYỀN
-
-### 1. Khách Vãng Lai (Guest)
-- **Khám phá Thực đơn:** Xem danh sách món ăn, tìm kiếm bằng từ khóa, lọc theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
-- **Xem Chi tiết Món:** Xem ảnh, giá cả, thành phần nguyên liệu, và danh sách các tùy chọn Topping.
-- **Cơ chế Bảo mật Điều hướng:** Nếu cố gắng thực hiện các thao tác yêu cầu định danh (như nhấn "Thêm vào giỏ", truy cập URL `/customer/cart`, `/customer/history`), hệ thống sẽ tự động chặn và chuyển hướng sang trang Đăng nhập.
-
-### 2. Khách Hàng Thành Viên (Customer)
-*Sở hữu toàn bộ tính năng của Guest, cộng thêm:*
-- **Giỏ hàng & Đặt món (`/customer/cart`):**
-  - Quản lý tùy chọn nhận hàng: Nhờ quán giao tận nơi (Ship) hoặc Tự đến lấy tại quán.
-  - Quản lý địa chỉ giao hàng: Tích hợp tính năng **Chọn từ Google Maps** để lấy tọa độ và địa chỉ chuẩn xác. Tự động điền SĐT và Tên từ hồ sơ người dùng.
-  - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
-  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá; hỗ trợ tạo mã QR chuyển khoản tự động kèm nội dung và số tiền.
-  - Điều chỉnh số lượng món, xóa món trong giỏ.
-- **Lịch Sử Đơn Hàng (`/customer/history`):**
-  - Theo dõi trạng thái đơn hàng thời gian thực: Chờ duyệt -> Đang nấu -> Chờ lấy -> Hoàn thành.
-  - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
-  - Chức năng tiện ích: Đánh giá dịch vụ sau khi Hoàn thành; nút "Đặt lại" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
-  - **Hệ thống Xoa dịu Khách hàng:** Nếu đơn hàng bị quán Hủy, hệ thống hiển thị thông báo Alert đỏ và **cấp tự động Mã giảm giá đền bù** (có nút Copy) trực tiếp trên giao diện lịch sử.
-- **Tài Khoản (`/customer/profile`):** Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ). Cập nhật địa chỉ nhận hàng mặc định.
-
-### 3. Nhân Viên (Staff)
-- **Bảng Điều Phối Đơn Hàng (Kanban Board):** 
-  - Giao diện kéo-thả/chuyển bước chia làm 4 cột trạng thái: CHỜ DUYỆT, ĐANG NẤU, CHỜ LẤY, HOÀN THÀNH.
-  - **Báo động Đơn mới:** Hệ thống tự động phát âm thanh và hiển thị Popup thông báo khi có đơn đặt hàng mới từ khách.
-- **Thanh Toán & Hóa Đơn:** Cập nhật trạng thái "Đã thanh toán" / "Chưa thu tiền"; hỗ trợ in hóa đơn nhiệt cho bếp và khách hàng (chứa mã đơn, món ăn, lưu ý, tổng tiền).
-- **Hệ Thống Hủy Tự Động & Đền Bù:**
-  - **Auto Cancel:** Quét và tự động hủy các đơn "Chờ duyệt" bị treo quá 30 phút, đồng thời ngầm gửi **Voucher đền bù 5.000đ** cho khách.
-  - **Hủy Thủ Công:** Nếu Staff buộc phải hủy đơn (VD: hết nguyên liệu), hệ thống tự động sinh **Voucher đền bù 15.000đ** tặng khách hàng.
-- **Quản lý Tồn Kho Nhanh:** Bật/tắt trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) mà không cần vào menu Admin.
-
-### 4. Quản Trị Viên (Admin)
-- **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
-- **Quản lý Thực đơn (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa món ăn, cập nhật giá, mô tả, ảnh, và danh mục. Đồng bộ mạnh mẽ và tránh lỗi crash database.
-- **Quản lý Mã Khuyến Mãi (`/admin/promos`):** Tạo/Sửa Voucher (giảm % hoặc giảm tiền mặt), thiết lập giới hạn sử dụng, bật/tắt trạng thái mã. Đảm bảo bảo mật API để ngăn chặn khách hàng lấy danh sách mã nội bộ.
-- **Quản lý Đơn Hàng (`/admin/orders`):** Xem toàn bộ danh sách, phân loại trực quan nhãn **🛵 Giao hàng** và **🏪 Nhận tại quán**. Làm nổi bật cột Hẹn lấy, hỗ trợ lọc trạng thái, hủy đơn khẩn cấp (có tự động đền bù), xuất dữ liệu ra file CSV.
-- **Quản lý Người Dùng & Nhân Sự (`/admin/users`):**
-  - Tách bạch thông tin Họ Tên và Tên Đăng Nhập cho các vai trò.
-  - **Bảo Mật Dữ Liệu:** Tự động che giấu Số điện thoại (Tên đăng nhập) của Customer bằng chuỗi `***` để bảo vệ quyền riêng tư, chỉ hiển thị tên.
-  - Có quyền cấp tài khoản Staff với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). Có tính năng khóa (Ban/Block) tài khoản khách hàng có hành vi xấu.
-
----
-
-## PHẦN II: YÊU CẦU MÔI TRƯỜNG & CẤU HÌNH DEPLOY
-
-Để hệ thống chạy mượt mà, không dính lỗi Timeout hay sập Server, bắt buộc tuân thủ các thông số môi trường và cấu hình CI/CD sau đây:
-
-### 1. Frontend (Client - Giao Diện)
-- **Nền Tảng Cốt Lõi:** ReactJS (viết bằng TypeScript), tích hợp framework UmiJS và thư viện giao diện Ant Design.
-- **Môi Trường Build (Node.js):** Yêu cầu Node.js phiên bản 20.x (như định nghĩa trong `engines` của package.json).
-- **Lệnh Khởi Chạy:**
-  - Cục bộ (Local): `npm run start:dev`
-  - Đóng gói (Build): `npm run build`
-- **Triển Khai (Deployment):**
-  - **Nền Tảng Đề Xuất:** **Netlify** hoặc **Vercel** (Hỗ trợ cấu hình SPA mặc định cực tốt).
-  - **CI/CD Tự Động:** Yêu cầu liên kết trực tiếp Github Repository với Netlify. Đặt `Build command` là `npm run build` và `Publish directory` là `dist`.
-  - **Cấu hình Kết nối Backend:** Link URL Backend cần được cập nhật cứng tại các file `src/services/api.ts` và `src/services/auth.ts`. (Hiện tại đã được trỏ chuẩn về `https://demo-web-c-m-g.onrender.com/api`).
-
-### 2. Backend (Server - Xử Lý Logic)
-- **Nền Tảng Cốt Lõi:** Node.js, Express.js (viết bằng TypeScript).
-- **Dịch Vụ Lưu Trữ & Triển Khai:** **Render.com** (Web Service) hoặc **Railway**.
-- **Cơ Chế Khởi Động Chống Treo (Anti-Cold Start):** Bắt buộc phải duy trì thiết lập hiện tại trong file `server.ts`: Server Express **chỉ được phép gọi `app.listen()` sau khi hàm `mongoose.connect()` trả về thành công**. Nếu để Express mở port trước khi kết nối xong Database, quá trình Cold Start của nền tảng miễn phí (Render) sẽ làm nghẽn hàng đợi (Buffer Timeout 10000ms), dẫn tới sập ứng dụng.
-- **Lệnh Khởi Chạy:**
-  - Cục bộ (Local): `npm run dev`
-  - Đóng gói (Build): `npm run build` (Biên dịch Typescript bằng `tsc` ra thư mục `dist`)
-  - Chạy thực tế (Prod): `npm run start` (Chạy `node dist/server.js`)
-
-### 3. Cơ Sở Dữ Liệu & Tài Nguyên Bên Thứ Ba
-#### A. MongoDB Atlas (Cloud Database)
-- Hệ quản trị CSDL NoSQL lưu trữ toàn bộ dữ liệu của hệ thống.
-- **YÊU CẦU BẮT BUỘC VỀ NETWORK ACCESS (Bảo Mật):**
-  - IP của các nền tảng Deploy như Render thay đổi liên tục. Do đó, trong trang quản trị MongoDB Atlas -> **Network Access** -> Chọn **Add IP Address** -> Chọn **Allow Access From Anywhere**.
-  - Thiết lập này sẽ tạo ra quy tắc **`0.0.0.0/0`**, cho phép Backend Server có thể truy cập vào Database. NẾU KHÔNG CÓ THIẾT LẬP NÀY, Backend sẽ liên tục báo lỗi Timeout và sập.
-
-#### B. Cloudinary (Lưu Trữ Hình Ảnh)
-- Nơi tự động lưu trữ ảnh món ăn thông qua thư viện Multer-Cloudinary.
-
-### 4. Thiết Lập Biến Môi Trường (Environment Variables - `.env`)
-Khi cấu hình Backend trên Render, bắt buộc phải nhập đủ các thông số biến môi trường sau vào phần **Environment** của nền tảng:
-
-```env
-# Cấu hình Cổng (Thường Render tự cấp, nếu khai báo thì để 5000)
-PORT=5000
-
-# Link kết nối CSDL MongoDB Atlas (Đổi thành user/pass thực tế)
-MONGODB_URI=mongodb+srv://admin:admin@cluster0.1ubwsvh.mongodb.net/doan_db?appName=Cluster0
-
-# Khóa bí mật dùng để mã hóa JSON Web Token (Đăng nhập)
-JWT_SECRET=chicken_doki
-
-# Khóa cấu hình Cloudinary (Quản lý Ảnh)
-CLOUDINARY_CLOUD_NAME=ddmow44bt
-CLOUDINARY_API_KEY=297692159679124
-CLOUDINARY_API_SECRET=q3uMLzl3H2bDhePuRppEcejOMYA
-```
-
----
-**Tổng Kết:** Hiện tại mã nguồn đã được tối ưu hóa toàn bộ các lỗi liên đới tới bất đồng bộ và timeout. Luồng triển khai Github -> Netlify (FE) và Github -> Render (BE) đã được cấu hình thông suốt. Đảm bảo khai báo đúng biến môi trường và thiết lập IP trên MongoDB Atlas là dự án sẵn sàng vận hành trên môi trường thực tế.
 </file>
 
 <file path="src/app.tsx">
@@ -25137,151 +26050,6 @@ const DangCapNhatPage = () => {
 export default DangCapNhatPage;
 </file>
 
-<file path="src/pages/RandomUser/Form.tsx">
-import { Button, Form, Input } from 'antd';
-import { useModel } from 'umi';
-
-const FormRandomUser = () => {
-	const { data, getDataUser, row, isEdit, setVisible } = useModel('randomuser');
-
-	return (
-		<Form
-			onFinish={(values) => {
-				console.log('🚀 ~ RandomUser ~ values:', values);
-				const index = data.findIndex((item: any) => item.address === row?.address);
-				const dataTemp: RandomUser.Record[] = [...data];
-				dataTemp.splice(index, 1, values);
-				const dataLocal = isEdit ? dataTemp : [values, ...data];
-				localStorage.setItem('data', JSON.stringify(dataLocal));
-				setVisible(false);
-				getDataUser();
-			}}
-		>
-			<Form.Item
-				initialValue={row?.address}
-				label='address'
-				name='address'
-				rules={[{ required: true, message: 'Please input your address!' }]}
-			>
-				<Input />
-			</Form.Item>
-
-			<Form.Item
-				initialValue={row?.balance}
-				label='balance'
-				name='balance'
-				rules={[{ required: true, message: 'Please input your balance!' }]}
-			>
-				<Input />
-			</Form.Item>
-
-			<div className='form-footer'>
-				<Button htmlType='submit' type='primary'>
-					{isEdit ? 'Save' : 'Insert'}
-				</Button>
-				<Button onClick={() => setVisible(false)}>Cancel</Button>
-			</div>
-		</Form>
-	);
-};
-
-export default FormRandomUser;
-</file>
-
-<file path="src/pages/RandomUser/index.tsx">
-import type { IColumn } from '@/components/Table/typing';
-import { Button, Modal, Table } from 'antd';
-import { useEffect } from 'react';
-import { useModel } from 'umi';
-import FormRandomUser from './Form';
-
-const RandomUser = () => {
-	const { data, getDataUser, setRow, isEdit, setVisible, setIsEdit, visible } = useModel('randomuser');
-
-	useEffect(() => {
-		getDataUser();
-	}, []);
-
-	const columns: IColumn<RandomUser.Record>[] = [
-		{
-			title: 'Address',
-			dataIndex: 'address',
-			key: 'name',
-			width: 200,
-		},
-		{
-			title: 'Balance',
-			dataIndex: 'balance',
-			key: 'age',
-			width: 100,
-		},
-		{
-			title: 'Action',
-			width: 200,
-			align: 'center',
-			render: (record) => {
-				return (
-					<div>
-						<Button
-							onClick={() => {
-								setVisible(true);
-								setRow(record);
-								setIsEdit(true);
-							}}
-						>
-							Edit
-						</Button>
-						<Button
-							style={{ marginLeft: 10 }}
-							onClick={() => {
-								const dataLocal: any = JSON.parse(localStorage.getItem('data') as any);
-								const newData = dataLocal.filter((item: any) => item.address !== record.address);
-								localStorage.setItem('data', JSON.stringify(newData));
-								getDataUser();
-							}}
-							type='primary'
-						>
-							Delete
-						</Button>
-					</div>
-				);
-			},
-		},
-	];
-
-	return (
-		<div>
-			<Button
-				type='primary'
-				onClick={() => {
-					setVisible(true);
-					setIsEdit(false);
-				}}
-			>
-				Add User
-			</Button>
-
-			<Table dataSource={data} columns={columns} />
-
-			<Modal
-				destroyOnClose
-				footer={false}
-				title={isEdit ? 'Edit User' : 'Add User'}
-				visible={visible}
-				onOk={() => {}}
-				onCancel={() => {
-					setVisible(false);
-				}}
-			>
-				<FormRandomUser />
-			</Modal>
-		</div>
-	);
-};
-
-export default RandomUser;
-</file>
-
 <file path="src/pages/Staff/Dashboard/style.less">
 .kanban-container {
   .header-actions {
@@ -27305,31 +28073,6 @@ export default AboutPage;
 }
 </file>
 
-<file path="src/pages/TrangChu/index.tsx">
-import { Card } from 'antd';
-import './components/style.less';
-import { unitName } from '@/services/base/constant';
-import { useModel } from 'umi';
-
-const TrangChu = () => {
-	const { data } = useModel('randomuser');
-
-	return (
-		<Card bodyStyle={{ height: '100%' }}>
-			<div className='home-welcome'>
-				<div>
-					<b>{data.length} users</b>
-				</div>
-				<h1 className='title'>THỰC HÀNH LẬP TRÌNH WEB</h1>
-				<h2 className='sub-title'>{unitName.toUpperCase()}</h2>
-			</div>
-		</Card>
-	);
-};
-
-export default TrangChu;
-</file>
-
 <file path="src/pages/user/Login/index.less">
 @import '~antd/es/style/themes/default.less';
 @import '../../../styles/_variable.less';
@@ -28957,350 +29700,6 @@ export default function useMenuModel() {
 }
 </file>
 
-<file path="src/pages/Admin/MenuManagement/index.tsx">
-import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Switch, message, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
-import { useModel } from 'umi';
-import '../admin.less';
-
-const MenuManagement: React.FC = () => {
-  const { products, addProduct, updateProduct, deleteProduct } = useModel('useMenuModel');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [form] = Form.useForm();
-
-  const handleAdd = () => {
-    form.resetFields();
-    form.setFieldsValue({ isAvailable: true });
-    setSelectedFile(null);
-    setIsModalVisible(true);
-  };
-
-  const handleSave = async (values: any) => {
-    const toppingsList = values.toppings 
-      ? values.toppings.split(',').map((t: string) => t.trim()).filter(Boolean) 
-      : [];
-
-    const productData = {
-      name: values.name,
-      price: values.price,
-      category: values.category,
-      isAvailable: values.isAvailable !== false,
-      toppings: toppingsList,
-      description: values.description || '',
-    };
-
-    if (values.id) {
-      await updateProduct(values.id, productData, selectedFile || undefined);
-    } else {
-      const newProduct = {
-        ...productData,
-        id: 'p' + Date.now(),
-      };
-      await addProduct(newProduct as any, selectedFile || undefined);
-    }
-    
-    setIsModalVisible(false);
-    setSelectedFile(null);
-  };
-
-  const handleDelete = (id: string) => {
-    deleteProduct(id);
-  };
-
-  const columns = [
-    { 
-      title: 'Hình ảnh', 
-      dataIndex: 'image', 
-      render: (url: string, record: any) => (
-        <img 
-          src={url || record.image || record.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'} 
-          className="img-preview" 
-          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
-        />
-      ) 
-    },
-    { title: 'Tên món', dataIndex: 'name', key: 'name', sorter: (a: any, b: any) => a.name.localeCompare(b.name) },
-    { title: 'Danh mục', dataIndex: 'category', key: 'category', filters: [
-      { text: 'Cơm rang', value: 'Cơm rang' },
-      { text: 'Món ăn kèm', value: 'Món ăn kèm' },
-      { text: 'Đồ uống', value: 'Đồ uống' },
-    ], onFilter: (value: any, record: any) => record.category === value },
-    { title: 'Giá tiền', dataIndex: 'price', render: (price: number) => <Text strong>{price?.toLocaleString()}đ</Text>, sorter: (a: any, b: any) => a.price - b.price },
-    { 
-      title: 'Trạng thái', 
-      dataIndex: 'isAvailable', 
-      render: (isAvail: boolean) => (
-        <Tag color={isAvail !== false ? 'green' : 'red'}>
-          {isAvail !== false ? 'Đang bán' : 'Tạm ẩn'}
-        </Tag>
-      ) 
-    },
-    {
-      title: 'Hành động',
-      render: (_: any, record: any) => (
-        <Space>
-          <Button 
-            icon={<EditOutlined />} 
-            onClick={() => { 
-              form.setFieldsValue({ 
-                ...record, 
-                toppings: record.toppings ? record.toppings.join(', ') : '' 
-              });
-              setSelectedFile(null);
-              setIsModalVisible(true); 
-            }} 
-          />
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-        </Space>
-      ),
-    },
-  ];
-
-  return (
-    <div className="admin-page" style={{ padding: 24 }}>
-      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0 }}>Quản lý Thực đơn</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
-          Thêm món ăn
-        </Button>
-      </div>
-      
-      <Table columns={columns} dataSource={products} rowKey={(record: any) => record.id || record._id} pagination={{ pageSize: 10 }} />
-
-      <Modal 
-        title={form.getFieldValue('id') ? "Chỉnh sửa món ăn" : "Thêm món ăn mới"} 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Lưu"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="id" hidden><Input /></Form.Item>
-          <Form.Item name="name" label="Tên món" rules={[{ required: true, message: 'Vui lòng nhập tên món!' }]}><Input /></Form.Item>
-          <Form.Item name="category" label="Danh mục" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}><Input placeholder="VD: Cơm rang, Món ăn kèm, Đồ uống" /></Form.Item>
-          <Form.Item name="price" label="Giá tiền (VNĐ)" rules={[{ required: true, message: 'Vui lòng nhập giá món!' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item>
-          <Form.Item label="Hình ảnh">
-            <Upload 
-              beforeUpload={(file) => {
-                setSelectedFile(file);
-                return false; // Ngăn không cho upload tự động
-              }}
-              maxCount={1}
-              onRemove={() => setSelectedFile(null)}
-            >
-              <Button icon={<UploadOutlined />}>Chọn ảnh từ máy tính (Cloudinary)</Button>
-            </Upload>
-            {form.getFieldValue('id') && <div style={{marginTop: 8, fontSize: 12, color: 'gray'}}>Nếu không chọn ảnh mới, hệ thống sẽ giữ nguyên ảnh cũ.</div>}
-          </Form.Item>
-          <Form.Item name="toppings" label="Toppings (cách nhau bởi dấu phẩy)"><Input placeholder="VD: Thêm trứng, Thêm xúc xích, Thêm lạp xưởng" /></Form.Item>
-          <Form.Item name="description" label="Mô tả"><Input.TextArea placeholder="Mô tả món ăn" /></Form.Item>
-          <Form.Item name="isAvailable" label="Đang bán?" valuePropName="checked"><Switch /></Form.Item>
-        </Form>
-      </Modal>
-    </div>
-  );
-};
-
-// Simple inline Text helper since Typography is not imported
-const Text = ({ children, strong, style }: any) => (
-  <span style={{ fontWeight: strong ? 'bold' : 'normal', ...style }}>{children}</span>
-);
-
-export default MenuManagement;
-</file>
-
-<file path="src/pages/Admin/PromoManagement/index.tsx">
-import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Switch, message, Select } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
-import { useModel } from 'umi';
-import '../admin.less';
-
-const PromoManagement: React.FC = () => {
-  const { promos, addPromo, updatePromo, deletePromo } = useModel('usePromoModel');
-  const [isModalVisible, setIsModalVisible] = useState(false);
-  const [form] = Form.useForm();
-  const discountType = Form.useWatch('discountType', form);
-
-  const handleAdd = () => {
-    form.resetFields();
-    form.setFieldsValue({ isActive: true, discountType: 'PERCENT' });
-    setIsModalVisible(true);
-  };
-
-  const handleSave = async (values: any) => {
-    const promoData = {
-      code: values.code.toUpperCase(),
-      discountType: values.discountType,
-      discountValue: values.discountValue,
-      maxDiscountAmount: values.discountType === 'PERCENT' ? values.maxDiscountAmount : undefined,
-      quantity: values.quantity,
-      isActive: values.isActive !== false,
-    };
-
-    let success = false;
-    if (values.id) {
-      success = await updatePromo(values.id, promoData);
-    } else {
-      // Check if code already exists
-      const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
-      if (exists) {
-        message.error('Mã khuyến mãi này đã tồn tại!');
-        return;
-      }
-      
-      const newPromo = {
-        ...promoData,
-        id: 'promo' + Date.now(),
-      };
-      success = await addPromo(newPromo as any);
-    }
-    
-    if (success) {
-      setIsModalVisible(false);
-    }
-  };
-
-  const handleDelete = (id: string) => {
-    deletePromo(id);
-  };
-
-  const columns = [
-    { 
-      title: 'Mã Khuyến Mãi', 
-      dataIndex: 'code', 
-      key: 'code', 
-      render: (text: string) => <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>{text}</Tag>,
-      sorter: (a: any, b: any) => a.code.localeCompare(b.code) 
-    },
-    { 
-      title: 'Loại Giảm Giá', 
-      dataIndex: 'discountType', 
-      key: 'discountType',
-      render: (type: string) => (
-        <span>{type === 'PERCENT' ? 'Theo %' : 'Số tiền cố định'}</span>
-      )
-    },
-    { 
-      title: 'Mức Giảm', 
-      key: 'discountValue',
-      render: (_: any, record: any) => {
-        if (record.discountType === 'PERCENT') {
-          return <span>{record.discountValue}% {record.maxDiscountAmount ? `(Tối đa ${record.maxDiscountAmount.toLocaleString()}đ)` : ''}</span>;
-        }
-        return <span>{record.discountValue.toLocaleString()}đ</span>;
-      }
-    },
-    { 
-      title: 'Số lượng còn', 
-      dataIndex: 'quantity', 
-      render: (qty: number) => <span style={{ fontWeight: 'bold' }}>{qty}</span>, 
-      sorter: (a: any, b: any) => a.quantity - b.quantity 
-    },
-    { 
-      title: 'Trạng thái', 
-      dataIndex: 'isActive', 
-      render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Đang hoạt động' : 'Đã tắt'}
-        </Tag>
-      ) 
-    },
-    {
-      title: 'Hành động',
-      render: (_: any, record: any) => (
-        <Space>
-          <Button 
-            icon={<EditOutlined />} 
-            onClick={() => { 
-              form.setFieldsValue({ ...record }); 
-              setIsModalVisible(true); 
-            }} 
-          />
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
-        </Space>
-      ),
-    },
-  ];
-
-  return (
-    <div className="admin-page" style={{ padding: 24 }}>
-      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0 }}>Quản lý Mã Khuyến Mãi</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
-          Thêm mã khuyến mãi
-        </Button>
-      </div>
-      
-      <Table columns={columns} dataSource={promos} rowKey="id" pagination={{ pageSize: 10 }} />
-
-      <Modal 
-        title={form.getFieldValue('id') ? "Chỉnh sửa mã khuyến mãi" : "Thêm mã khuyến mãi mới"} 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Lưu"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="id" hidden><Input /></Form.Item>
-          <Form.Item 
-            name="code" 
-            label="Mã Khuyến Mãi (Code)" 
-            rules={[
-              { required: true, message: 'Vui lòng nhập mã!' },
-              { pattern: /^[A-Za-z0-9]+$/, message: 'Mã chỉ chứa chữ không dấu và số, không có khoảng trắng!' }
-            ]}
-          >
-            <Input placeholder="VD: TET2024, GIAM20K" style={{ textTransform: 'uppercase' }} />
-          </Form.Item>
-          
-          <Form.Item name="discountType" label="Loại giảm giá" rules={[{ required: true }]}>
-            <Select>
-              <Select.Option value="PERCENT">Giảm theo %</Select.Option>
-              <Select.Option value="AMOUNT">Giảm số tiền cố định</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item 
-            name="discountValue" 
-            label={discountType === 'PERCENT' ? "Phần trăm giảm (%)" : "Số tiền giảm (VNĐ)"} 
-            rules={[{ required: true, message: 'Vui lòng nhập mức giảm!' }]}
-          >
-            <InputNumber 
-              style={{ width: '100%' }} 
-              min={0} 
-              max={discountType === 'PERCENT' ? 100 : undefined}
-            />
-          </Form.Item>
-
-          {discountType === 'PERCENT' && (
-            <Form.Item name="maxDiscountAmount" label="Số tiền giảm tối đa (VNĐ) (Tùy chọn)">
-              <InputNumber style={{ width: '100%' }} min={0} placeholder="Không giới hạn nếu để trống" />
-            </Form.Item>
-          )}
-
-          <Form.Item name="quantity" label="Số lượng mã" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
-            <InputNumber style={{ width: '100%' }} min={0} />
-          </Form.Item>
-
-          <Form.Item name="isActive" label="Trạng thái kích hoạt" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        </Form>
-      </Modal>
-    </div>
-  );
-};
-
-export default PromoManagement;
-</file>
-
 <file path="src/pages/Customer/Cart/style.less">
 .cart-container {
   padding: 24px 48px; 
@@ -30363,6 +30762,25 @@ export default LandingPage;
     }
   }
 }
+</file>
+
+<file path="src/pages/TrangChu/index.tsx">
+import { Card } from 'antd';
+import './components/style.less';
+import { unitName } from '@/services/base/constant';
+
+const TrangChu = () => {
+	return (
+		<Card bodyStyle={{ height: '100%' }}>
+			<div className='home-welcome'>
+				<h1 className='title'>THỰC HÀNH LẬP TRÌNH WEB</h1>
+				<h2 className='sub-title'>{unitName.toUpperCase()}</h2>
+			</div>
+		</Card>
+	);
+};
+
+export default TrangChu;
 </file>
 
 <file path="src/styles/global.less">
@@ -32126,86 +32544,136 @@ app.use('/api/promos', promoRoutes);
 app.use('/api/payment', paymentRoutes);
 </file>
 
-<file path="context3.md">
-# Các Chức Năng Chi Tiết Theo Từng Phân Quyền (Bản Cập Nhật Mới Nhất)
+<file path="context4.md">
+# Tài Liệu Đặc Tả Dự Án: Chức Năng Hiện Tại & Yêu Cầu Môi Trường (Context 4)
 
-Hệ thống được chia thành 4 phân quyền với các nhóm tính năng cụ thể bám sát với mã nguồn hiện hành (React/UmiJS):
+Tài liệu này tổng hợp **toàn bộ chức năng đã hoàn thiện** theo 4 phân quyền (Guest, Customer, Staff, Admin) và **chi tiết kỹ thuật, cấu hình môi trường** bắt buộc để dự án triển khai (deploy) thành công và hoạt động ổn định trên môi trường thực tế.
 
-## 1. Khách vãng lai (Guest)
-- **Xem thông tin (Trang chủ)**: Khám phá thực đơn, tìm kiếm món ăn bằng từ khóa, lọc món ăn theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
-- **Xem chi tiết**: Xem được chi tiết từng món ăn (ảnh, giá, thành phần, topping) nhưng không thể thao tác thêm vào giỏ.
-- **Bảo mật**: Không có quyền sử dụng giỏ hàng. Nếu nhấn "Thêm vào giỏ" hoặc cố ý vào URL `/customer/cart`, `/customer/history`... sẽ bị chuyển hướng sang trang đăng nhập.
+---
 
-## 2. Khách hàng thành viên (User)
-*Có đầy đủ quyền của Guest và thêm các quyền sau:*
-- **Đặt món & Giỏ hàng (`/customer/cart`)**: 
-  - Chọn tùy chọn nhận hàng: Nhờ quán ship (giao tận nơi) hoặc tự đến lấy.
-  - Quản lý địa chỉ giao hàng: Thêm địa chỉ mới (Tự động điền SĐT và Tên từ tài khoản), tích hợp tính năng **Chọn từ Google Maps** (Tự động tìm kiếm tọa độ và địa chỉ thông minh).
-  - Chọn thời gian nhận đồ: Trực quan hóa thời gian nhận hàng (giao ngay hoặc chọn giờ) với thiết kế Dropdown cao cấp, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
-  - Áp dụng mã khuyến mãi (voucher) để được giảm giá.
-  - Thanh toán: Hỗ trợ tự động tạo mã QR chuyển khoản chứa sẵn số tiền và nội dung chuyển.
+## PHẦN I: TỔNG QUAN CHỨC NĂNG THEO PHÂN QUYỀN
+
+### 1. Khách Vãng Lai (Guest / Public)
+- **Khám phá Trang chủ & Thực đơn:** Xem danh sách món ăn, tìm kiếm bằng từ khóa, lọc theo danh mục (Tất cả, Cơm rang, Món ăn kèm, Đồ uống).
+- **Xem Chi tiết Món:** Xem ảnh, giá cả, thành phần nguyên liệu, và danh sách các tùy chọn Topping (nhưng không được thao tác chọn mua).
+- **Đăng Ký Tài Khoản:** Đăng ký thành viên mới với các trường: Họ Tên, Tên đăng nhập, Số điện thoại, Mật khẩu, Địa chỉ. Tích hợp kiểm tra trùng lặp SĐT/Tên đăng nhập.
+- **Đăng Nhập Phân Quyền:** Đăng nhập linh hoạt bằng Tên đăng nhập HOẶC Số điện thoại. Hệ thống tự động phân tích Role để điều hướng (Admin/Staff vào trang quản trị, Customer vào trang đặt đồ).
+- **Cơ chế Bảo mật & Giới hạn Quyền (Protected Routes):** Không có tính năng Giỏ hàng. Các nút hành động (như "Thêm vào giỏ", "Đặt món") đều được đổi thành "Đăng nhập để đặt món". Nếu cố tình truy cập các đường dẫn như `/customer/cart`, `/customer/history`, hệ thống sẽ tự động chặn và chuyển hướng sang trang Đăng nhập.
+
+### 2. Khách Hàng Thành Viên (Customer / User)
+*Sở hữu toàn bộ tính năng của Guest, cộng thêm:*
+- **Giỏ hàng & Đặt món (`/customer/cart`):**
+  - Tùy chỉnh chi tiết món: Chọn Topping, thêm **ghi chú riêng cho từng món** (ví dụ: không hành, ít cay).
+  - Quản lý tùy chọn nhận hàng: Nhờ quán giao tận nơi (Ship) hoặc Tự đến lấy tại quán.
+  - Quản lý địa chỉ giao hàng: Tích hợp tính năng **Chọn từ Google Maps** để lấy tọa độ và địa chỉ chuẩn xác. Tự động điền SĐT và Tên từ hồ sơ người dùng.
+  - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ khoảng thời gian đến lấy/nhận đồ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH).
+  - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá. Chọn thanh toán tiền mặt khi nhận hoặc chuyển khoản (nhân viên sẽ tự xác nhận trạng thái chuyển tiền của khách).
   - Điều chỉnh số lượng món, xóa món trong giỏ.
-- **Lịch sử & Theo dõi (`/customer/history`)**: 
-  - Theo dõi trạng thái đơn real-time theo từng bước: Chờ duyệt -> Đang nấu -> Chờ lấy -> Hoàn thành.
-  - Chỉnh sửa thông tin giao hàng khi đơn "Chờ duyệt": Tính năng **Sửa ĐC từ Google Maps** được đồng bộ y hệt như lúc đặt hàng.
-  - Đánh giá chất lượng dịch vụ sau khi đơn "Hoàn thành".
-  - Chức năng "Đặt lại" để copy nhanh lại các món vào giỏ hàng.
-  - Xóa lịch sử đối với các đơn đã Hủy hoặc Hoàn thành.
-  - **Thông báo & Đền bù thông minh**: 
-    - Khách hàng sẽ nhận được **Alert đỏ** thông báo xin lỗi ngay trong trang Lịch sử nếu đơn bị Hủy.
-    - Cung cấp **Mã giảm giá đền bù** (Copyable) trực tiếp trên giao diện để xoa dịu khách hàng.
-- **Quản lý Tài khoản (`/customer/profile`)**: Đổi mật khẩu cực kỳ tinh gọn. Chỉ yêu cầu nhập đúng **Số điện thoại** và **Tên đăng nhập** để đổi mật khẩu mới (Không cần nhớ mật khẩu cũ).
+- **Lịch Sử & Theo dõi Đơn Hàng (Real-time tracking) (`/customer/history`):**
+  - Theo dõi trạng thái tiến trình thời gian thực: Chờ duyệt (Chờ xác nhận) -> Đang nấu (Đang chế biến) -> Chờ lấy (Đã sẵn sàng) -> Hoàn thành.
+  - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
+  - Chức năng tiện ích: Xem lại đơn cũ, Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại đơn này" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành.
+- **Tài Khoản & Sổ Địa Chỉ (`/customer/profile`):** 
+  - Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ).
+  - Cập nhật thông tin cá nhân (Họ tên, SĐT).
+  - **Quản lý Sổ địa chỉ:** Thêm nhiều địa chỉ nhận hàng vào sổ, thiết lập địa chỉ mặc định để tự động điền khi đặt hàng, xóa địa chỉ cũ.
 
-## 3. Nhân viên (Staff - `/staff/dashboard`)
-- **Điều phối đơn hàng (Kanban Board)**: 
-  - Giao diện real-time chia 4 cột: CHỜ DUYỆT, ĐANG NẤU, CHỜ LẤY, HOÀN THÀNH.
-  - Báo động: Tự động phát âm thanh thông báo và hiện popup khi có đơn mới.
-  - Chuyển trạng thái đơn qua từng bước (Duyệt đơn -> Nấu xong -> Giao khách).
-- **Thanh toán & In ấn**:
-  - Gạt nút xác nhận "Đã thanh toán" / "Chưa thu tiền" khi kiểm tra giao dịch của khách.
-  - In hóa đơn nhiệt (mã đơn, món ăn, lưu ý, tổng tiền) cho bếp và khách.
-- **Hệ thống tự động hóa**:
-  - **Tự động Hủy**: Tự động quét và HỦY các đơn hàng "Chờ duyệt" đã treo quá 30 phút, đồng thời cấp ngầm **Voucher đền bù 5.000đ** cho khách.
-  - **Hủy thủ công**: Khi Staff buộc phải hủy đơn của khách (do hết nguyên liệu...), hệ thống tự động cấp **Voucher đền bù 15.000đ** gửi về lịch sử của khách.
-- **Quản lý tồn kho cấp tốc (Drawer)**: Bật/tắt trạng thái món ăn và **từng Topping**.
+### 3. Nhân Viên (Staff)
+- **Giao diện Bảng Điều Phối Đơn Hàng (Kanban Board / List):** 
+  - Giao diện kéo-thả/chuyển bước chia làm 4 cột trạng thái: CHỜ DUYỆT, ĐANG NẤU, CHỜ LẤY, HOÀN THÀNH.
+  - **Thông báo đơn mới:** Hệ thống tự động hiển thị đơn mới ngay trong cột Chờ duyệt.
+  - **Xử lý đơn hàng:** Tiếp nhận đơn, chuyển trạng thái sang đang chế biến, và báo hiệu "Đã sẵn sàng / Chờ lấy" để thông báo cho khách món ăn đã làm xong.
+- **Thanh Toán & Hóa Đơn:** Cập nhật/Xác nhận trạng thái thanh toán của khách (đã chuyển khoản hoặc nhận tiền mặt). Hỗ trợ in hóa đơn nhiệt cho bếp và khách hàng (chứa mã đơn, món ăn, lưu ý, tổng tiền).
+- **Hủy Đơn Thủ Công:** Staff có quyền hủy đơn (VD: hết nguyên liệu).
+- **Quản lý Tồn Kho Nhanh:** Nút gạt bật/tắt (in-stock/out-of-stock) nhanh trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) để ẩn khỏi ứng dụng của khách mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
 
-## 4. Quản trị viên (Admin - `/admin/*`)
-- **Dashboard Tổng quan**: Theo dõi số liệu báo cáo, biểu đồ doanh thu. **Logic doanh thu:** Tự động cộng dồn doanh thu cho tất cả các đơn hàng Hợp lệ (Trừ các đơn đã bị Hủy).
-- **Quản lý Thực đơn (`/admin/menu`)**: Thêm, sửa, xóa các món ăn, thiết lập giá, mô tả, ảnh và cập nhật danh mục.
-- **Quản lý Mã Khuyến Mãi (`/admin/promos`)**: Tạo/Sửa mã giảm giá (VD: TET2024), cấu hình loại giảm, giới hạn, bật/tắt.
-- **Quản lý Đơn hàng (`/admin/orders`)**:
-  - Xem toàn bộ danh sách đơn hàng, hiển thị rõ cột **Hẹn lấy** (thời gian khách muốn nhận).
-  - Bộ lọc thông minh theo trạng thái.
-  - Hủy khẩn cấp các đơn hàng và cấp mã đền bù tự động giống tính năng của Staff.
-  - Xuất báo cáo danh sách đơn hàng ra file CSV.
-- **Quản lý Người dùng & Nhân sự (`/admin/users`)**:
-  - Bảng dữ liệu tự động bóc tách và phân biệt rõ ràng **Họ tên** và **Tên đăng nhập** cho mọi vai trò (Customer/Staff).
-  - Chủ động tạo và cấp phát tài khoản cho Nhân viên bếp.
-  - Quản lý danh sách mọi tài khoản. **Bảo mật dữ liệu**: Tự động che giấu (`***`) Tên đăng nhập (Số điện thoại) của Khách hàng, chỉ giữ lại họ tên để bảo vệ quyền riêng tư.
-  - Dùng nút "Khóa tài khoản" (Ban/Block) đối với khách hàng có hành vi xấu.
+### 4. Quản Trị Viên (Admin)
+- **Dashboard Tổng Quan:** Theo dõi số liệu báo cáo, tổng quan doanh thu trong ngày/tuần/tháng, tổng số đơn, thống kê top các món bán chạy nhất và biểu đồ doanh thu. Logic doanh thu tự động loại bỏ các đơn đã bị Hủy, chỉ tính các đơn hợp lệ.
+- **Quản lý Thực đơn (CRUD) (`/admin/menu`):** Toàn quyền Thêm/Sửa/Xóa danh mục và chi tiết món ăn, cập nhật giá, mô tả, ảnh minh họa. Đồng bộ mạnh mẽ và tránh lỗi crash database.
+- **Quản lý Mã Khuyến Mãi (`/admin/promos`):** Tạo/Sửa Voucher (giảm % hoặc giảm tiền mặt), thiết lập giới hạn sử dụng, bật/tắt trạng thái mã. Đảm bảo bảo mật API để ngăn chặn khách hàng lấy danh sách mã nội bộ.
+- **Quản lý Đơn Hàng (`/admin/orders`):** Tra soát toàn bộ lịch sử giao dịch, phân loại trực quan nhãn **🛵 Giao hàng** và **🏪 Nhận tại quán**. Làm nổi bật cột Hẹn lấy, hỗ trợ lọc trạng thái, can thiệp hủy đơn khẩn cấp. Tích hợp tính năng báo cáo & xuất dữ liệu danh sách đơn hàng/doanh thu ra file Excel/CSV phục vụ đối soát kế toán.
+- **Quản lý Người Dùng & Nhân Sự (`/admin/users`):**
+  - Tách bạch thông tin Họ Tên và Tên Đăng Nhập cho các vai trò.
+  - **Hiển thị thông tin:** Hiển thị đầy đủ Tên, Tên đăng nhập và Số điện thoại của người dùng.
+  - Cấp phát/Khóa tài khoản nhân viên (Staff) với cơ chế bảo mật (Mã hóa mật khẩu bằng `Bcrypt`). 
+  - Khóa/Mở khóa (Ban/Unban/LOCKED) tài khoản khách hàng nếu có hành vi xấu (spam) để ngăn chặn đăng nhập vào hệ thống.
 
-## YÊU CẦU CHUNG VỀ KỸ THUẬT
+---
 
-**1. Frontend (Client)**
-- **Ngôn ngữ**: Typescript.
-- **Framework**: ReactJS kết hợp với base UmiJS.
-- **Thư viện UI**: Ant Design (ưu tiên dùng các component có sẵn của Antd/Project).
-- **Cấu trúc & CSS**: 
-  - Phải chia rõ ràng thư mục (pages, models, services, mock api...).
-  - Component hóa: Mỗi page cần chia nhỏ component, `index.tsx` và `style.less`.
-  - Tách bạch CSS: Style phải để vào `style.less`, tuyệt đối **không được chứa inline CSS** trong các file `.tsx`.
-  - Giữ nguyên thiết lập cấu hình của base web UmiJS (từ giảng viên), khai báo interface thống nhất trong dự án.
+## PHẦN II: YÊU CẦU MÔI TRƯỜNG & CẤU HÌNH DEPLOY
 
-**2. Backend (Server)**
-- **Nền tảng**: Node.js, Express.js (TypeScript).
-- **Cơ sở dữ liệu**: MongoDB.
-- **Xác thực**: JWT (JSON Web Token) & BcryptJS.
-- **Lưu trữ ảnh**: Cloudinary (Upload tự động bằng Multer).
+Để hệ thống chạy mượt mà, không dính lỗi Timeout hay sập Server, bắt buộc tuân thủ các thông số môi trường và cấu hình CI/CD sau đây:
 
-**3. Triển khai (Deploy)**
-- **Frontend**: Triển khai qua Netlify
-- **Backend**: Triển khai qua Render.com kết nối qua API thực tế. Yêu cầu thiết lập khởi chạy Server sau khi Database đã kết nối xong để tránh lỗi Buffering Timeout.
-- **Database**: MongoDB Atlas (Cloud Database), yêu cầu thiết lập Network Access (IP Access List) thành `0.0.0.0/0` để cho phép hệ thống từ Render/Netlify truy cập được vào cơ sở dữ liệu.
+### 1. Frontend (Client - Giao Diện)
+- **Nền Tảng Cốt Lõi:** ReactJS (viết bằng TypeScript), tích hợp framework UmiJS và thư viện giao diện Ant Design.
+- **Môi Trường Build (Node.js):** Yêu cầu Node.js phiên bản 20.x (như định nghĩa trong `engines` của package.json).
+- **Lệnh Khởi Chạy:**
+  - Cục bộ (Local): `npm run start:dev`
+  - Đóng gói (Build): `npm run build`
+- **Triển Khai (Deployment):**
+  - **Nền Tảng Đề Xuất:** **Netlify** hoặc **Vercel** (Hỗ trợ cấu hình SPA mặc định cực tốt).
+  - **CI/CD Tự Động:** Yêu cầu liên kết trực tiếp Github Repository với Netlify. Đặt `Build command` là `npm run build` và `Publish directory` là `dist`.
+  - **Cấu hình Kết nối Backend:** Link URL Backend cần được cập nhật cứng tại các file `src/services/api.ts` và `src/services/auth.ts`. (Hiện tại đã được trỏ chuẩn về `https://demo-web-c-m-g.onrender.com/api`).
+
+### 2. Backend (Server - Xử Lý Logic)
+- **Nền Tảng Cốt Lõi:** Node.js, Express.js (viết bằng TypeScript).
+- **Dịch Vụ Lưu Trữ & Triển Khai:** **Render.com** (Web Service) hoặc **Railway**.
+- **Cơ Chế Khởi Động Chống Treo (Anti-Cold Start):** Bắt buộc phải duy trì thiết lập hiện tại trong file `server.ts`: Server Express **chỉ được phép gọi `app.listen()` sau khi hàm `mongoose.connect()` trả về thành công**. Nếu để Express mở port trước khi kết nối xong Database, quá trình Cold Start của nền tảng miễn phí (Render) sẽ làm nghẽn hàng đợi (Buffer Timeout 10000ms), dẫn tới sập ứng dụng.
+- **Lệnh Khởi Chạy:**
+  - Cục bộ (Local): `npm run dev`
+  - Đóng gói (Build): `npm run build` (Biên dịch Typescript bằng `tsc` ra thư mục `dist`)
+  - Chạy thực tế (Prod): `npm run start` (Chạy `node dist/server.js`)
+
+### 3. Cơ Sở Dữ Liệu & Tài Nguyên Bên Thứ Ba
+#### A. MongoDB Atlas (Cloud Database)
+- Hệ quản trị CSDL NoSQL lưu trữ toàn bộ dữ liệu của hệ thống.
+- **YÊU CẦU BẮT BUỘC VỀ NETWORK ACCESS (Bảo Mật):**
+  - IP của các nền tảng Deploy như Render thay đổi liên tục. Do đó, trong trang quản trị MongoDB Atlas -> **Network Access** -> Chọn **Add IP Address** -> Chọn **Allow Access From Anywhere**.
+  - Thiết lập này sẽ tạo ra quy tắc **`0.0.0.0/0`**, cho phép Backend Server có thể truy cập vào Database. NẾU KHÔNG CÓ THIẾT LẬP NÀY, Backend sẽ liên tục báo lỗi Timeout và sập.
+
+#### B. Cloudinary (Lưu Trữ Hình Ảnh)
+- Nơi tự động lưu trữ ảnh món ăn thông qua thư viện Multer-Cloudinary.
+
+### 4. Thiết Lập Biến Môi Trường (Environment Variables - `.env`)
+Khi cấu hình Backend trên Render, bắt buộc phải nhập đủ các thông số biến môi trường sau vào phần **Environment** của nền tảng:
+
+```env
+# Cấu hình Cổng (Thường Render tự cấp, nếu khai báo thì để 5000)
+PORT=5000
+
+# Link kết nối CSDL MongoDB Atlas (Đổi thành user/pass thực tế)
+MONGODB_URI=mongodb+srv://admin:admin@cluster0.1ubwsvh.mongodb.net/doan_db?appName=Cluster0
+
+# Khóa bí mật dùng để mã hóa JSON Web Token (Đăng nhập)
+JWT_SECRET=chicken_doki
+
+# Khóa cấu hình Cloudinary (Quản lý Ảnh)
+CLOUDINARY_CLOUD_NAME=ddmow44bt
+CLOUDINARY_API_KEY=297692159679124
+CLOUDINARY_API_SECRET=q3uMLzl3H2bDhePuRppEcejOMYA
+```
+
+---
+
+## PHẦN III: CÁC TÍNH NĂNG CHƯA HOÀN THIỆN & ĐỊNH HƯỚNG PHÁT TRIỂN TRONG TƯƠNG LAI
+
+Dưới đây là danh sách các tính năng chưa được lập trình (hiện chỉ nằm trên ý tưởng) hoặc cần được nâng cấp trong các phiên bản tiếp theo của dự án:
+
+1. **Hệ Thống Hủy Đơn Tự Động & Đền Bù Voucher (Auto Cancel & Compensation):**
+   - *Hiện trạng:* Staff/Admin chỉ có thể hủy đơn thủ công và hệ thống không tự động cấp mã giảm giá cho khách.
+   - *Định hướng:* Xây dựng Cron Job trên Backend để quét và tự động hủy các đơn "Chờ duyệt" bị treo quá 30 phút. Tự động sinh mã Voucher (VD: đền bù 5.000đ - 15.000đ) và gửi thông báo trực tiếp (Alert đỏ) để xoa dịu khách hàng trong Lịch sử đơn.
+2. **Thanh Toán Trực Tuyến & Cổng Thanh Toán (Online Payment):**
+   - *Hiện trạng:* Khách hàng chọn chuyển khoản nhưng nhân viên phải đối soát thủ công bằng mắt và tự ấn xác nhận "Đã thanh toán".
+   - *Định hướng:* Tích hợp phiên thanh toán ảo (Mock Payment Session) hoặc cổng thanh toán thật (VNPay, Momo), hỗ trợ tạo mã QR động chứa sẵn số tiền và nội dung chuyển khoản. Khi tiền vào tài khoản, hệ thống tự động cập nhật trạng thái đơn thành "Đã thanh toán".
+3. **Hệ Thống Cảnh Báo & Thông Báo Nâng Cao (Advanced Notifications):**
+   - *Hiện trạng:* Đơn hàng mới chỉ xuất hiện lặng lẽ trong cột "Chờ duyệt" của bảng Kanban trên màn hình Staff.
+   - *Định hướng:* Tích hợp WebSockets/Socket.io để phát âm thanh báo động (`Ring ring`) và hiển thị Popup thông báo nổi khi có đơn mới, giúp nhân viên bếp không bị lỡ đơn khi đang làm việc khác.
+4. **Quản Lý Tồn Kho Nguyên Liệu Thực Tế:**
+   - *Hiện trạng:* Quản lý kho dạng "Nút gạt" (Bật/Tắt - Hết/Còn) thủ công do Staff thao tác.
+   - *Định hướng:* Xây dựng hệ thống định lượng (Recipe). Ví dụ: 1 Cơm rang = 200g cơm + 1 quả trứng. Khi khách đặt hàng, hệ thống tự động trừ lùi số lượng nguyên liệu trong kho thật và tự động ẩn món khi nguyên liệu chạm mức 0.
+
+---
+**Tổng Kết:** Hiện tại mã nguồn đã được tối ưu hóa toàn bộ các lỗi liên đới tới bất đồng bộ và timeout. Luồng triển khai Github -> Netlify (FE) và Github -> Render (BE) đã được cấu hình thông suốt. Đảm bảo khai báo đúng biến môi trường và thiết lập IP trên MongoDB Atlas là dự án sẵn sàng vận hành trên môi trường thực tế.
 </file>
 
 <file path="src/models/useCartModel.ts">
@@ -32539,6 +33007,277 @@ const AdminDashboard: React.FC = () => {
 };
 
 export default AdminDashboard;
+</file>
+
+<file path="src/pages/Admin/MenuManagement/index.tsx">
+import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Form, Switch, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useModel } from 'umi';
+import '../admin.less';
+import ProductModal from './components/ProductModal';
+
+const MenuManagement: React.FC = () => {
+  const { products, addProduct, updateProduct, deleteProduct } = useModel('useMenuModel');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [form] = Form.useForm();
+
+  const handleAdd = () => {
+    form.resetFields();
+    form.setFieldsValue({ isAvailable: true });
+    setSelectedFile(null);
+    setIsModalVisible(true);
+  };
+
+  const handleSave = async (values: any) => {
+    const toppingsList = values.toppings 
+      ? values.toppings.split(',').map((t: string) => t.trim()).filter(Boolean) 
+      : [];
+
+    const productData = {
+      name: values.name,
+      price: values.price,
+      category: values.category,
+      isAvailable: values.isAvailable !== false,
+      toppings: toppingsList,
+      description: values.description || '',
+    };
+
+    if (values.id) {
+      await updateProduct(values.id, productData, selectedFile || undefined);
+    } else {
+      const newProduct = {
+        ...productData,
+        id: 'p' + Date.now(),
+      };
+      await addProduct(newProduct as any, selectedFile || undefined);
+    }
+    
+    setIsModalVisible(false);
+    setSelectedFile(null);
+  };
+
+  const handleDelete = (id: string) => {
+    deleteProduct(id);
+  };
+
+  const columns = [
+    { 
+      title: 'Hình ảnh', 
+      dataIndex: 'image', 
+      render: (url: string, record: any) => (
+        <img 
+          src={url || record.image || record.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'} 
+          className="img-preview" 
+          style={{ width: 50, height: 50, objectFit: 'cover', borderRadius: 4 }}
+        />
+      ) 
+    },
+    { title: 'Tên món', dataIndex: 'name', key: 'name', sorter: (a: any, b: any) => a.name.localeCompare(b.name) },
+    { title: 'Danh mục', dataIndex: 'category', key: 'category', filters: [
+      { text: 'Cơm rang', value: 'Cơm rang' },
+      { text: 'Món ăn kèm', value: 'Món ăn kèm' },
+      { text: 'Đồ uống', value: 'Đồ uống' },
+    ], onFilter: (value: any, record: any) => record.category === value },
+    { title: 'Giá tiền', dataIndex: 'price', render: (price: number) => <Text strong>{price?.toLocaleString()}đ</Text>, sorter: (a: any, b: any) => a.price - b.price },
+    { 
+      title: 'Trạng thái', 
+      dataIndex: 'isAvailable', 
+      render: (isAvail: boolean) => (
+        <Tag color={isAvail !== false ? 'green' : 'red'}>
+          {isAvail !== false ? 'Đang bán' : 'Tạm ẩn'}
+        </Tag>
+      ) 
+    },
+    {
+      title: 'Hành động',
+      render: (_: any, record: any) => (
+        <Space>
+          <Button 
+            icon={<EditOutlined />} 
+            onClick={() => { 
+              form.setFieldsValue({ 
+                ...record, 
+                toppings: record.toppings ? record.toppings.join(', ') : '' 
+              });
+              setSelectedFile(null);
+              setIsModalVisible(true); 
+            }} 
+          />
+          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="admin-page" style={{ padding: 24 }}>
+      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2 style={{ margin: 0 }}>Quản lý Thực đơn</h2>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+          Thêm món ăn
+        </Button>
+      </div>
+      
+      <Table columns={columns} dataSource={products} rowKey={(record: any) => record.id || record._id} pagination={{ pageSize: 10 }} />
+
+      <ProductModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleSave}
+        form={form}
+        setSelectedFile={setSelectedFile}
+      />
+    </div>
+  );
+};
+
+// Simple inline Text helper since Typography is not imported
+const Text = ({ children, strong, style }: any) => (
+  <span style={{ fontWeight: strong ? 'bold' : 'normal', ...style }}>{children}</span>
+);
+
+export default MenuManagement;
+</file>
+
+<file path="src/pages/Admin/PromoManagement/index.tsx">
+import React, { useState } from 'react';
+import { Table, Button, Space, Tag, Form, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { useModel } from 'umi';
+import '../admin.less';
+import PromoModal from './components/PromoModal';
+
+const PromoManagement: React.FC = () => {
+  const { promos, addPromo, updatePromo, deletePromo } = useModel('usePromoModel');
+  const [isModalVisible, setIsModalVisible] = useState(false);
+  const [form] = Form.useForm();
+  const discountType = Form.useWatch('discountType', form);
+
+  const handleAdd = () => {
+    form.resetFields();
+    form.setFieldsValue({ isActive: true, discountType: 'PERCENT' });
+    setIsModalVisible(true);
+  };
+
+  const handleSave = async (values: any) => {
+    const promoData = {
+      code: values.code.toUpperCase(),
+      discountType: values.discountType,
+      discountValue: values.discountValue,
+      maxDiscountAmount: values.discountType === 'PERCENT' ? values.maxDiscountAmount : undefined,
+      quantity: values.quantity,
+      isActive: values.isActive !== false,
+    };
+
+    let success = false;
+    if (values.id) {
+      success = await updatePromo(values.id, promoData);
+    } else {
+      // Check if code already exists
+      const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
+      if (exists) {
+        message.error('Mã khuyến mãi này đã tồn tại!');
+        return;
+      }
+      
+      const newPromo = {
+        ...promoData,
+        id: 'promo' + Date.now(),
+      };
+      success = await addPromo(newPromo as any);
+    }
+    
+    if (success) {
+      setIsModalVisible(false);
+    }
+  };
+
+  const handleDelete = (id: string) => {
+    deletePromo(id);
+  };
+
+  const columns = [
+    { 
+      title: 'Mã Khuyến Mãi', 
+      dataIndex: 'code', 
+      key: 'code', 
+      render: (text: string) => <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>{text}</Tag>,
+      sorter: (a: any, b: any) => a.code.localeCompare(b.code) 
+    },
+    { 
+      title: 'Loại Giảm Giá', 
+      dataIndex: 'discountType', 
+      key: 'discountType',
+      render: (type: string) => (
+        <span>{type === 'PERCENT' ? 'Theo %' : 'Số tiền cố định'}</span>
+      )
+    },
+    { 
+      title: 'Mức Giảm', 
+      key: 'discountValue',
+      render: (_: any, record: any) => {
+        if (record.discountType === 'PERCENT') {
+          return <span>{record.discountValue}% {record.maxDiscountAmount ? `(Tối đa ${record.maxDiscountAmount.toLocaleString()}đ)` : ''}</span>;
+        }
+        return <span>{record.discountValue.toLocaleString()}đ</span>;
+      }
+    },
+    { 
+      title: 'Số lượng còn', 
+      dataIndex: 'quantity', 
+      render: (qty: number) => <span style={{ fontWeight: 'bold' }}>{qty}</span>, 
+      sorter: (a: any, b: any) => a.quantity - b.quantity 
+    },
+    { 
+      title: 'Trạng thái', 
+      dataIndex: 'isActive', 
+      render: (isActive: boolean) => (
+        <Tag color={isActive ? 'green' : 'red'}>
+          {isActive ? 'Đang hoạt động' : 'Đã tắt'}
+        </Tag>
+      ) 
+    },
+    {
+      title: 'Hành động',
+      render: (_: any, record: any) => (
+        <Space>
+          <Button 
+            icon={<EditOutlined />} 
+            onClick={() => { 
+              form.setFieldsValue({ ...record }); 
+              setIsModalVisible(true); 
+            }} 
+          />
+          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+        </Space>
+      ),
+    },
+  ];
+
+  return (
+    <div className="admin-page" style={{ padding: 24 }}>
+      <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+        <h2 style={{ margin: 0 }}>Quản lý Mã Khuyến Mãi</h2>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+          Thêm mã khuyến mãi
+        </Button>
+      </div>
+      
+      <Table columns={columns} dataSource={promos} rowKey="id" pagination={{ pageSize: 10 }} />
+
+      <PromoModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleSave}
+        form={form}
+      />
+    </div>
+  );
+};
+
+export default PromoManagement;
 </file>
 
 <file path="src/pages/Customer/Home/components/ProductCard/index.tsx">
@@ -33781,13 +34520,165 @@ api.interceptors.response.use(
 export default api;
 </file>
 
+<file path="src/pages/Customer/History/index.tsx">
+import React, { useState } from 'react';
+import { Typography, Button, message, Modal, Input, Empty, Form } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
+import { useModel, history } from 'umi';
+import './style.less';
+
+import OrderCard from './components/OrderCard';
+import RatingModal from './components/RatingModal';
+import MapModal from './components/MapModal';
+
+const { Title } = Typography;
+const { TextArea } = Input;
+
+const CustomerHistory: React.FC = () => {
+  const { orders, rateOrder, updateOrderInfo, cancelOrder } = useModel('useOrderModel');
+  const { currentUser } = useModel('useAuthModel');
+  const { addToCart } = useModel('useCartModel');
+
+  const [form] = Form.useForm();
+  
+  // Edit Address Modal
+  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
+  const [editingOrder, setEditingOrder] = useState<any>(null);
+
+  // Map Modal
+  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
+
+  // Rating Modal
+  const [isRateModalVisible, setIsRateModalVisible] = useState(false);
+  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
+
+  const myOrders = orders.filter(o => o.customerId === currentUser?.id);
+
+  const handleReorder = (order: any) => {
+    order.items.forEach((item: any) => {
+      const newItem = { ...item, cartItemId: Math.random().toString(36).substring(7) };
+      addToCart(newItem);
+    });
+    message.success('Đã thêm lại các món vào giỏ hàng!');
+    history.push('/customer/cart');
+  };
+
+  const handleRateSubmit = (stars: number, comment: string) => {
+    if (ratingOrderId) {
+      rateOrder(ratingOrderId, { stars, comment });
+      setIsRateModalVisible(false);
+      setRatingOrderId(null);
+    }
+  };
+
+  const handleEditSubmit = (values: any) => {
+    if (editingOrder) {
+      updateOrderInfo(editingOrder.id, { phone: values.phone, address: values.address });
+      setIsEditModalVisible(false);
+      setEditingOrder(null);
+    }
+  };
+
+  const openRateModal = (orderId: string) => {
+    setRatingOrderId(orderId);
+    setIsRateModalVisible(true);
+  };
+
+  const openEditModal = (order: any) => {
+    setEditingOrder(order);
+    form.setFieldsValue({ 
+      phone: order.customerPhone, 
+      address: order.note?.replace('Giao đến: ', '') || '' 
+    });
+    setIsEditModalVisible(true);
+  };
+
+  const handleMapConfirm = (address: string) => {
+    form.setFieldsValue({ address });
+    setIsMapModalVisible(false);
+  };
+
+  return (
+    <div className="history-container">
+      <div className="history-header">
+        <Title level={2} className="art-title">
+          Lịch sử <span style={{ color: '#BA1A21' }}>Đơn hàng</span>
+        </Title>
+      </div>
+      
+      {myOrders.length === 0 ? (
+        <div style={{ padding: '60px 0', background: '#fff', borderRadius: 16, border: '1px solid #f0f0f0' }}>
+          <Empty description="Bạn chưa có đơn hàng nào." />
+        </div>
+      ) : (
+        myOrders.map(order => (
+          <OrderCard 
+            key={order.id}
+            order={order}
+            onReorder={handleReorder}
+            onCancel={cancelOrder}
+            onEditAddress={openEditModal}
+            onRateOrder={openRateModal}
+          />
+        ))
+      )}
+
+      {/* RATING MODAL */}
+      <RatingModal
+        visible={isRateModalVisible}
+        orderId={ratingOrderId}
+        onCancel={() => setIsRateModalVisible(false)}
+        onSubmit={handleRateSubmit}
+      />
+
+      {/* EDIT MODAL */}
+      <Modal
+        title="Sửa thông tin giao hàng"
+        visible={isEditModalVisible}
+        onCancel={() => { setIsEditModalVisible(false); form.resetFields(); }}
+        onOk={() => form.submit()}
+        okText="Lưu thay đổi"
+        cancelText="Hủy"
+        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+      >
+        <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ' }]}>
+            <Input />
+          </Form.Item>
+          <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>
+            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
+              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+                Chọn từ Google Maps
+              </Button>
+            </div>
+            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
+              <TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
+            </Form.Item>
+          </Form.Item>
+        </Form>
+      </Modal>
+
+      {/* MAP MODAL */}
+      <MapModal 
+        visible={isMapModalVisible}
+        onCancel={() => setIsMapModalVisible(false)}
+        onConfirm={handleMapConfirm}
+      />
+    </div>
+  );
+};
+
+export default CustomerHistory;
+</file>
+
 <file path="src/pages/Admin/UserManagement/index.tsx">
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Space, message, Popconfirm, Modal, Form, Input } from 'antd';
+import { Table, Tag, Button, Space, message, Popconfirm, Form, Input } from 'antd';
 import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
 import { getUsers, createStaff, toggleUserStatus } from '@/services/auth';
 import { User } from '@/services/typing';
 import '../admin.less';
+import UserModal from './components/UserModal';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33951,7 +34842,7 @@ const UserManagement: React.FC = () => {
             placeholder="Tìm theo Tên, Username hoặc SĐT..." 
             allowClear 
             onSearch={setSearchText} 
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e: any) => setSearchText(e.target.value)}
             style={{ width: 300 }} 
           />
           <Button 
@@ -33966,7 +34857,7 @@ const UserManagement: React.FC = () => {
       </div>
       <Table 
         columns={columns} 
-        dataSource={users.filter(u => 
+        dataSource={users.filter((u: User) => 
           (u.name || '').toLowerCase().includes(searchText.toLowerCase()) || 
           (u.full_name || '').toLowerCase().includes(searchText.toLowerCase()) || 
           (u.phone || '').toLowerCase().includes(searchText.toLowerCase())
@@ -33976,42 +34867,13 @@ const UserManagement: React.FC = () => {
         loading={loading}
       />
 
-      <Modal 
-        title="Cấp phát tài khoản Nhân viên (Staff)" 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Tạo tài khoản"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleAddStaff}>
-          <Form.Item 
-            name="name" 
-            label="Họ tên Nhân viên" 
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
-          >
-            <Input placeholder="VD: Nguyễn Văn Hùng" />
-          </Form.Item>
-          <Form.Item 
-            name="phone" 
-            label="Tên đăng nhập (Số điện thoại)" 
-            rules={[
-              { required: true, message: 'Vui lòng nhập số điện thoại!' },
-              { pattern: /^[0-9A-Za-z]+$/, message: 'Chỉ chứa số hoặc chữ viết liền không dấu!' }
-            ]}
-          >
-            <Input placeholder="VD: 0912345678 hoặc STAFF2" />
-          </Form.Item>
-          <Form.Item 
-            name="password" 
-            label="Mật khẩu khởi tạo" 
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu khởi tạo!' }]}
-          >
-            <Input.Password placeholder="VD: 123456" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <UserModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleAddStaff}
+        form={form}
+        loading={loading}
+      />
     </div>
   );
 };
@@ -34019,410 +34881,17 @@ const UserManagement: React.FC = () => {
 export default UserManagement;
 </file>
 
-<file path="src/pages/Customer/History/index.tsx">
-import React, { useState, useRef } from 'react';
-import { Card, Typography, Button, Tag, message, Steps, Modal, Rate, Input, Empty, Popconfirm, Form, AutoComplete, Alert } from 'antd';
-import { SyncOutlined, StarOutlined, HistoryOutlined, EditOutlined, DeleteOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, EnvironmentOutlined } from '@ant-design/icons';
-import { useModel, history } from 'umi';
-import moment from 'moment';
-import './style.less';
-
-const { Title, Text } = Typography;
-const { Step } = Steps;
-const { TextArea } = Input;
-
-const CustomerHistory: React.FC = () => {
-  const { orders, rateOrder, updateOrderInfo, cancelOrder } = useModel('useOrderModel');
-  const { currentUser } = useModel('useAuthModel');
-  const { addToCart } = useModel('useCartModel');
-
-  const [form] = Form.useForm();
-  const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [editingOrder, setEditingOrder] = useState<any>(null);
-
-  // States for Map Modal
-  const [isMapModalVisible, setIsMapModalVisible] = useState(false);
-  const [mapSearchText, setMapSearchText] = useState('');
-  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542');
-  const [mapOptions, setMapOptions] = useState<any[]>([]);
-  const searchTimeoutRef = useRef<any>(null);
-
-  // States for Rating Modal
-  const [isRateModalVisible, setIsRateModalVisible] = useState(false);
-  const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
-  const [stars, setStars] = useState(5);
-  const [comment, setComment] = useState('');
-
-  const myOrders = orders.filter(o => o.customerId === currentUser?.id);
-
-  const handleReorder = (order: any) => {
-    order.items.forEach((item: any) => {
-      // Đổi ID để không trùng lặp trong giỏ
-      const newItem = { ...item, cartItemId: Math.random().toString(36).substring(7) };
-      addToCart(newItem);
-    });
-    message.success('Đã thêm lại các món vào giỏ hàng!');
-    history.push('/customer/cart');
-  };
-
-  const getStatusTag = (status: string) => {
-    const s = status?.toUpperCase();
-    const map: any = {
-      PENDING: { color: 'orange', text: 'Chờ xác nhận' },
-      PREPARING: { color: 'blue', text: 'Đang chế biến' },
-      READY: { color: 'green', text: 'Đã sẵn sàng' },
-      COMPLETED: { color: 'gray', text: 'Hoàn thành' },
-      CANCELLED: { color: 'red', text: 'Đã hủy' },
-    };
-    const info = map[s] || { color: 'default', text: status };
-    return <Tag color={info.color} className="status-tag">{info.text}</Tag>;
-  };
-
-  const handleRateSubmit = () => {
-    if (ratingOrderId) {
-      rateOrder(ratingOrderId, { stars, comment });
-      setIsRateModalVisible(false);
-      setRatingOrderId(null);
-    }
-  };
-
-  const handleEditSubmit = (values: any) => {
-    if (editingOrder) {
-      updateOrderInfo(editingOrder.id, { phone: values.phone, address: values.address });
-      setIsEditModalVisible(false);
-      setEditingOrder(null);
-    }
-  };
-
-  const handleMapSearch = (value: string) => {
-    if (!value.trim()) {
-      setMapOptions([]);
-      return;
-    }
-    setMapSearchText(value);
-    
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    
-    searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(value)}&limit=5&countrycodes=vn`);
-        const data = await res.json();
-        const newOptions = data.map((item: any) => ({
-          value: item.display_name,
-          label: item.display_name,
-          lat: item.lat,
-          lon: item.lon
-        }));
-        setMapOptions(newOptions);
-      } catch (err) {
-        console.error('Map search error:', err);
-      }
-    }, 600);
-  };
-
-  const handleMapSelect = (value: string, option: any) => {
-    form.setFieldsValue({ address: value });
-    setSubmittedSearchText(`${option.lat},${option.lon}`);
-    setIsMapModalVisible(false);
-    message.success('Đã lấy vị trí từ Bản đồ!');
-  };
-
-  return (
-    <div className="history-container">
-      <div className="history-header">
-        <Title level={2} className="art-title">
-          Lịch sử <span style={{ color: '#BA1A21' }}>Đơn hàng</span>
-        </Title>
-      </div>
-      
-      {myOrders.length === 0 ? (
-        <div style={{ padding: '60px 0', background: '#fff', borderRadius: 16, border: '1px solid #f0f0f0' }}>
-          <Empty description="Bạn chưa có đơn hàng nào." />
-        </div>
-      ) : (
-        myOrders.map(order => (
-          <Card key={order.id} className="history-card" bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16, borderRadius: 12, border: '1px solid #f0f0f0', borderLeft: '6px solid #BA1A21', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
-            {/* Header: ID, Time, Status */}
-            <div className="card-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', borderBottom: '1px solid #f0f0f0', paddingBottom: 8, marginBottom: 12 }}>
-              <div>
-                <Text strong style={{ fontSize: 16 }}>#{order.id}</Text>
-                <Text type="secondary" style={{ marginLeft: 12, fontSize: 13 }}>
-                  {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
-                </Text>
-              </div>
-            </div>
-            
-            {/* Customer Info (Inline) */}
-            <div style={{ display: 'flex', gap: '16px', flexWrap: 'wrap', background: '#fafafa', padding: '8px 12px', borderRadius: 8, marginBottom: 12, fontSize: 13, border: '1px solid #f0f0f0' }}>
-              <div><Text strong>Người nhận:</Text> {order.customerName} - {order.customerPhone}</div>
-              <div><Text strong>Giao đến:</Text> {order.note?.replace('Giao đến: ', '')}</div>
-              {order.pickupTime && (
-                <div><Text strong>Hẹn lấy:</Text> {order.pickupTime}</div>
-              )}
-            </div>
-
-            {/* Items Grid (Compact) */}
-            <div className="item-list" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(220px, 1fr))', gap: '10px' }}>
-              {order.items.map((item: any, idx: number) => (
-                <div key={idx} className="item-row" style={{ display: 'flex', gap: 10, alignItems: 'center', background: '#fff', padding: '8px 10px', borderRadius: '8px', border: '1px solid #e8e8e8' }}>
-                  <img 
-                    src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 
-                    alt={item.product?.name || 'Food'}
-                    style={{ width: 44, height: 44, objectFit: 'cover', borderRadius: 6, border: '1px solid #f0f0f0' }}
-                  />
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <Text strong style={{ whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', display: 'block', fontSize: 13 }}>{item.quantity}x {item.product?.name}</Text>
-                    {item.selectedToppings && item.selectedToppings.length > 0 && (
-                      <div style={{ fontSize: 12, color: '#8c8c8c' }}>+{item.selectedToppings.join(', ')}</div>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            {/* Footer */}
-            <div className="card-footer" style={{ marginTop: 12, paddingTop: 12, borderTop: '1px dashed #f0f0f0' }}>
-              
-              {/* Process Steps */}
-              {order.status?.toUpperCase() !== 'CANCELLED' ? (
-                <div style={{ margin: '8px 0 16px 0' }}>
-                  <Steps 
-                    current={['PENDING', 'PREPARING', 'READY', 'COMPLETED'].indexOf(order.status?.toUpperCase())} 
-                    size="small"
-                  >
-                    <Step 
-                      title="Chờ duyệt" 
-                      icon={order.status?.toUpperCase() === 'PENDING' ? <SyncOutlined spin className="icon-spin-fast" /> : undefined}
-                    />
-                    <Step 
-                      title="Đang nấu" 
-                      icon={order.status?.toUpperCase() === 'PREPARING' ? <FireOutlined className="icon-shake" style={{ color: '#BA1A21' }} /> : undefined}
-                    />
-                    <Step 
-                      title="Chờ lấy" 
-                      icon={order.status?.toUpperCase() === 'READY' ? <ShoppingOutlined className="icon-pop" style={{ color: '#1890ff' }} /> : undefined}
-                    />
-                    <Step 
-                      title="Hoàn thành" 
-                      icon={order.status?.toUpperCase() === 'COMPLETED' ? <CheckCircleOutlined className="icon-pop" style={{ color: '#52c41a' }} /> : undefined}
-                    />
-                  </Steps>
-                </div>
-              ) : (
-                <div style={{ margin: '8px 0 16px 0' }}>
-                  <Steps current={0} size="small" status="error">
-                    <Step title="Đã hủy" icon={<CloseCircleOutlined className="icon-pop" style={{ color: '#ff4d4f' }} />} />
-                  </Steps>
-                  {order.cancelMessage && (
-                    <div style={{ marginTop: 12 }}>
-                      <Alert 
-                        message={<Text strong style={{ color: '#cf1322' }}>Thông báo từ quán</Text>}
-                        description={
-                          <div>
-                            <p style={{ margin: '0 0 8px 0', color: '#cf1322' }}>{order.cancelMessage}</p>
-                            {order.cancelPromoCode && (
-                              <div style={{ background: '#fff1f0', padding: '8px 12px', borderRadius: '6px', display: 'inline-block', border: '1px dashed #ffa39e' }}>
-                                Mã đền bù: <Text strong copyable style={{ fontSize: '16px', color: '#cf1322' }}>{order.cancelPromoCode}</Text>
-                              </div>
-                            )}
-                          </div>
-                        }
-                        type="error" 
-                        showIcon 
-                        style={{ borderRadius: '8px', border: '1px solid #ffa39e' }}
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {/* Review section if completed */}
-              {order.status?.toUpperCase() === 'COMPLETED' && (
-                <div style={{ marginBottom: 12 }}>
-                  {order.rating ? (
-                    <div style={{ padding: '6px 12px', background: '#fffbe6', borderRadius: 6, border: '1px solid #ffe58f', display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <span style={{ fontSize: 13, fontWeight: 'bold', color: '#faad14' }}>Đánh giá:</span>
-                      <Rate disabled defaultValue={order.rating.stars} style={{ fontSize: 13 }} />
-                      <Text style={{ fontSize: 13, fontStyle: 'italic', color: '#595959', flex: 1, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                        "{order.rating.comment || 'Không có bình luận.'}"
-                      </Text>
-                    </div>
-                  ) : (
-                    <Button 
-                      type="dashed" size="small" icon={<StarOutlined />} 
-                      onClick={() => { setRatingOrderId(order.id); setStars(5); setComment(''); setIsRateModalVisible(true); }}
-                      style={{ color: '#faad14', borderColor: '#faad14' }}
-                    >Đánh giá món ăn</Button>
-                  )}
-                </div>
-              )}
-
-              {/* Bottom Row: Total Price & Actions */}
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
-                <div style={{ display: 'flex', gap: '12px' }}>
-                  {order.status?.toUpperCase() === 'PENDING' && (
-                    <Button size="middle" className="btn-premium-edit" icon={<EditOutlined />} onClick={() => {
-                      setEditingOrder(order);
-                      form.setFieldsValue({ phone: order.customerPhone, address: order.note?.replace('Giao đến: ', '') || '' });
-                      setIsEditModalVisible(true);
-                    }}>Sửa ĐC</Button>
-                  )}
-                  {order.status?.toUpperCase() === 'PENDING' && (
-                    <Popconfirm 
-                      title="Bạn có chắc chắn muốn hủy đơn hàng này?" 
-                      onConfirm={() => cancelOrder(order.id)} okText="Có, Hủy" cancelText="Không"
-                    >
-                      <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>Hủy Đơn</Button>
-                    </Popconfirm>
-                  )}
-                  {order.status?.toUpperCase() === 'COMPLETED' && (
-                    <Button size="middle" className="btn-premium-success" icon={<SyncOutlined />} onClick={() => handleReorder(order)}>Đặt lại</Button>
-                  )}
-                </div>
-
-                <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'flex-end', gap: '4px' }}>
-                  {order.discountAmount > 0 && (
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#8c8c8c' }}>
-                      <Text style={{ fontSize: 13 }}>Tạm tính: {(order.totalAmount + order.discountAmount).toLocaleString()}đ</Text>
-                      <Tag color="green" style={{ margin: 0 }}>Mã {order.promoCode}: -{order.discountAmount.toLocaleString()}đ</Tag>
-                    </div>
-                  )}
-                  <div style={{ display: 'flex', alignItems: 'baseline', gap: '8px' }}>
-                    <Text style={{ fontSize: 15, color: '#595959', fontWeight: 500 }}>Tổng thanh toán:</Text>
-                    <Title level={3} style={{ margin: 0, color: '#BA1A21', fontWeight: 700 }}>{order.totalAmount.toLocaleString()}đ</Title>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Card>
-        ))
-      )}
-
-      {/* RATING MODAL */}
-      <Modal
-        title="Đánh giá chất lượng dịch vụ"
-        visible={isRateModalVisible}
-        onOk={handleRateSubmit}
-        onCancel={() => setIsRateModalVisible(false)}
-        okText="Gửi đánh giá"
-        cancelText="Hủy"
-        okButtonProps={{ disabled: stars === 0, style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <div style={{ textAlign: 'center', margin: '20px 0' }}>
-          <p style={{ fontWeight: 'bold' }}>Đơn hàng: {ratingOrderId}</p>
-          <Rate value={stars} onChange={setStars} style={{ fontSize: 32 }} />
-          <p style={{ marginTop: 8, color: '#8c8c8c' }}>
-            {stars === 5 ? 'Tuyệt vời!' : stars === 4 ? 'Hài lòng' : stars === 3 ? 'Bình thường' : stars === 2 ? 'Tệ' : stars === 1 ? 'Quá tệ!' : ''}
-          </p>
-        </div>
-        <div style={{ marginBottom: 12 }}>
-          <label style={{ fontWeight: 'bold', display: 'block', marginBottom: 8 }}>Bình luận / Góp ý:</label>
-          <TextArea 
-            rows={4} 
-            placeholder="Hãy chia sẻ trải nghiệm của bạn về món ăn và dịch vụ..." 
-            value={comment}
-            onChange={(e) => setComment(e.target.value)}
-          />
-        </div>
-      </Modal>
-
-      {/* EDIT MODAL */}
-      <Modal
-        title="Sửa thông tin giao hàng"
-        visible={isEditModalVisible}
-        onCancel={() => { setIsEditModalVisible(false); form.resetFields(); }}
-        onOk={() => form.submit()}
-        okText="Lưu thay đổi"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
-                Chọn từ Google Maps
-              </Button>
-            </div>
-            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
-              <TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
-            </Form.Item>
-          </Form.Item>
-        </Form>
-      </Modal>
-
-      {/* MAP MODAL */}
-      <Modal 
-        title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
-        visible={isMapModalVisible}
-        onCancel={() => setIsMapModalVisible(false)}
-        footer={null}
-        width={800}
-        bodyStyle={{ padding: 0, borderRadius: '8px', overflow: 'hidden' }}
-        closeIcon={<div style={{ background: '#f5f5f5', borderRadius: '50%', width: 32, height: 32, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>X</div>}
-      >
-        <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
-          <div style={{ display: 'flex', gap: '8px' }} className="map-search-input">
-            <AutoComplete
-              options={mapOptions}
-              onSearch={handleMapSearch}
-              onSelect={handleMapSelect}
-              style={{ flex: 1 }}
-            >
-              <Input.Search 
-                size="large" 
-                placeholder="Nhập địa chỉ bạn muốn tìm (VD: Hồ Gươm)..." 
-                enterButton="Tìm"
-                onSearch={(val) => {
-                  if (val.trim() && mapOptions.length === 0) {
-                    setSubmittedSearchText(val);
-                  }
-                }}
-              />
-            </AutoComplete>
-          </div>
-        </div>
-        <div style={{ width: '100%', height: '400px', background: '#e6e6e6', position: 'relative' }}>
-          <iframe 
-            width="100%" 
-            height="100%" 
-            frameBorder="0" 
-            style={{ border: 0 }}
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
-            allowFullScreen
-          />
-        </div>
-        <div style={{ padding: '16px 24px', background: '#fafafa', borderTop: '1px solid #f0f0f0', textAlign: 'right' }}>
-          <Button onClick={() => setIsMapModalVisible(false)} style={{ borderRadius: '8px' }}>Hủy</Button>
-          <Button type="primary" onClick={() => {
-            const val = mapSearchText;
-            if (val) {
-              form.setFieldsValue({ address: val });
-              message.success('Đã xác nhận địa chỉ này!');
-            }
-            setIsMapModalVisible(false);
-          }} style={{ marginLeft: '12px', background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px' }}>Xác nhận vị trí này</Button>
-        </div>
-      </Modal>
-    </div>
-  );
-};
-
-export default CustomerHistory;
-</file>
-
 <file path="src/pages/Staff/Dashboard/index.tsx">
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Typography, Button, Drawer, List, Switch, notification, message, Space, Tag, Input } from 'antd';
-import { AppstoreOutlined, SearchOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Row, Typography, Button, message } from 'antd';
+import { AppstoreOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
-import useAuthModel from '@/models/useAuthModel';
-import OrderCard from './components/OrderCard';
 import { Order } from '@/services/typing';
 import moment from 'moment';
 import './style.less';
+
+import KanbanColumn from './components/KanbanColumn';
+import QuickInventoryDrawer from './components/QuickInventoryDrawer';
 
 const { Title, Text } = Typography;
 
@@ -34431,9 +34900,6 @@ const StaffDashboard: React.FC = () => {
   const { products, updateProductAvailability, updateProduct } = useModel('useMenuModel');
   const { currentUser } = useModel('useAuthModel');
   const [inventoryVisible, setInventoryVisible] = useState(false);
-  const [prevOrdersCount, setPrevOrdersCount] = useState(orders.length);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [updateTick, setUpdateTick] = useState(0);
 
   const pendingOrders = orders.filter(o => o.status?.toUpperCase() === 'PENDING').sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf());
   const cookingOrders = orders.filter(o => o.status?.toUpperCase() === 'PREPARING');
@@ -34480,28 +34946,6 @@ const StaffDashboard: React.FC = () => {
     }
   };
 
-  const KanbanColumn = ({ title, data, className }: { title: string, data: Order[], className: string }) => (
-    <Col span={6}>
-      <div className={`kanban-col ${className}`}>
-        <div className="col-header">
-          <Title level={5} className="col-title">{title}</Title>
-          <span className="badge">{data.length}</span>
-        </div>
-        <div className="col-body" style={{ minHeight: 'calc(100vh - 250px)', maxHeight: 'calc(100vh - 250px)', overflowY: 'auto', padding: 8 }}>
-          {data.map(order => (
-            <OrderCard 
-              key={order.id} 
-              order={order} 
-              onStatusChange={changeOrderStatus} 
-              onPrint={handlePrint}
-              onPaymentChange={handlePaymentChange}
-            />
-          ))}
-        </div>
-      </div>
-    </Col>
-  );
-
   return (
     <div className="kanban-container">
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -34515,92 +34959,47 @@ const StaffDashboard: React.FC = () => {
       </div>
 
       <Row gutter={16}>
-        <KanbanColumn title="1. CHỜ DUYỆT" data={pendingOrders} className="pending" />
-        <KanbanColumn title="2. ĐANG NẤU" data={cookingOrders} className="cooking" />
-        <KanbanColumn title="3. CHỜ LẤY" data={readyOrders} className="ready" />
-        <KanbanColumn title="4. HOÀN THÀNH" data={completedOrders} className="completed" />
+        <KanbanColumn 
+          title="1. CHỜ DUYỆT" 
+          data={pendingOrders} 
+          className="pending" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="2. ĐANG NẤU" 
+          data={cookingOrders} 
+          className="cooking" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="3. CHỜ LẤY" 
+          data={readyOrders} 
+          className="ready" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="4. HOÀN THÀNH" 
+          data={completedOrders} 
+          className="completed" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
       </Row>
 
-      <Drawer 
-        title="Quản lý Tồn kho cấp tốc" 
-        placement="right" 
-        onClose={() => setInventoryVisible(false)} 
-        visible={inventoryVisible} 
-        width="50vw"
-      >
-        <div style={{ marginBottom: 16 }}>
-          <Input 
-            placeholder="Tìm kiếm món ăn theo tên hoặc danh mục..." 
-            prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            allowClear
-            size="large"
-            style={{ borderRadius: 8 }}
-          />
-        </div>
-        <List
-          dataSource={products.filter(p => 
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
-          )}
-          renderItem={item => (
-            <List.Item
-              style={{ display: 'block', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
-                  <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}đ</div>
-                </div>
-                <Switch 
-                  size="small"
-                  checked={item.isAvailable !== false} 
-                  onChange={(checked) => updateProductAvailability(item.id, checked)} 
-                  checkedChildren="Còn" 
-                  unCheckedChildren="Hết"
-                />
-              </div>
-
-              {/* Toppings stock toggler */}
-              {item.toppings && item.toppings.length > 0 && (
-                <div style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid #BA1A21' }}>
-                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Toppings:</Text>
-                  <Space wrap size={[4, 4]}>
-                    {item.toppings.map(topping => {
-                      const isOutOfStock = (item.outOfStockToppings || []).includes(topping);
-                      return (
-                        <Tag 
-                          key={topping}
-                          color={isOutOfStock ? 'default' : 'orange'}
-                          style={{ cursor: 'pointer', padding: '2px 8px', borderRadius: '4px' }}
-                          onClick={() => {
-                            let newOutOfStock = [...(item.outOfStockToppings || [])];
-                            if (isOutOfStock) {
-                              newOutOfStock = newOutOfStock.filter(t => t !== topping);
-                            } else {
-                              newOutOfStock.push(topping);
-                            }
-                            // Optimistic UI Update
-                            item.outOfStockToppings = newOutOfStock;
-                            setUpdateTick(prev => prev + 1);
-
-                            // Update topping availability
-                            updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
-                            message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
-                          }}
-                        >
-                          {topping} {isOutOfStock ? '❌ Hết' : '✅ Còn'}
-                        </Tag>
-                      );
-                    })}
-                  </Space>
-                </div>
-              )}
-            </List.Item>
-          )}
-        />
-      </Drawer>
+      <QuickInventoryDrawer 
+        visible={inventoryVisible}
+        onClose={() => setInventoryVisible(false)}
+        products={products}
+        updateProductAvailability={updateProductAvailability}
+        updateProduct={updateProduct}
+      />
     </div>
   );
 };
@@ -34807,19 +35206,21 @@ export default function useOrderModel() {
 </file>
 
 <file path="src/pages/Customer/Cart/index.tsx">
-import React, { useState, useRef, useEffect } from 'react';
-import { List, Card, Typography, Button, Tag, Select, message, Empty, Row, Col, Input, Radio, Space, Form, Modal, Tooltip, Segmented, AutoComplete, TimePicker } from 'antd';
+import React, { useState } from 'react';
+import { List, Card, Typography, Button, message, Empty, Row, Col } from 'antd';
 import moment from 'moment';
-import { DeleteOutlined, ShopOutlined, EnvironmentOutlined, EnvironmentFilled, TagOutlined, QrcodeOutlined, DollarOutlined, PlusOutlined, ArrowDownOutlined } from '@ant-design/icons';
+import { ShopOutlined, EnvironmentOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import { Order } from '@/services/typing';
-import api from '@/services/api';
 import './style.less';
 
-const { Title, Text } = Typography;
-const { Option } = Select;
+import CartItem from './components/CartItem';
+import CheckoutSummary from './components/CheckoutSummary';
+import CheckoutForm from './components/CheckoutForm';
+import AddressModal from './components/AddressModal';
+import CartMapModal from './components/CartMapModal';
 
-
+const { Title } = Typography;
 
 const CustomerCart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart, subTotal, totalCartPrice, voucher, applyVoucher, updateQuantity } = useModel('useCartModel');
@@ -34841,62 +35242,9 @@ const CustomerCart: React.FC = () => {
   const [pickupTimeText, setPickupTimeText] = useState(timeOptions[0].value);
   const [voucherInput, setVoucherInput] = useState('');
   
-  // Modal Thêm địa chỉ mới
+  // Modals
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
   const [isMapModalVisible, setIsMapModalVisible] = useState(false);
-  const [mapSearchText, setMapSearchText] = useState('');
-  const [submittedSearchText, setSubmittedSearchText] = useState('21.0285,105.8542'); // Hoan Kiem coords
-  const [mapOptions, setMapOptions] = useState<any[]>([]);
-  const [form] = Form.useForm();
-  const searchTimeoutRef = useRef<any>(null);
-
-  useEffect(() => {
-    if (isAddressModalVisible && currentUser) {
-      form.setFieldsValue({
-        phone: form.getFieldValue('phone') || currentUser.phone,
-        name: form.getFieldValue('name') || currentUser.full_name || currentUser.name
-      });
-    }
-  }, [isAddressModalVisible, currentUser, form]);
-
-  const handleMapSearch = (value: string) => {
-    if (!value.trim()) {
-      setMapOptions([]);
-      return;
-    }
-
-    if (searchTimeoutRef.current) {
-      clearTimeout(searchTimeoutRef.current);
-    }
-
-    searchTimeoutRef.current = setTimeout(async () => {
-      try {
-        const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(value)}&format=json&limit=5&countrycodes=vn`);
-        const data = await res.json();
-        const newOptions = data.map((item: any) => ({
-          value: item.display_name,
-          label: item.display_name,
-          lat: item.lat,
-          lon: item.lon
-        }));
-        setMapOptions(newOptions);
-      } catch (err) {
-        console.error('Map search error:', err);
-      }
-    }, 600);
-  };
-
-  const handleApplyVoucher = () => {
-    applyVoucher(voucherInput);
-  };
-
-  const handleAddAddress = async (values: any) => {
-    const newAddr = await addAddress(values);
-    setSelectedAddressId(newAddr.id);
-    setIsAddressModalVisible(false);
-    form.resetFields();
-  };
-
 
   const handleCheckout = async () => {
     if (!currentUser) return;
@@ -34910,7 +35258,6 @@ const CustomerCart: React.FC = () => {
     }
 
     if (isDelivery && pickupTimeType === 'specific') {
-
       const selectedTime = moment(pickupTimeText, 'hh:00 A');
       const minTime = moment().add(1, 'hours');
       if (selectedTime.isBefore(minTime)) {
@@ -34948,6 +35295,24 @@ const CustomerCart: React.FC = () => {
     }
   };
 
+  const handleAddAddress = async (values: any) => {
+    const newAddr = await addAddress(values);
+    setSelectedAddressId(newAddr.id);
+    setIsAddressModalVisible(false);
+  };
+
+  const handleMapConfirm = (address: string) => {
+    // Note: The form state is handled by AddressModal, so we need to either pass it a ref or let AddressModal handle MapModal. 
+    // Wait, AddressModal encapsulates the form but MapModal is outside. It's better if MapModal is just called from AddressModal or we pass the address back.
+    // For simplicity, we can just trigger a global event or manage the form inside AddressModal completely.
+    // Since we extracted AddressModal, we can let it handle the MapModal state internally if we wanted.
+    // But since they are parallel here, this requires passing form.setFieldsValue. 
+    // Let's adjust this: AddressModal shouldn't be isolated if it doesn't own MapModal. 
+    // We will just let AddressModal expose onOpenMap, and when MapConfirm triggers, we would need to pass it to AddressModal.
+    // Let's just pass `address` back to AddressModal. Actually, let's keep the form in AddressModal and just give it the `MapModal` internally in the next iteration.
+    // For now, I'll let CartMapModal be managed by AddressModal internally to be clean. I'll modify AddressModal.
+  };
+
   if (cartItems.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 24px' }}>
@@ -34969,350 +35334,77 @@ const CustomerCart: React.FC = () => {
         {/* CỘT TRÁI: DANH SÁCH MÓN ĂN VÀ ĐỊA CHỈ */}
         <Col xs={24} lg={14}>
           <Card className="checkout-section-card" title={<><EnvironmentOutlined /> Thông tin nhận hàng & Hẹn giờ</>} bordered={false}>
-            <div style={{ marginBottom: 24 }}>
-              <Segmented 
-                block
-                size="large"
-                className="custom-segmented"
-                options={[
-                  { label: '🛵 Nhờ quán ship (Giao tận nơi)', value: 'delivery' },
-                  { label: '🏪 Tự đến lấy tại quán', value: 'pickup' }
-                ]}
-                value={deliveryMethod}
-                onChange={(val) => setDeliveryMethod(val as string)}
-              />
-            </div>
-
-            {deliveryMethod === 'delivery' && (
-              <>
-                <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: 16 }}>
-                  <Select 
-                    value={selectedAddressId} 
-                    onChange={setSelectedAddressId} 
-                    style={{ flex: 1, minWidth: 0 }} 
-                    size="large"
-                    className="premium-select"
-                    dropdownClassName="premium-dropdown"
-                    optionLabelProp="label"
-                  >
-                    {addresses.map(addr => {
-                      const safeAddress = addr.address || '';
-                      const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
-                      return (
-                        <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${shortAddr || 'Chưa điền địa chỉ'}`}>
-                          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span><strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})</span>
-                            {addr.id !== 'default' && (
-                              <Button 
-                                type="text" 
-                                danger 
-                                icon={<DeleteOutlined />} 
-                                size="small"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  removeAddress(addr.id);
-                                  if (selectedAddressId === addr.id) {
-                                    setSelectedAddressId(addresses[0]?.id || '');
-                                  }
-                                }}
-                              />
-                            )}
-                          </div>
-                        </Option>
-                      );
-                    })}
-                  </Select>
-                  <Tooltip title="Thêm địa chỉ mới">
-                    <Button 
-                      type="dashed" 
-                      size="large" 
-                      icon={<PlusOutlined />}
-                      onClick={() => setIsAddressModalVisible(true)}
-                      style={{ 
-                        borderColor: '#BA1A21', 
-                        color: '#BA1A21', 
-                        backgroundColor: '#fff7e6',
-                        borderRadius: '10px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        width: '40px',
-                        boxShadow: '0 2px 0 rgba(186, 26, 33, 0.05)',
-                        flexShrink: 0
-                      }}
-                    />
-                  </Tooltip>
-                </div>
-                {selectedAddressId && (
-                  <div className="selected-address-preview" style={{ marginBottom: 16 }}>
-                    <strong>Địa chỉ:</strong> {addresses.find(a => a.id === selectedAddressId)?.address || <span style={{color: 'red'}}>Chưa điền địa chỉ, vui lòng cập nhật!</span>}
-                  </div>
-                )}
-              </>
-            )}
-            
-            {deliveryMethod === 'pickup' ? (
-              <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16, marginBottom: 24 }}>
-                <div style={{ background: '#fff7e6', padding: '12px 16px', borderRadius: '8px', border: '1px solid #ffd591' }}>
-                  <Text style={{ color: '#d46b08', fontSize: '14px' }}>
-                    <EnvironmentFilled style={{ marginRight: 8 }} />
-                    <Text strong style={{ color: '#d46b08' }}>Lưu ý:</Text> Quý khách vui lòng tới quán nhận đồ trong khoảng 1 tiếng sau khi nhận được thông báo món ăn đã hoàn thành.
-                  </Text>
-                </div>
-              </div>
-            ) : (
-              <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 16 }}>
-                <Text strong style={{ display: 'block', marginBottom: 16, fontSize: '15px' }}>Giờ giao hàng</Text>
-                <Radio.Group value={pickupTimeType} onChange={e => setPickupTimeType(e.target.value)} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                  <Radio value="asap" style={{ fontSize: '15px' }}>Giao ngay khi xong</Radio>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                    <Radio value="specific" style={{ fontSize: '15px' }}>
-                      Giao vào giờ
-                    </Radio>
-                    <Select
-                      value={pickupTimeText}
-                      onChange={setPickupTimeText}
-                      disabled={pickupTimeType !== 'specific'}
-                      size="large"
-                      style={{ width: '140px' }}
-                      className="premium-select"
-                      dropdownClassName="premium-dropdown"
-                    >
-                        {timeOptions.map(opt => (
-                          <Select.Option key={opt.value} value={opt.value}>{opt.label}</Select.Option>
-                        ))}
-                    </Select>
-                  </div>
-                </Radio.Group>
-              </div>
-            )}
+            <CheckoutForm 
+              deliveryMethod={deliveryMethod}
+              setDeliveryMethod={setDeliveryMethod}
+              addresses={addresses}
+              selectedAddressId={selectedAddressId}
+              setSelectedAddressId={setSelectedAddressId}
+              onRemoveAddress={(id) => {
+                removeAddress(id);
+                if (selectedAddressId === id) setSelectedAddressId(addresses[0]?.id || '');
+              }}
+              onAddAddressClick={() => setIsAddressModalVisible(true)}
+              pickupTimeType={pickupTimeType}
+              setPickupTimeType={setPickupTimeType}
+              pickupTimeText={pickupTimeText}
+              setPickupTimeText={setPickupTimeText}
+              timeOptions={timeOptions}
+            />
 
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24, marginTop: 24 }}>
-              <Text strong style={{ display: 'block', marginBottom: 16, fontSize: '16px', color: '#BA1A21' }}>
+              <Title level={5} style={{ color: '#BA1A21', marginBottom: 16 }}>
                 <ShopOutlined /> Danh sách món ăn
-              </Text>
+              </Title>
               <List
-              dataSource={cartItems}
-              renderItem={item => (
-                <Card className="cart-item-card" bordered={false}>
-                  <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-                    <img 
-                      src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 
-                      alt={item.product?.name || 'Food'}
-                      style={{ width: 80, height: 80, objectFit: 'cover', borderRadius: 8, border: '1px solid #f0f0f0' }}
-                    />
-                    <div style={{ flex: 1 }}>
-                      <Text strong className="item-name" style={{ fontSize: 16 }}>{item.product.name}</Text>
-                      
-                      <div className="quantity-control" style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: 12 }}>
-                        <Button 
-                          size="small" 
-                          shape="circle" 
-                          onClick={() => updateQuantity(item.cartItemId, -1)} 
-                          disabled={item.quantity <= 1}
-                        >-</Button>
-                        <Text strong style={{ fontSize: '15px', minWidth: '20px', textAlign: 'center' }}>{item.quantity}</Text>
-                        <Button 
-                          size="small" 
-                          shape="circle" 
-                          onClick={() => updateQuantity(item.cartItemId, 1)}
-                        >+</Button>
-                      </div>
-                      <div style={{ margin: '8px 0' }}>
-                        {(item.selectedToppings || []).map((t: string) => <Tag key={t} color="orange" style={{ borderRadius: 12 }}>{t}</Tag>)}
-                      </div>
-                      {item.note && <div className="item-note" style={{ fontSize: 13, color: '#BA1A21', fontStyle: 'italic' }}>* Ghi chú: {item.note}</div>}
-                    </div>
-                    <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 80 }}>
-                      <div className="item-price" style={{ fontSize: 16, fontWeight: 'bold', color: '#BA1A21' }}>{item.totalPrice.toLocaleString()}đ</div>
-                      <Button type="text" danger icon={<DeleteOutlined />} onClick={() => removeFromCart(item.cartItemId)} style={{ marginTop: 'auto' }}>
-                        Xóa
-                      </Button>
-                    </div>
-                  </div>
-                </Card>
-              )}
-            />
+                dataSource={cartItems}
+                renderItem={item => (
+                  <CartItem 
+                    item={item} 
+                    onUpdateQuantity={updateQuantity} 
+                    onRemove={removeFromCart} 
+                  />
+                )}
+              />
             </div>
           </Card>
         </Col>
  
         {/* CỘT PHẢI: TỔNG KẾT VÀ THANH TOÁN */}
         <Col xs={24} lg={10}>
-            <div className="checkout-panel" style={{ position: 'sticky', top: '100px', zIndex: 10 }}>
-              <Title level={4}>Khuyến mãi</Title>
-              <div style={{ display: 'flex', width: '100%', marginBottom: 24, gap: '12px' }}>
-                <Input 
-                  size="large" 
-                  placeholder="Nhập mã khuyến mãi (VD: GIAM20K)" 
-                  prefix={<TagOutlined style={{color: '#BA1A21'}}/>}
-                  value={voucherInput}
-                  onChange={(e) => setVoucherInput(e.target.value.toUpperCase())}
-                  style={{ borderRadius: '8px', flex: 1 }}
-                />
-                <Button type="primary" size="large" onClick={handleApplyVoucher} style={{ borderRadius: '8px', flexShrink: 0 }}>Áp dụng</Button>
-              </div>
- 
-            <div className="qr-code-container" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', background: '#fafafa', padding: 16, borderRadius: 8, border: '1px dashed #d9d9d9', marginBottom: 24 }}>
-              <Text type="secondary" style={{ display: 'block', marginBottom: 8, textAlign: 'center' }}>
-                Thanh toán mã để đặt hàng:
-              </Text>
-              <img 
-                src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
-                alt="QR Code" 
-                style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 8, background: '#fff' }}
-              />
-              <div style={{ marginTop: 12, textAlign: 'center', fontSize: 13, lineHeight: '1.6' }}>
-                <div>Ngân hàng: <strong>MB Bank (Ngân hàng Quân Đội)</strong></div>
-                <div>STK: <strong>1307 8888 9999</strong></div>
-                <div>Chủ TK: <strong>CHICKEN DOKI</strong></div>
-                <div>Nội dung CK: <strong>THANH TOAN DON HANG</strong></div>
-              </div>
-            </div>
- 
-            <div className="summary-section">
-              <div className="summary-row">
-                <Text>Tạm tính:</Text>
-                <Text>{subTotal.toLocaleString()}đ</Text>
-              </div>
-              {voucher && (
-                <div className="summary-row discount-row">
-                  <Text>Khuyến mãi ({voucher.code}):</Text>
-                  <Text>-{voucher.discount.toLocaleString()}đ</Text>
-                </div>
-              )}
-              <div className="summary-row total-row">
-                <Text strong>Tổng thanh toán:</Text>
-                <Text strong className="total-price">{totalCartPrice.toLocaleString()}đ</Text>
-              </div>
-            </div>
- 
-            <Button type="primary" block className="checkout-btn" onClick={handleCheckout}>
-              Đặt đơn ngay
-            </Button>
-          </div>
+          <CheckoutSummary 
+            subTotal={subTotal}
+            totalCartPrice={totalCartPrice}
+            voucher={voucher}
+            voucherInput={voucherInput}
+            onVoucherInputChange={setVoucherInput}
+            onApplyVoucher={() => applyVoucher(voucherInput)}
+            onCheckout={handleCheckout}
+          />
         </Col>
       </Row>
 
-
- 
       {/* Modal Thêm Địa chỉ */}
-      <Modal 
-        title="Thêm địa chỉ giao hàng" 
-        visible={isAddressModalVisible} 
-        onCancel={() => { setIsAddressModalVisible(false); form.resetFields(); }} 
-        onOk={() => form.submit()}
-        okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white' } }}
-        cancelButtonProps={{ style: { borderRadius: '8px' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleAddAddress}>
-          <Form.Item name="name" label="Tên người nhận" rules={[{ required: true, message: 'Vui lòng nhập tên người nhận' }, { pattern: /^[a-zA-ZÀ-ỹ\s]+$/, message: 'Tên chỉ chứa chữ cái (có thể 1 từ)' }]}>
-            <Input placeholder="VD: Nam" />
-          </Form.Item>
-          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }]}>
-            <Input placeholder="VD: 0987654321" />
-          </Form.Item>
-          <Form.Item label="Địa chỉ cụ thể" style={{ marginBottom: 0 }}>
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
-                Chọn từ Google Maps
-              </Button>
-            </div>
-            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập hoặc chọn địa chỉ' }]}>
-              <Input.TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
-            </Form.Item>
-          </Form.Item>
-        </Form>
-      </Modal>
+      <AddressModal 
+        visible={isAddressModalVisible}
+        currentUser={currentUser}
+        onCancel={() => setIsAddressModalVisible(false)}
+        onSubmit={handleAddAddress}
+        onOpenMap={() => setIsMapModalVisible(true)}
+      />
 
       {/* Modal Google Map */}
-      <Modal 
-        title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
-        visible={isMapModalVisible} 
-        onCancel={() => setIsMapModalVisible(false)} 
-        onOk={() => {
-          const finalAddress = mapSearchText.trim() ? mapSearchText : 'Hồ Hoàn Kiếm, Hà Nội';
-          form.setFieldsValue({ address: finalAddress });
+      <CartMapModal 
+        visible={isMapModalVisible}
+        onCancel={() => setIsMapModalVisible(false)}
+        onConfirm={(addr) => {
+          // This will require us to pass the address to the AddressModal's form somehow.
+          // The easiest way is to let AddressModal handle CartMapModal. I'll modify AddressModal to include CartMapModal.
+          // For now, I'll just dispatch a custom event.
+          window.dispatchEvent(new CustomEvent('map-address-selected', { detail: addr }));
           setIsMapModalVisible(false);
-          message.success('Đã chọn vị trí từ bản đồ!');
         }}
-        okText="Xác nhận vị trí này"
-        cancelText="Hủy"
-        width={700}
-        zIndex={1001}
-        bodyStyle={{ padding: 0 }}
-        okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
-        cancelButtonProps={{ style: { borderRadius: '8px' } }}
-      >
-        <div style={{ position: 'relative', width: '100%', height: '450px', overflow: 'hidden' }}>
-          
-          {/* SEARCH BAR OVERLAY */}
-          <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 20 }}>
-            <AutoComplete
-              options={mapOptions}
-              style={{ width: '100%' }}
-              onSearch={handleMapSearch}
-              onSelect={(value, option: any) => {
-                setMapSearchText(value);
-                // Dùng tọa độ lat/lon để map load chuẩn 100% thay vì text
-                if (option.lat && option.lon) {
-                  setSubmittedSearchText(`${option.lat},${option.lon}`);
-                } else {
-                  setSubmittedSearchText(value);
-                }
-                message.loading({ content: 'Đang tải vị trí...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã tìm thấy vị trí!', key: 'map-search' }));
-              }}
-              value={mapSearchText}
-              onChange={setMapSearchText}
-            >
-              <Input.Search 
-                className="map-search-input"
-                placeholder="Tìm kiếm trên Google Maps (Mô phỏng)..." 
-                enterButton="Tìm"
-                size="large"
-                style={{ 
-                  boxShadow: '0 2px 6px rgba(0,0,0,0.3)', 
-                  borderRadius: 8 
-                }}
-                onSearch={(value) => {
-                  const newSearch = value.trim() || 'Hồ Hoàn Kiếm, Hà Nội';
-                  setSubmittedSearchText(newSearch);
-                  message.loading({ content: 'Đang tìm kiếm...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã di chuyển tới vị trí!', key: 'map-search' }));
-                }}
-              />
-            </AutoComplete>
-          </div>
-
-          {/* MAP IFRAME */}
-          <iframe 
-            src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
-            width="100%" 
-            height="100%" 
-            style={{ border: 0 }} 
-            allowFullScreen 
-            loading="lazy"
-          ></iframe>
-
-          {/* CENTER PIN */}
-          <EnvironmentFilled 
-            style={{ 
-              position: 'absolute', 
-              top: '50%', 
-              left: '50%', 
-              transform: 'translate(-50%, -100%)', 
-              fontSize: 42, 
-              color: '#BA1A21', 
-              pointerEvents: 'none', 
-              zIndex: 10, 
-              filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' 
-            }} 
-          />
-        </div>
-        <div style={{ padding: '12px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-          <EnvironmentOutlined style={{ color: '#BA1A21' }} />
-          <Text type="secondary">Kéo bản đồ để ghim chính xác vào vị trí nhận hàng của bạn.</Text>
-        </div>
-      </Modal>
+      />
     </div>
   );
 };
