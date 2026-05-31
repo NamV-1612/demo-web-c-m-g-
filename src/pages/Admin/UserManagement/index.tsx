@@ -168,7 +168,7 @@ const UserManagement: React.FC = () => {
             placeholder="Tìm theo Tên, Username hoặc SĐT..." 
             allowClear 
             onSearch={setSearchText} 
-            onChange={(e) => setSearchText(e.target.value)}
+            onChange={(e: any) => setSearchText(e.target.value)}
             style={{ width: 300 }} 
           />
           <Button 
@@ -183,7 +183,7 @@ const UserManagement: React.FC = () => {
       </div>
       <Table 
         columns={columns} 
-        dataSource={users.filter(u => 
+        dataSource={users.filter((u: User) => 
           (u.name || '').toLowerCase().includes(searchText.toLowerCase()) || 
           (u.full_name || '').toLowerCase().includes(searchText.toLowerCase()) || 
           (u.phone || '').toLowerCase().includes(searchText.toLowerCase())
