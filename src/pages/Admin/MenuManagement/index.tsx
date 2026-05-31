@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Switch, message, Upload } from 'antd';
-import { PlusOutlined, EditOutlined, DeleteOutlined, UploadOutlined } from '@ant-design/icons';
+import { Table, Button, Space, Tag, Form, Switch, message } from 'antd';
+import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import '../admin.less';
+import ProductModal from './components/ProductModal';
 
 const MenuManagement: React.FC = () => {
   const { products, addProduct, updateProduct, deleteProduct } = useModel('useMenuModel');
@@ -109,38 +110,13 @@ const MenuManagement: React.FC = () => {
       
       <Table columns={columns} dataSource={products} rowKey={(record: any) => record.id || record._id} pagination={{ pageSize: 10 }} />
 
-      <Modal 
-        title={form.getFieldValue('id') ? "Chỉnh sửa món ăn" : "Thêm món ăn mới"} 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Lưu"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="id" hidden><Input /></Form.Item>
-          <Form.Item name="name" label="Tên món" rules={[{ required: true, message: 'Vui lòng nhập tên món!' }]}><Input /></Form.Item>
-          <Form.Item name="category" label="Danh mục" rules={[{ required: true, message: 'Vui lòng chọn danh mục!' }]}><Input placeholder="VD: Cơm rang, Món ăn kèm, Đồ uống" /></Form.Item>
-          <Form.Item name="price" label="Giá tiền (VNĐ)" rules={[{ required: true, message: 'Vui lòng nhập giá món!' }]}><InputNumber style={{ width: '100%' }} min={0} /></Form.Item>
-          <Form.Item label="Hình ảnh">
-            <Upload 
-              beforeUpload={(file) => {
-                setSelectedFile(file);
-                return false; // Ngăn không cho upload tự động
-              }}
-              maxCount={1}
-              onRemove={() => setSelectedFile(null)}
-            >
-              <Button icon={<UploadOutlined />}>Chọn ảnh từ máy tính (Cloudinary)</Button>
-            </Upload>
-            {form.getFieldValue('id') && <div style={{marginTop: 8, fontSize: 12, color: 'gray'}}>Nếu không chọn ảnh mới, hệ thống sẽ giữ nguyên ảnh cũ.</div>}
-          </Form.Item>
-          <Form.Item name="toppings" label="Toppings (cách nhau bởi dấu phẩy)"><Input placeholder="VD: Thêm trứng, Thêm xúc xích, Thêm lạp xưởng" /></Form.Item>
-          <Form.Item name="description" label="Mô tả"><Input.TextArea placeholder="Mô tả món ăn" /></Form.Item>
-          <Form.Item name="isAvailable" label="Đang bán?" valuePropName="checked"><Switch /></Form.Item>
-        </Form>
-      </Modal>
+      <ProductModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleSave}
+        form={form}
+        setSelectedFile={setSelectedFile}
+      />
     </div>
   );
 };

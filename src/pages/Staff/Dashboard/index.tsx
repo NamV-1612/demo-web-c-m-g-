@@ -1,12 +1,13 @@
-import React, { useState, useEffect } from 'react';
-import { Row, Col, Typography, Button, Drawer, List, Switch, notification, message, Space, Tag, Input } from 'antd';
-import { AppstoreOutlined, SearchOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Row, Typography, Button, message } from 'antd';
+import { AppstoreOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
-import useAuthModel from '@/models/useAuthModel';
-import OrderCard from './components/OrderCard';
 import { Order } from '@/services/typing';
 import moment from 'moment';
 import './style.less';
+
+import KanbanColumn from './components/KanbanColumn';
+import QuickInventoryDrawer from './components/QuickInventoryDrawer';
 
 const { Title, Text } = Typography;
 
@@ -15,9 +16,6 @@ const StaffDashboard: React.FC = () => {
   const { products, updateProductAvailability, updateProduct } = useModel('useMenuModel');
   const { currentUser } = useModel('useAuthModel');
   const [inventoryVisible, setInventoryVisible] = useState(false);
-  const [prevOrdersCount, setPrevOrdersCount] = useState(orders.length);
-  const [searchTerm, setSearchTerm] = useState('');
-  const [updateTick, setUpdateTick] = useState(0);
 
   const pendingOrders = orders.filter(o => o.status?.toUpperCase() === 'PENDING').sort((a, b) => moment(a.createdAt).valueOf() - moment(b.createdAt).valueOf());
   const cookingOrders = orders.filter(o => o.status?.toUpperCase() === 'PREPARING');
@@ -64,28 +62,6 @@ const StaffDashboard: React.FC = () => {
     }
   };
 
-  const KanbanColumn = ({ title, data, className }: { title: string, data: Order[], className: string }) => (
-    <Col span={6}>
-      <div className={`kanban-col ${className}`}>
-        <div className="col-header">
-          <Title level={5} className="col-title">{title}</Title>
-          <span className="badge">{data.length}</span>
-        </div>
-        <div className="col-body" style={{ minHeight: 'calc(100vh - 250px)', maxHeight: 'calc(100vh - 250px)', overflowY: 'auto', padding: 8 }}>
-          {data.map(order => (
-            <OrderCard 
-              key={order.id} 
-              order={order} 
-              onStatusChange={changeOrderStatus} 
-              onPrint={handlePrint}
-              onPaymentChange={handlePaymentChange}
-            />
-          ))}
-        </div>
-      </div>
-    </Col>
-  );
-
   return (
     <div className="kanban-container">
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
@@ -99,94 +75,50 @@ const StaffDashboard: React.FC = () => {
       </div>
 
       <Row gutter={16}>
-        <KanbanColumn title="1. CHỜ DUYỆT" data={pendingOrders} className="pending" />
-        <KanbanColumn title="2. ĐANG NẤU" data={cookingOrders} className="cooking" />
-        <KanbanColumn title="3. CHỜ LẤY" data={readyOrders} className="ready" />
-        <KanbanColumn title="4. HOÀN THÀNH" data={completedOrders} className="completed" />
+        <KanbanColumn 
+          title="1. CHỜ DUYỆT" 
+          data={pendingOrders} 
+          className="pending" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="2. ĐANG NẤU" 
+          data={cookingOrders} 
+          className="cooking" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="3. CHỜ LẤY" 
+          data={readyOrders} 
+          className="ready" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
+        <KanbanColumn 
+          title="4. HOÀN THÀNH" 
+          data={completedOrders} 
+          className="completed" 
+          onStatusChange={changeOrderStatus}
+          onPrint={handlePrint}
+          onPaymentChange={handlePaymentChange}
+        />
       </Row>
 
-      <Drawer 
-        title="Quản lý Tồn kho cấp tốc" 
-        placement="right" 
-        onClose={() => setInventoryVisible(false)} 
-        visible={inventoryVisible} 
-        width="50vw"
-      >
-        <div style={{ marginBottom: 16 }}>
-          <Input 
-            placeholder="Tìm kiếm món ăn theo tên hoặc danh mục..." 
-            prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            allowClear
-            size="large"
-            style={{ borderRadius: 8 }}
-          />
-        </div>
-        <List
-          dataSource={products.filter(p => 
-            p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-            (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
-          )}
-          renderItem={item => (
-            <List.Item
-              style={{ display: 'block', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}
-            >
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <div>
-                  <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
-                  <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}đ</div>
-                </div>
-                <Switch 
-                  size="small"
-                  checked={item.isAvailable !== false} 
-                  onChange={(checked) => updateProductAvailability(item.id, checked)} 
-                  checkedChildren="Còn" 
-                  unCheckedChildren="Hết"
-                />
-              </div>
-
-              {/* Toppings stock toggler */}
-              {item.toppings && item.toppings.length > 0 && (
-                <div style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid #BA1A21' }}>
-                  <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Toppings:</Text>
-                  <Space wrap size={[4, 4]}>
-                    {item.toppings.map(topping => {
-                      const isOutOfStock = (item.outOfStockToppings || []).includes(topping);
-                      return (
-                        <Tag 
-                          key={topping}
-                          color={isOutOfStock ? 'default' : 'orange'}
-                          style={{ cursor: 'pointer', padding: '2px 8px', borderRadius: '4px' }}
-                          onClick={() => {
-                            let newOutOfStock = [...(item.outOfStockToppings || [])];
-                            if (isOutOfStock) {
-                              newOutOfStock = newOutOfStock.filter(t => t !== topping);
-                            } else {
-                              newOutOfStock.push(topping);
-                            }
-                            // Optimistic UI Update
-                            item.outOfStockToppings = newOutOfStock;
-                            setUpdateTick(prev => prev + 1);
-
-                            // Update topping availability
-                            updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
-                            message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
-                          }}
-                        >
-                          {topping} {isOutOfStock ? '❌ Hết' : '✅ Còn'}
-                        </Tag>
-                      );
-                    })}
-                  </Space>
-                </div>
-              )}
-            </List.Item>
-          )}
-        />
-      </Drawer>
+      <QuickInventoryDrawer 
+        visible={inventoryVisible}
+        onClose={() => setInventoryVisible(false)}
+        products={products}
+        updateProductAvailability={updateProductAvailability}
+        updateProduct={updateProduct}
+      />
     </div>
   );
 };
 
 export default StaffDashboard;
+

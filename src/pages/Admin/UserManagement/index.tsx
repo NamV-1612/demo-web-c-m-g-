@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Space, message, Popconfirm, Modal, Form, Input } from 'antd';
+import { Table, Tag, Button, Space, message, Popconfirm, Form, Input } from 'antd';
 import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
 import { getUsers, createStaff, toggleUserStatus } from '@/services/auth';
 import { User } from '@/services/typing';
 import '../admin.less';
+import UserModal from './components/UserModal';
 
 const UserManagement: React.FC = () => {
   const [users, setUsers] = useState<User[]>([]);
@@ -192,42 +193,13 @@ const UserManagement: React.FC = () => {
         loading={loading}
       />
 
-      <Modal 
-        title="Cấp phát tài khoản Nhân viên (Staff)" 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Tạo tài khoản"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleAddStaff}>
-          <Form.Item 
-            name="name" 
-            label="Họ tên Nhân viên" 
-            rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}
-          >
-            <Input placeholder="VD: Nguyễn Văn Hùng" />
-          </Form.Item>
-          <Form.Item 
-            name="phone" 
-            label="Tên đăng nhập (Số điện thoại)" 
-            rules={[
-              { required: true, message: 'Vui lòng nhập số điện thoại!' },
-              { pattern: /^[0-9A-Za-z]+$/, message: 'Chỉ chứa số hoặc chữ viết liền không dấu!' }
-            ]}
-          >
-            <Input placeholder="VD: 0912345678 hoặc STAFF2" />
-          </Form.Item>
-          <Form.Item 
-            name="password" 
-            label="Mật khẩu khởi tạo" 
-            rules={[{ required: true, message: 'Vui lòng nhập mật khẩu khởi tạo!' }]}
-          >
-            <Input.Password placeholder="VD: 123456" />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <UserModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleAddStaff}
+        form={form}
+        loading={loading}
+      />
     </div>
   );
 };

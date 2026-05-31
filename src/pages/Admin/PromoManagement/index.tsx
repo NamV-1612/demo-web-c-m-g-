@@ -1,8 +1,9 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Modal, Form, Input, InputNumber, Switch, message, Select } from 'antd';
+import { Table, Button, Space, Tag, Form, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import '../admin.less';
+import PromoModal from './components/PromoModal';
 
 const PromoManagement: React.FC = () => {
   const { promos, addPromo, updatePromo, deletePromo } = useModel('usePromoModel');
@@ -122,62 +123,12 @@ const PromoManagement: React.FC = () => {
       
       <Table columns={columns} dataSource={promos} rowKey="id" pagination={{ pageSize: 10 }} />
 
-      <Modal 
-        title={form.getFieldValue('id') ? "Chỉnh sửa mã khuyến mãi" : "Thêm mã khuyến mãi mới"} 
-        visible={isModalVisible} 
-        onCancel={() => setIsModalVisible(false)} 
-        onOk={() => form.submit()}
-        okText="Lưu"
-        cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
-      >
-        <Form form={form} layout="vertical" onFinish={handleSave}>
-          <Form.Item name="id" hidden><Input /></Form.Item>
-          <Form.Item 
-            name="code" 
-            label="Mã Khuyến Mãi (Code)" 
-            rules={[
-              { required: true, message: 'Vui lòng nhập mã!' },
-              { pattern: /^[A-Za-z0-9]+$/, message: 'Mã chỉ chứa chữ không dấu và số, không có khoảng trắng!' }
-            ]}
-          >
-            <Input placeholder="VD: TET2024, GIAM20K" style={{ textTransform: 'uppercase' }} />
-          </Form.Item>
-          
-          <Form.Item name="discountType" label="Loại giảm giá" rules={[{ required: true }]}>
-            <Select>
-              <Select.Option value="PERCENT">Giảm theo %</Select.Option>
-              <Select.Option value="AMOUNT">Giảm số tiền cố định</Select.Option>
-            </Select>
-          </Form.Item>
-
-          <Form.Item 
-            name="discountValue" 
-            label={discountType === 'PERCENT' ? "Phần trăm giảm (%)" : "Số tiền giảm (VNĐ)"} 
-            rules={[{ required: true, message: 'Vui lòng nhập mức giảm!' }]}
-          >
-            <InputNumber 
-              style={{ width: '100%' }} 
-              min={0} 
-              max={discountType === 'PERCENT' ? 100 : undefined}
-            />
-          </Form.Item>
-
-          {discountType === 'PERCENT' && (
-            <Form.Item name="maxDiscountAmount" label="Số tiền giảm tối đa (VNĐ) (Tùy chọn)">
-              <InputNumber style={{ width: '100%' }} min={0} placeholder="Không giới hạn nếu để trống" />
-            </Form.Item>
-          )}
-
-          <Form.Item name="quantity" label="Số lượng mã" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
-            <InputNumber style={{ width: '100%' }} min={0} />
-          </Form.Item>
-
-          <Form.Item name="isActive" label="Trạng thái kích hoạt" valuePropName="checked">
-            <Switch />
-          </Form.Item>
-        </Form>
-      </Modal>
+      <PromoModal 
+        visible={isModalVisible}
+        onCancel={() => setIsModalVisible(false)}
+        onSave={handleSave}
+        form={form}
+      />
     </div>
   );
 };
