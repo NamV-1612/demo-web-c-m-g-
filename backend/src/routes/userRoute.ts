@@ -58,4 +58,56 @@ router.put('/:id/status', async (req: Request, res: Response) => {
   }
 });
 
+// Cập nhật thông tin người dùng (Sửa tài khoản)
+router.put('/:id', async (req: Request, res: Response) => {
+  try {
+    const { name, phone, password } = req.body;
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+    }
+    
+    // Kiểm tra trùng số điện thoại nếu có đổi
+    if (phone && phone !== user.phone) {
+       const existing = await User.findOne({ phone });
+       if (existing) {
+         return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
+       }
+       user.phone = phone;
+    }
+
+    if (name) {
+       user.name = name;
+       user.full_name = name;
+    }
+
+    if (password) {
+       const salt = await bcrypt.genSalt(10);
+       user.password = await bcrypt.hash(password, salt);
+    }
+
+    await user.save();
+    res.json({ success: true, data: user });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+// Xóa người dùng
+router.delete('/:id', async (req: Request, res: Response) => {
+  try {
+    const user = await User.findById(req.params.id);
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+    }
+    if (user.role === 'ADMIN') {
+      return res.status(400).json({ success: false, message: 'Không thể xóa tài khoản Admin!' });
+    }
+    await User.findByIdAndDelete(req.params.id);
+    res.json({ success: true, message: 'Đã xóa người dùng' });
+  } catch (error: any) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
 export default router;
