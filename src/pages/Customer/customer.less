@@ -1,0 +1,81 @@
+﻿@import '~antd/es/style/themes/default.less';
+
+/* Modern Gradient Animation for Header */
+.premium-header {
+  background: linear-gradient(135deg, #BA1A21, #ff7a45, #ffa940, #ffc53d);
+  background-size: 300% 300%;
+  animation: gradientFlow 6s ease infinite;
+  box-shadow: 0 4px 15px rgba(186, 26, 33, 0.4);
+}
+
+@keyframes gradientFlow {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+/* Glassmorphism Footer */
+.glass-footer {
+  background: rgba(255, 255, 255, 0.8) !important;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-top: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.05);
+}
+
+/* Product Card Premium Hover Effect */
+.premium-card {
+  transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+  border: none !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-radius: 16px !important;
+  overflow: hidden;
+}
+
+.premium-card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 15px 30px rgba(186, 26, 33, 0.15);
+}
+
+.premium-card .ant-card-cover img {
+  transition: transform 0.5s ease;
+}
+
+.premium-card:hover .ant-card-cover img {
+  transform: scale(1.08);
+}
+
+/* Gradient Text Title */
+.gradient-text {
+  background: linear-gradient(45deg, #BA1A21, #d4380d);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 800;
+}
+
+/* Bouncy Button */
+.bouncy-btn {
+  transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.bouncy-btn:active {
+  transform: scale(0.9);
+}
+
+/* Search Bar Glow */
+.glow-search .ant-input-affix-wrapper {
+  transition: all 0.3s ease;
+  border-radius: 24px !important;
+  border: 1px solid #ffdec2;
+}
+
+.glow-search .ant-input-affix-wrapper:hover,
+.glow-search .ant-input-affix-wrapper-focused {
+  box-shadow: 0 0 15px rgba(186, 26, 33, 0.3) !important;
+  border-color: #BA1A21 !important;
+}
+
+/* Page Background */
+.customer-page {
+  background-color: #f8fafc; /* Rất nhạt, tươi mát */
+}
