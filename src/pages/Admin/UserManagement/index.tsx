@@ -1,3 +1,4 @@
+// Fix: C?p nh?t l?i lu?ng phân quy?n Admin sau khi merge
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Space, message, Popconfirm, Form, Input } from 'antd';
 import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
@@ -205,3 +206,4 @@ const UserManagement: React.FC = () => {
 };
 
 export default UserManagement;
+

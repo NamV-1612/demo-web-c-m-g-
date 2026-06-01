@@ -8,7 +8,7 @@ import productRoutes from './routes/productRoute';
 import orderRoutes from './routes/orderRoute';
 import promoRoutes from './routes/promoRoute';
 import paymentRoutes from './routes/paymentRoute';
-// config env
+// Nạp các biến môi trường từ file .env
 dotenv.config();
 
 const app = express();
