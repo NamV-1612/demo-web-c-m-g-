@@ -54,32 +54,33 @@ const CheckoutForm: React.FC<CheckoutFormProps> = ({
         <>
           <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start', marginBottom: 16 }}>
             <Select 
-              value={selectedAddressId} 
+              value={selectedAddressId || undefined} 
               onChange={setSelectedAddressId} 
               style={{ flex: 1, minWidth: 0 }} 
               size="large"
+              placeholder="Vui lòng thêm địa chỉ"
               className="premium-select"
               dropdownClassName="premium-dropdown"
               optionLabelProp="label"
             >
               {addresses.map(addr => {
                 const safeAddress = addr.address || '';
-                const shortAddr = safeAddress.length > 35 ? safeAddress.substring(0, 35) + '...' : safeAddress;
                 return (
-                  <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${shortAddr || 'Chưa điền địa chỉ'}`}>
+                  <Option key={addr.id} value={addr.id} label={`${addr.name} - ${addr.phone} - ${safeAddress || 'Chưa điền địa chỉ'}`}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <span><strong>{addr.name}</strong> - {addr.phone} ({shortAddr || 'Chưa điền địa chỉ'})</span>
+                      <span style={{ whiteSpace: 'normal', paddingRight: '12px' }}><strong>{addr.name}</strong> - {addr.phone} ({safeAddress || 'Chưa điền địa chỉ'})</span>
                       {addr.id !== 'default' && (
                         <Button 
-                          type="text" 
+                          type="link" 
                           danger 
                           icon={<DeleteOutlined />} 
                           size="small"
+                          style={{ padding: '0 8px', borderRadius: 4, background: '#fff1f0', border: '1px solid #ffa39e' }}
                           onClick={(e) => {
                             e.stopPropagation();
                             onRemoveAddress(addr.id);
                           }}
-                        />
+                        >Xóa</Button>
                       )}
                     </div>
                   </Option>

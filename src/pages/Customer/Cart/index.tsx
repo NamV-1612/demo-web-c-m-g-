@@ -1,7 +1,7 @@
-﻿import React, { useState } from 'react';
-import { List, Card, Typography, Button, message, Empty, Row, Col } from 'antd';
+import React, { useState, useEffect } from 'react';
+import { List, Card, Typography, Button, message, Empty, Row, Col, Popconfirm } from 'antd';
 import moment from 'moment';
-import { ShopOutlined, EnvironmentOutlined } from '@ant-design/icons';
+import { ShopOutlined, EnvironmentOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import { Order } from '@/services/typing';
 import './style.less';
@@ -20,8 +20,13 @@ const CustomerCart: React.FC = () => {
   const { currentUser } = useModel('useAuthModel');
   const { decreasePromoQuantity } = useModel('usePromoModel');
 
-  const timeOptions = [1, 2, 3, 4].map(h => {
-    const time = moment().startOf('hour').add(h, 'hours').format('hh:00 A');
+  const timeOptions = [0, 1, 2, 3].map(h => {
+    let minTime = moment().add(30, 'minutes');
+    let firstHour = minTime.clone().startOf('hour');
+    if (firstHour.isBefore(minTime)) {
+      firstHour.add(1, 'hour');
+    }
+    const time = firstHour.add(h, 'hours').format('hh:00 A');
     return {
       value: time,
       label: time.replace('AM', 'SA').replace('PM', 'CH')
@@ -38,6 +43,17 @@ const CustomerCart: React.FC = () => {
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
   const [isMapModalVisible, setIsMapModalVisible] = useState(false);
 
+  useEffect(() => {
+    if (addresses.length > 0) {
+      const exists = addresses.find(a => a.id === selectedAddressId);
+      if (!exists) {
+        setSelectedAddressId(addresses[0].id);
+      }
+    } else if (selectedAddressId) {
+      setSelectedAddressId('');
+    }
+  }, [addresses, selectedAddressId]);
+
   const handleCheckout = async () => {
     if (!currentUser) return;
     
@@ -45,7 +61,7 @@ const CustomerCart: React.FC = () => {
     const selectedAddr = addresses.find(a => a.id === selectedAddressId);
     
     if (isDelivery && (!selectedAddr || !selectedAddr.address.trim())) {
-      message.error('Vui lÃ²ng chá»n hoáº·c Ä‘iá»n thÃªm Ä‘á»‹a chá»‰ nháº­n hÃ ng!');
+      message.error('Vui lòng chọn hoặc điền thêm địa chỉ nhận hàng!');
       return;
     }
 
@@ -53,21 +69,21 @@ const CustomerCart: React.FC = () => {
       const selectedTime = moment(pickupTimeText, 'hh:00 A');
       const minTime = moment().add(1, 'hours');
       if (selectedTime.isBefore(minTime)) {
-        message.error(`Vui lÃ²ng táº£i láº¡i trang hoáº·c chá»n giá» khÃ¡c (giá» hiá»‡n táº¡i Ä‘Ã£ vÆ°á»£t qua giá» báº¡n chá»n)`);
+        message.error(`Vui lòng tải lại trang hoặc chọn giờ khác (giờ hiện tại đã vượt qua giờ bạn chọn)`);
         return;
       }
     }
 
-    const orderId = 'ORD' + Date.now().toString().slice(-6);
+    const orderId = 'CD_' + Math.floor(1000 + Math.random() * 9000).toString();
     
     const order: Order = {
       id: orderId,
       customerId: currentUser.id,
-      customerName: isDelivery ? selectedAddr!.name : (currentUser.full_name || currentUser.name || 'KhÃ¡ch hÃ ng'),
+      customerName: isDelivery ? selectedAddr!.name : (currentUser.full_name || currentUser.name || 'Khách hàng'),
       customerPhone: isDelivery ? selectedAddr!.phone : currentUser.phone || '',
       items: cartItems,
       totalAmount: totalCartPrice,
-      note: isDelivery ? `Giao Ä‘áº¿n: ${selectedAddr!.address}` : 'KhÃ¡ch tá»± Ä‘áº¿n láº¥y',
+      note: isDelivery ? `Giao đến: ${selectedAddr!.address}` : 'Khách tự đến lấy',
       status: 'PENDING',
       isPaid: false,
       paymentMethod: 'transfer',
@@ -94,15 +110,23 @@ const CustomerCart: React.FC = () => {
   };
 
   const handleMapConfirm = (address: string) => {
+    // Note: The form state is handled by AddressModal, so we need to either pass it a ref or let AddressModal handle MapModal. 
+    // Wait, AddressModal encapsulates the form but MapModal is outside. It's better if MapModal is just called from AddressModal or we pass the address back.
+    // For simplicity, we can just trigger a global event or manage the form inside AddressModal completely.
+    // Since we extracted AddressModal, we can let it handle the MapModal state internally if we wanted.
+    // But since they are parallel here, this requires passing form.setFieldsValue. 
+    // Let's adjust this: AddressModal shouldn't be isolated if it doesn't own MapModal. 
     // We will just let AddressModal expose onOpenMap, and when MapConfirm triggers, we would need to pass it to AddressModal.
+    // Let's just pass `address` back to AddressModal. Actually, let's keep the form in AddressModal and just give it the `MapModal` internally in the next iteration.
+    // For now, I'll let CartMapModal be managed by AddressModal internally to be clean. I'll modify AddressModal.
   };
 
   if (cartItems.length === 0) {
     return (
       <div style={{ textAlign: 'center', padding: '100px 24px' }}>
-        <Empty description="Giá» hÃ ng cá»§a báº¡n Ä‘ang trá»‘ng" image={Empty.PRESENTED_IMAGE_SIMPLE} />
+        <Empty description="Giỏ hàng của bạn đang trống" image={Empty.PRESENTED_IMAGE_SIMPLE} />
         <Button type="primary" size="large" onClick={() => history.push('/customer/home')} style={{ marginTop: 24, borderRadius: 24 }}>
-          KhÃ¡m phÃ¡ Thá»±c Ä‘Æ¡n ngay
+          Khám phá Thực đơn ngay
         </Button>
       </div>
     );
@@ -110,14 +134,14 @@ const CustomerCart: React.FC = () => {
 
   return (
     <div className="cart-container">
-      <div className="cart-header">
-        <Title level={2} className="art-title"><ShopOutlined /> Giá» hÃ ng cá»§a báº¡n</Title>
+      <div className="cart-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+        <Title level={2} className="art-title" style={{ margin: 0 }}><ShopOutlined /> Giỏ hàng của bạn</Title>
       </div>
       
       <Row gutter={[32, 24]}>
-        {/* Cá»˜T TRÃI: DANH SÃCH MÃ“N Ä‚N VÃ€ Äá»ŠA CHá»ˆ */}
+        {/* CỘT TRÁI: DANH SÁCH MÓN ĂN VÀ ĐỊA CHỈ */}
         <Col xs={24} lg={14}>
-          <Card className="checkout-section-card" title={<><EnvironmentOutlined /> ThÃ´ng tin nháº­n hÃ ng & Háº¹n giá»</>} bordered={false}>
+          <Card className="checkout-section-card" title={<><EnvironmentOutlined /> Thông tin nhận hàng & Hẹn giờ</>} bordered={false}>
             <CheckoutForm 
               deliveryMethod={deliveryMethod}
               setDeliveryMethod={setDeliveryMethod}
@@ -138,7 +162,7 @@ const CustomerCart: React.FC = () => {
 
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24, marginTop: 24 }}>
               <Title level={5} style={{ color: '#BA1A21', marginBottom: 16 }}>
-                <ShopOutlined /> Danh sÃ¡ch mÃ³n Äƒn
+                <ShopOutlined /> Danh sách món ăn
               </Title>
               <List
                 dataSource={cartItems}
@@ -154,7 +178,7 @@ const CustomerCart: React.FC = () => {
           </Card>
         </Col>
  
-        {/* Cá»˜T PHáº¢I: Tá»”NG Káº¾T VÃ€ THANH TOÃN */}
+        {/* CỘT PHẢI: TỔNG KẾT VÀ THANH TOÁN */}
         <Col xs={24} lg={10}>
           <CheckoutSummary 
             subTotal={subTotal}
@@ -164,11 +188,12 @@ const CustomerCart: React.FC = () => {
             onVoucherInputChange={setVoucherInput}
             onApplyVoucher={() => applyVoucher(voucherInput)}
             onCheckout={handleCheckout}
+            onClearCart={clearCart}
           />
         </Col>
       </Row>
 
-      {/* Modal ThÃªm Äá»‹a chá»‰ */}
+      {/* Modal Thêm Địa chỉ */}
       <AddressModal 
         visible={isAddressModalVisible}
         currentUser={currentUser}
@@ -182,6 +207,9 @@ const CustomerCart: React.FC = () => {
         visible={isMapModalVisible}
         onCancel={() => setIsMapModalVisible(false)}
         onConfirm={(addr) => {
+          // This will require us to pass the address to the AddressModal's form somehow.
+          // The easiest way is to let AddressModal handle CartMapModal. I'll modify AddressModal to include CartMapModal.
+          // For now, I'll just dispatch a custom event.
           window.dispatchEvent(new CustomEvent('map-address-selected', { detail: addr }));
           setIsMapModalVisible(false);
         }}
