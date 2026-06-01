@@ -43,7 +43,9 @@ export default function useCartModel() {
   const addToCart = useCallback((item: CartItem) => {
     setCartItems(prev => {
       const existingItemIndex = prev.findIndex(
-        p => p.product.id === item.product.id && (p.note || '').trim() === (item.note || '').trim()
+        p => p.product.id === item.product.id && 
+             (p.note || '').trim() === (item.note || '').trim() &&
+             JSON.stringify([...(p.selectedToppings || [])].sort()) === JSON.stringify([...(item.selectedToppings || [])].sort())
       );
 
       let newCart;
@@ -104,7 +106,27 @@ export default function useCartModel() {
       setVoucher(null);
       return false;
     }
-    
+    if (code.toUpperCase() === 'WELCOME') {
+      const userStr = localStorage.getItem('CURRENT_USER');
+      if (!userStr) {
+        message.error('Vui lòng đăng nhập để sử dụng mã ưu đãi cho khách mới!');
+        setVoucher(null);
+        return false;
+      }
+      try {
+        const { data: orders } = await api.get('/orders/myorders');
+        if (orders && orders.length > 0) {
+          message.error('Voucher chỉ dành cho khách hàng mới');
+          setVoucher(null);
+          return false;
+        }
+      } catch (error) {
+        message.error('Lỗi khi kiểm tra thông tin đơn hàng.');
+        setVoucher(null);
+        return false;
+      }
+    }
+
     try {
       const { data } = await api.post('/promos/verify', { code, orderValue: subTotal });
       
