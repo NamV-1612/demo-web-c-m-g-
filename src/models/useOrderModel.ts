@@ -1,20 +1,24 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import api from '@/services/api';
 import { Order } from '@/services/typing';
-import { message } from 'antd';
+import { message, notification } from 'antd';
 import useAuthModel from './useAuthModel';
+import moment from 'moment';
 
 export default function useOrderModel() {
   const [orders, setOrders] = useState<Order[]>([]);
+  const prevOrdersRef = useRef<Order[]>([]);
   const { currentUser } = useAuthModel();
 
   const [addresses, setAddresses] = useState<{id: string, name: string, phone: string, address: string}[]>([]);
 
   useEffect(() => {
+    // Populate addresses from currentUser
     if (currentUser) {
       if (currentUser.addresses && currentUser.addresses.length > 0) {
         setAddresses(currentUser.addresses);
       } else if (currentUser.address) {
+        // Fallback for old data
         const userAddr = {
           id: 'default',
           name: currentUser.full_name || currentUser.name,
@@ -37,21 +41,26 @@ export default function useOrderModel() {
         const { data } = await api.post('/auth/address', addr);
         const updatedUser = { ...currentUser, ...data, token: currentUser.token };
         localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
+        const userId = updatedUser._id || updatedUser.id;
+        if (userId && updatedUser.addresses) {
+          localStorage.setItem(`ADDRESSES_${userId}`, JSON.stringify(updatedUser.addresses));
+        }
         window.dispatchEvent(new Event('storage'));
         
         // Find the newly added address to return its ID so the UI can select it
         newAddr = updatedUser.addresses[updatedUser.addresses.length - 1];
       } catch (e) {
-        console.error('KhÃ´ng thá»ƒ lÆ°u Ä‘á»‹a chá»‰ má»›i', e);
+        console.error('Không thể lưu địa chỉ mới', e);
       }
     }
     
     if (!newAddr) {
+      // Fallback for non-logged in or offline
       newAddr = { id: 'addr' + Date.now(), ...addr };
       setAddresses(prev => [...prev, newAddr]);
     }
 
-    message.success('ÄÃ£ lÆ°u Ä‘á»‹a chá»‰ má»›i vÃ o Sá»• Ä‘á»‹a chá»‰!');
+    message.success('Đã lưu địa chỉ mới vào Sổ địa chỉ!');
     return newAddr;
   };
 
@@ -61,15 +70,20 @@ export default function useOrderModel() {
         const { data } = await api.delete(`/auth/address/${id}`);
         const updatedUser = { ...currentUser, ...data, token: currentUser.token };
         localStorage.setItem('CURRENT_USER', JSON.stringify(updatedUser));
+        const userId = updatedUser._id || updatedUser.id;
+        if (userId && updatedUser.addresses) {
+          localStorage.setItem(`ADDRESSES_${userId}`, JSON.stringify(updatedUser.addresses));
+        }
         window.dispatchEvent(new Event('storage'));
-        message.success('ÄÃ£ xÃ³a Ä‘á»‹a chá»‰!');
+        message.success('Đã xóa địa chỉ!');
         return true;
       } catch (e) {
-        console.error('KhÃ´ng thá»ƒ xÃ³a Ä‘á»‹a chá»‰', e);
-        message.error('Lá»—i khi xÃ³a Ä‘á»‹a chá»‰');
+        console.error('Không thể xóa địa chỉ', e);
+        message.error('Lỗi khi xóa địa chỉ');
         return false;
       }
     }
+    // Fallback locally
     setAddresses(prev => prev.filter(a => a.id !== id));
     return true;
   };
@@ -81,19 +95,55 @@ export default function useOrderModel() {
         ? '/orders' 
         : '/orders/myorders';
       const { data } = await api.get(endpoint);
-      const formattedData = data.map((order: any) => ({
-        ...order,
-        items: order.items?.map((item: any) => ({
-          product: item.productId || { name: item.name, price: item.price, image: '' },
-          quantity: item.quantity,
-          selectedToppings: item.selectedToppings || [],
-          note: item.note,
-          totalPrice: item.price * item.quantity
-        })) || []
-      }));
+      const formattedData = data.map((order: any) => {
+        // Auto-cancel logic for PENDING orders older than 15 mins
+        const createdAtMs = moment(order.createdAt).valueOf();
+        if (order.status === 'PENDING' && Date.now() - createdAtMs > 15 * 60 * 1000) {
+          order.status = 'CANCELLED';
+          order.cancelMessage = 'Hệ thống tự động hủy do quá 15 phút không xác nhận.';
+          api.put(`/orders/${order.id}/status`, { status: 'CANCELLED', cancelMessage: 'Hệ thống tự động hủy do quá 15 phút không xác nhận.' }).catch(() => {});
+        }
+        
+        return {
+          ...order,
+          items: order.items?.map((item: any) => ({
+            product: item.productId || { name: item.name, price: item.price, image: '' },
+            quantity: item.quantity,
+            selectedToppings: item.selectedToppings || [],
+            note: item.note,
+            totalPrice: item.price * item.quantity
+          })) || []
+        };
+      });
+
+      // Notification Logic
+      if (prevOrdersRef.current.length > 0) {
+        formattedData.forEach((newOrder: any) => {
+          const oldOrder = prevOrdersRef.current.find(o => o.id === newOrder.id);
+          if (oldOrder && oldOrder.status !== newOrder.status) {
+            // Customer notification when ready
+            if (currentUser.role === 'CUSTOMER' && newOrder.status === 'READY') {
+              notification.success({
+                message: 'Đơn hàng đã sẵn sàng!',
+                description: `Đơn hàng #${newOrder.id} của bạn đã chuẩn bị xong, vui lòng lấy hàng!`,
+                placement: 'topRight'
+              });
+            }
+            // Staff notification when auto-cancelled
+            if ((currentUser.role === 'STAFF' || currentUser.role === 'ADMIN') && newOrder.status === 'CANCELLED' && newOrder.cancelMessage?.includes('quá 15 phút')) {
+              notification.error({
+                message: 'Đơn hàng tự động hủy',
+                description: `Đơn #${newOrder.id} đã bị hủy do quá 15 phút không được duyệt.`,
+                placement: 'topRight'
+              });
+            }
+          }
+        });
+      }
+      prevOrdersRef.current = formattedData;
       setOrders(formattedData);
     } catch (error) {
-      console.error('Lá»—i táº£i Ä‘Æ¡n hÃ ng', error);
+      console.error('Lỗi tải đơn hàng', error);
     }
   }, [currentUser]);
 
@@ -106,10 +156,12 @@ export default function useOrderModel() {
 
   const submitOrder = async (order: any) => {
     try {
+      // Map frontend cart format to backend expected format
       const formattedOrder = {
+        id: order.id,
         customerName: order.customerName,
         customerPhone: order.customerPhone,
-        customerAddress: order.customerAddress || order.note?.replace('Giao Ä‘áº¿n: ', ''), // Pass address to backend
+        customerAddress: order.customerAddress || order.note?.replace('Giao đến: ', ''), // Pass address to backend
         totalAmount: order.totalAmount,
         note: order.note,
         paymentMethod: order.paymentMethod,
@@ -127,11 +179,11 @@ export default function useOrderModel() {
       };
 
       await api.post('/orders', formattedOrder);
-      loadData(); // Táº£i láº¡i danh sÃ¡ch
-      message.success('Äáº·t hÃ ng thÃ nh cÃ´ng!');
+      loadData(); // Tải lại danh sách
+      message.success('Đặt hàng thành công!');
       return true;
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lá»—i Ä‘áº·t hÃ ng');
+      message.error(error.response?.data?.message || 'Lỗi đặt hàng');
       return false;
     }
   };
@@ -143,40 +195,40 @@ export default function useOrderModel() {
       if (newStatus.toUpperCase() === 'CANCELLED') {
         const order = orders.find(o => o.id === id);
         if (order && order.promoCode) {
-          // Gá»­i request khÃ´i phá»¥c mÃ£ giáº£m giÃ¡
+          // Gửi request khôi phục mã giảm giá
           api.post('/promos/restore', { code: order.promoCode }).catch(() => {});
-          message.info(`ÄÃ£ hoÃ n láº¡i mÃ£ khuyáº¿n mÃ£i ${order.promoCode} vÃ o kho`);
+          message.info(`Đã hoàn lại mã khuyến mãi ${order.promoCode} vào kho`);
         }
       }
       
-      message.success('Cáº­p nháº­t tráº¡ng thÃ¡i thÃ nh cÃ´ng');
+      message.success('Cập nhật trạng thái thành công');
       loadData();
     } catch (error) {
-      message.error('Lá»—i khi cáº­p nháº­t tráº¡ng thÃ¡i');
+      message.error('Lỗi khi cập nhật trạng thái');
     }
   };
 
   const rateOrder = async (id: string, rating: { stars: number; comment: string }) => {
     try {
       await api.put(`/orders/${id}/rate`, rating);
-      message.success('ÄÃ¡nh giÃ¡ Ä‘Æ¡n hÃ ng thÃ nh cÃ´ng! Cáº£m Æ¡n báº¡n.');
+      message.success('Đánh giá đơn hàng thành công! Cảm ơn bạn.');
       loadData();
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lá»—i khi gá»­i Ä‘Ã¡nh giÃ¡');
+      message.error(error.response?.data?.message || 'Lỗi khi gửi đánh giá');
     }
   };
 
   const togglePaymentStatus = (id: string, isPaid: boolean) => {
-    message.warning('TÃ­nh nÄƒng Ä‘ang Ä‘Æ°á»£c phÃ¡t triá»ƒn!');
+    message.warning('Tính năng đang được phát triển!');
   };
 
   const updateOrderInfo = async (id: string, info: { phone: string; address: string }) => {
     try {
-      await api.put(`/orders/${id}`, { customerPhone: info.phone, customerAddress: info.address, note: 'Giao Ä‘áº¿n: ' + info.address });
-      message.success('Cáº­p nháº­t thÃ´ng tin nháº­n hÃ ng thÃ nh cÃ´ng!');
+      await api.put(`/orders/${id}`, { customerPhone: info.phone, customerAddress: info.address, note: 'Giao đến: ' + info.address });
+      message.success('Cập nhật thông tin nhận hàng thành công!');
       loadData();
     } catch (error) {
-      message.error('Lá»—i khi cáº­p nháº­t thÃ´ng tin');
+      message.error('Lỗi khi cập nhật thông tin');
     }
   };
 
