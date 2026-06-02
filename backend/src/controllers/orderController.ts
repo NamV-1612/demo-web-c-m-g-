@@ -7,7 +7,7 @@ import Promo from '../models/promoModel';
 // @access  Private (Customer)
 export const createOrder = async (req: any, res: Response) => {
   try {
-    const { items, customerName, customerPhone, customerAddress, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
+    const { id, items, customerName, customerPhone, customerAddress, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
 
     if (items && items.length === 0) {
       res.status(400).json({ message: 'Giỏ hàng rỗng' });
@@ -15,6 +15,7 @@ export const createOrder = async (req: any, res: Response) => {
     }
 
     const order = new Order({
+      _id: id || ('CD_' + Math.floor(1000 + Math.random() * 9000).toString()),
       customerId: req.user._id,
       customerName,
       customerPhone,
@@ -78,7 +79,7 @@ export const updateOrderStatus = async (req: any, res: Response) => {
       return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
     }
 
-    const { status } = req.body;
+    const { status, cancelMessage } = req.body;
 
     // Check Role
     if (req.user.role === 'CUSTOMER') {
@@ -95,6 +96,9 @@ export const updateOrderStatus = async (req: any, res: Response) => {
 
     const previousStatus = order.status;
     order.status = status || order.status;
+    if (cancelMessage) {
+      (order as any).cancelMessage = cancelMessage;
+    }
     
     // Nếu cập nhật thành PREPARING (Đang nấu) thì tự động coi như Đã thanh toán theo yêu cầu
     if (status === 'PREPARING') {

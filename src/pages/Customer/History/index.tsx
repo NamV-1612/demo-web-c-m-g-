@@ -17,6 +17,10 @@ const CustomerHistory: React.FC = () => {
   const { addToCart } = useModel('useCartModel');
 
   const [form] = Form.useForm();
+
+  React.useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
   
   // Edit Address Modal
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
@@ -91,16 +95,19 @@ const CustomerHistory: React.FC = () => {
     <div className="history-container">
       <div className="history-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
         <Title level={2} className="art-title" style={{ margin: 0 }}>
-          Lịch sử <span style={{ color: '#BA1A21' }}>Đơn hàng</span>
+          Lịch sử <span style={{ color: '#D53E0F' }}>Đơn hàng</span>
         </Title>
-        <Input.Search 
-          placeholder="Tìm theo mã đơn hoặc tên món..." 
-          allowClear
-          value={searchQuery}
-          onChange={(e) => setSearchQuery(e.target.value)}
-          style={{ width: '100%', maxWidth: 350 }}
-          size="large"
-        />
+        <div className="history-search-wrapper">
+          <Input.Search 
+            placeholder="Tìm theo mã đơn hoặc tên món..." 
+            allowClear
+            enterButton
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            style={{ width: 300 }}
+            size="large"
+          />
+        </div>
       </div>
       
       {filteredOrders.length === 0 ? (
@@ -136,7 +143,7 @@ const CustomerHistory: React.FC = () => {
         onOk={() => form.submit()}
         okText="Lưu thay đổi"
         cancelText="Hủy"
-        okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+        okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F' } }}
       >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
           <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ' }]}>
@@ -144,7 +151,7 @@ const CustomerHistory: React.FC = () => {
           </Form.Item>
           <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+              <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#D53E0F', color: '#D53E0F' }}>
                 Chọn từ Google Maps
               </Button>
             </div>
