@@ -1,4 +1,3 @@
-// Fix: S?a l?i responsive Header trên mobile cho khách hàng
 import React, { useState } from 'react';
 import { Layout, Badge, Menu, Button, Row, Col, Space, Modal, Dropdown, Avatar } from 'antd';
 import { ShoppingCartOutlined, HomeOutlined, UserOutlined, ClockCircleOutlined, LoginOutlined, EnvironmentOutlined, PhoneOutlined, MailOutlined, SafetyCertificateOutlined, LogoutOutlined, SettingOutlined } from '@ant-design/icons';
@@ -148,4 +147,3 @@ const CustomerLayout: React.FC = ({ children }) => {
 };
 
 export default CustomerLayout;
-

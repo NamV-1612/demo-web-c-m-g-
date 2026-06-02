@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Typography, Tag, Steps, Alert, Button, Rate, Popconfirm } from 'antd';
 import { SyncOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, StarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import moment from 'moment';
@@ -15,6 +15,29 @@ interface OrderCardProps {
 }
 
 const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEditAddress, onRateOrder }) => {
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (order.status?.toUpperCase() !== 'PENDING') return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const createdAtMs = moment(order.createdAt).valueOf();
+      const expiresAt = createdAtMs + 15 * 60 * 1000;
+      const diff = expiresAt - now;
+
+      if (diff <= 0) {
+        setTimeLeft('00:00');
+      } else {
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        setTimeLeft(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [order.createdAt, order.status]);
+
   return (
     <Card className="history-card" bodyStyle={{ padding: '16px' }} style={{ marginBottom: 16, borderRadius: 12, border: '1px solid #f0f0f0', borderLeft: '6px solid #BA1A21', boxShadow: '0 2px 12px rgba(0,0,0,0.03)' }}>
       {/* Header: ID, Time, Status */}
@@ -25,6 +48,9 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEdi
             {moment(order.createdAt).format('DD/MM/YYYY HH:mm')}
           </Text>
         </div>
+        {order.status?.toUpperCase() === 'PENDING' && timeLeft && (
+          <Tag color="error" style={{ margin: 0, fontWeight: 'bold' }}>Tự hủy sau: {timeLeft}</Tag>
+        )}
       </div>
       
       {/* Customer Info (Inline) */}
@@ -32,7 +58,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEdi
         <div><Text strong>Người nhận:</Text> {order.customerName} - {order.customerPhone}</div>
         <div><Text strong>Giao đến:</Text> {order.note?.replace('Giao đến: ', '')}</div>
         {order.pickupTime && (
-          <div><Text strong>Hẹn lấy:</Text> {order.pickupTime}</div>
+          <div><Text strong>Hẹn lấy:</Text> {order.pickupTime === 'asap' ? 'Lấy ngay' : order.pickupTime}</div>
         )}
       </div>
 
@@ -145,7 +171,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEdi
                 title="Bạn có chắc chắn muốn hủy đơn hàng này?" 
                 onConfirm={() => onCancel(order.id)} okText="Có, Hủy" cancelText="Không"
               >
-                <Button size="middle" type="primary" danger icon={<DeleteOutlined />}>Hủy Đơn</Button>
+                <Button size="middle" type="primary" danger>Hủy đơn hàng</Button>
               </Popconfirm>
             )}
             {order.status?.toUpperCase() === 'COMPLETED' && (

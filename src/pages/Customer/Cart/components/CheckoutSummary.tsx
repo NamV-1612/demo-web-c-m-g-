@@ -1,6 +1,6 @@
 import React from 'react';
-import { Typography, Button, Input, Tag } from 'antd';
-import { TagOutlined } from '@ant-design/icons';
+import { Typography, Button, Input, Popconfirm } from 'antd';
+import { TagOutlined, DeleteOutlined } from '@ant-design/icons';
 
 const { Title, Text } = Typography;
 
@@ -12,6 +12,7 @@ interface CheckoutSummaryProps {
   onVoucherInputChange: (val: string) => void;
   onApplyVoucher: () => void;
   onCheckout: () => void;
+  onClearCart: () => void;
 }
 
 const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
@@ -21,7 +22,8 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
   voucherInput,
   onVoucherInputChange,
   onApplyVoucher,
-  onCheckout
+  onCheckout,
+  onClearCart
 }) => {
   return (
     <div className="checkout-panel" style={{ position: 'sticky', top: '100px', zIndex: 10 }}>
@@ -72,9 +74,22 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </div>
       </div>
 
-      <Button type="primary" block className="checkout-btn" onClick={onCheckout}>
-        Đặt đơn ngay
-      </Button>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <Button type="primary" className="checkout-btn" onClick={onCheckout} style={{ height: '40px', borderRadius: '8px', background: '#BA1A21', borderColor: '#BA1A21' }}>
+          Đặt đơn ngay
+        </Button>
+        <Popconfirm 
+          title="Bạn có chắc chắn muốn hủy toàn bộ giỏ hàng không?" 
+          onConfirm={onClearCart} 
+          okText="Hủy đơn hàng" 
+          cancelText="Không"
+          placement="top"
+        >
+          <Button style={{ height: '40px', borderRadius: '8px', background: '#f5f5f5', color: '#000', borderColor: '#d9d9d9' }}>
+            Hủy đơn hàng
+          </Button>
+        </Popconfirm>
+      </div>
     </div>
   );
 };

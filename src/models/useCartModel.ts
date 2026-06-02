@@ -147,7 +147,7 @@ export default function useCartModel() {
     clearCart,
     subTotal,
     totalCartPrice,
-    cartCount: cartItems.length,
+    cartCount: cartItems.reduce((acc, curr) => acc + curr.quantity, 0),
     voucher: safeVoucher,
     applyVoucher,
     updateQuantity

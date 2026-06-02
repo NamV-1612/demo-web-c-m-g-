@@ -1,8 +1,6 @@
 import React, { useRef, useState } from 'react';
-import { Modal, Input, AutoComplete, message, Typography } from 'antd';
-import { EnvironmentOutlined, EnvironmentFilled } from '@ant-design/icons';
-
-const { Text } = Typography;
+import { Modal, Input, AutoComplete, message } from 'antd';
+import { EnvironmentOutlined } from '@ant-design/icons';
 
 interface CartMapModalProps {
   visible: boolean;
@@ -41,24 +39,24 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
 
   return (
     <Modal 
-      title={<><EnvironmentOutlined /> Chọn vị trí trên Bản đồ</>}
+      title={<><EnvironmentOutlined /> Tìm kiếm địa chỉ nhận hàng</>}
       visible={visible} 
       onCancel={onCancel} 
       onOk={() => {
-        const finalAddress = mapSearchText.trim() ? mapSearchText : 'Hồ Hoàn Kiếm, Hà Nội';
+        const finalAddress = mapSearchText.trim() ? mapSearchText : 'Vị trí đã chọn trên bản đồ';
         onConfirm(finalAddress);
-        message.success('Đã chọn vị trí từ bản đồ!');
+        message.success('Đã chọn địa chỉ!');
       }}
       okText="Xác nhận vị trí này"
       cancelText="Hủy"
       width={700}
       zIndex={1001}
       bodyStyle={{ padding: 0 }}
-      okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
+      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
       cancelButtonProps={{ style: { borderRadius: '8px' } }}
     >
       <div style={{ position: 'relative', width: '100%', height: '450px', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 20 }}>
+        <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 10 }}>
           <AutoComplete
             options={mapOptions}
             style={{ width: '100%' }}
@@ -70,21 +68,19 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
               } else {
                 setSubmittedSearchText(value);
               }
-              message.loading({ content: 'Đang tải vị trí...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã tìm thấy vị trí!', key: 'map-search' }));
             }}
             value={mapSearchText}
             onChange={setMapSearchText}
           >
             <Input.Search 
               className="map-search-input"
-              placeholder="Tìm kiếm trên Google Maps (Mô phỏng)..." 
+              placeholder="Nhập địa chỉ bạn muốn tìm..." 
               enterButton="Tìm"
               size="large"
               style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.3)', borderRadius: 8 }}
               onSearch={(value) => {
                 const newSearch = value.trim() || 'Hồ Hoàn Kiếm, Hà Nội';
                 setSubmittedSearchText(newSearch);
-                message.loading({ content: 'Đang tìm kiếm...', key: 'map-search', duration: 1 }).then(() => message.success({ content: 'Đã di chuyển tới vị trí!', key: 'map-search' }));
               }}
             />
           </AutoComplete>
@@ -98,23 +94,6 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
           loading="lazy"
           title="Map"
         ></iframe>
-        <EnvironmentFilled 
-          style={{ 
-            position: 'absolute', 
-            top: '50%', 
-            left: '50%', 
-            transform: 'translate(-50%, -100%)', 
-            fontSize: 42, 
-            color: '#BA1A21', 
-            pointerEvents: 'none', 
-            zIndex: 10, 
-            filter: 'drop-shadow(0px 4px 6px rgba(0,0,0,0.5))' 
-          }} 
-        />
-      </div>
-      <div style={{ padding: '12px 16px', background: '#fafafa', borderTop: '1px solid #f0f0f0', display: 'flex', alignItems: 'center', gap: '8px' }}>
-        <EnvironmentOutlined style={{ color: '#BA1A21' }} />
-        <Text type="secondary">Kéo bản đồ để ghim chính xác vào vị trí nhận hàng của bạn.</Text>
       </div>
     </Modal>
   );
