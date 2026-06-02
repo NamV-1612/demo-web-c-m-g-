@@ -1,4 +1,3 @@
-// Fix: �?ng b? d? li?u Kanban real-time v?i backend
 import React, { useState } from 'react';
 import { Row, Typography, Button, message } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
@@ -34,15 +33,17 @@ const StaffDashboard: React.FC = () => {
       printWindow.document.write(`
         <div style="font-family: monospace; padding: 10px;">
           <h2 style="text-align: center; margin-bottom: 5px; font-weight: 900; color: #BA1A21;">CHICKEN DOKI</h2>
-          <h3 style="text-align: center; margin-top: 0;">MÃ ĐƠN: ${order.id}</h3>
+          <h3 style="text-align: center; margin-top: 0;">MÃ VẬN ĐƠN: ${order.id}</h3>
           <hr style="border: 1px dashed #000;"/>
           <p style="margin: 4px 0;">Khách hàng: ${order.customerName}</p>
           <p style="margin: 4px 0;">Điện thoại: ${order.customerPhone}</p>
           ${
-            order.pickupTime === 'asap' || order.note === 'Khách tự đến lấy' 
-              ? `<p style="margin: 4px 0;">Hình thức: <strong>Tự đến lấy tại quán</strong></p>` 
-              : `<p style="margin: 4px 0;">Địa chỉ nhận: <strong>${order.customerAddress || order.note?.replace('Giao đến: ', '') || 'Chưa cập nhật'}</strong></p>
-                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime}</p>`
+            order.note === 'Khách tự đến lấy' 
+              ? `<p style="margin: 4px 0;">Hình thức: <strong>Tự đến lấy tại quán</strong></p>
+                 <p style="margin: 4px 0;">Hẹn lấy: ${order.pickupTime === 'asap' ? 'Lấy ngay' : order.pickupTime}</p>` 
+              : `<p style="margin: 4px 0;">Hình thức: <strong>Nhờ ship</strong></p>
+                 <p style="margin: 4px 0;">Địa chỉ nhận: <strong>${order.customerAddress || order.note?.replace('Giao đến: ', '') || 'Chưa cập nhật'}</strong></p>
+                 <p style="margin: 4px 0;">Hẹn giao: ${order.pickupTime === 'asap' ? 'Giao ngay' : order.pickupTime}</p>`
           }
           <p style="margin: 4px 0;">Thanh toán: ${order.paymentMethod === 'transfer' ? 'Chuyển khoản QR' : 'Tiền mặt'}</p>
           <p style="margin: 4px 0;">Trạng thái: <strong>${order.isPaid ? 'ĐÃ THANH TOÁN' : 'CHƯA THU TIỀN'}</strong></p>
@@ -122,5 +123,4 @@ const StaffDashboard: React.FC = () => {
 };
 
 export default StaffDashboard;
-
 

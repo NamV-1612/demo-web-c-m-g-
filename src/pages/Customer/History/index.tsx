@@ -1,5 +1,5 @@
-﻿import React, { useState } from 'react';
-import { Typography, Button, message, Modal, Input, Empty, Form } from 'antd';
+import React, { useState } from 'react';
+import { Typography, Button, message, Modal, Input, Empty, Form, Space } from 'antd';
 import { EnvironmentOutlined } from '@ant-design/icons';
 import { useModel, history } from 'umi';
 import './style.less';
@@ -18,6 +18,7 @@ const CustomerHistory: React.FC = () => {
 
   const [form] = Form.useForm();
   
+  // Edit Address Modal
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
   const [editingOrder, setEditingOrder] = useState<any>(null);
 
@@ -28,14 +29,26 @@ const CustomerHistory: React.FC = () => {
   const [isRateModalVisible, setIsRateModalVisible] = useState(false);
   const [ratingOrderId, setRatingOrderId] = useState<string | null>(null);
 
+  const [searchQuery, setSearchQuery] = useState('');
+
+  const removeAccents = (str: string) => {
+    return str.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+  };
+
   const myOrders = orders.filter(o => o.customerId === currentUser?.id);
+  const filteredOrders = myOrders.filter(o => {
+    const search = removeAccents(searchQuery.toLowerCase());
+    const idMatch = removeAccents(o.id?.toString().toLowerCase() || '').includes(search);
+    const itemMatch = o.items?.some((item: any) => removeAccents((item.name || item.product?.name)?.toString().toLowerCase() || '').includes(search));
+    return idMatch || itemMatch;
+  });
 
   const handleReorder = (order: any) => {
     order.items.forEach((item: any) => {
       const newItem = { ...item, cartItemId: Math.random().toString(36).substring(7) };
       addToCart(newItem);
     });
-    message.success('ÄÃ£ thÃªm láº¡i cÃ¡c mÃ³n vÃ o giá» hÃ ng!');
+    message.success('Đã thêm lại các món vào giỏ hàng!');
     history.push('/customer/cart');
   };
 
@@ -64,7 +77,7 @@ const CustomerHistory: React.FC = () => {
     setEditingOrder(order);
     form.setFieldsValue({ 
       phone: order.customerPhone, 
-      address: order.note?.replace('Giao Ä‘áº¿n: ', '') || '' 
+      address: order.note?.replace('Giao đến: ', '') || '' 
     });
     setIsEditModalVisible(true);
   };
@@ -76,18 +89,26 @@ const CustomerHistory: React.FC = () => {
 
   return (
     <div className="history-container">
-      <div className="history-header">
-        <Title level={2} className="art-title">
-          Lá»‹ch sá»­ <span style={{ color: '#BA1A21' }}>ÄÆ¡n hÃ ng</span>
+      <div className="history-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24, flexWrap: 'wrap', gap: 16 }}>
+        <Title level={2} className="art-title" style={{ margin: 0 }}>
+          Lịch sử <span style={{ color: '#BA1A21' }}>Đơn hàng</span>
         </Title>
+        <Input.Search 
+          placeholder="Tìm theo mã đơn hoặc tên món..." 
+          allowClear
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          style={{ width: '100%', maxWidth: 350 }}
+          size="large"
+        />
       </div>
       
-      {myOrders.length === 0 ? (
+      {filteredOrders.length === 0 ? (
         <div style={{ padding: '60px 0', background: '#fff', borderRadius: 16, border: '1px solid #f0f0f0' }}>
-          <Empty description="Báº¡n chÆ°a cÃ³ Ä‘Æ¡n hÃ ng nÃ o." />
+          <Empty description="Bạn chưa có đơn hàng nào." />
         </div>
       ) : (
-        myOrders.map(order => (
+        filteredOrders.map(order => (
           <OrderCard 
             key={order.id}
             order={order}
@@ -109,26 +130,26 @@ const CustomerHistory: React.FC = () => {
 
       {/* EDIT MODAL */}
       <Modal
-        title="Sá»­a thÃ´ng tin giao hÃ ng"
+        title="Sửa thông tin giao hàng"
         visible={isEditModalVisible}
         onCancel={() => { setIsEditModalVisible(false); form.resetFields(); }}
         onOk={() => form.submit()}
-        okText="LÆ°u thay Ä‘á»•i"
-        cancelText="Há»§y"
+        okText="Lưu thay đổi"
+        cancelText="Hủy"
         okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
       >
         <Form form={form} layout="vertical" onFinish={handleEditSubmit}>
-          <Form.Item name="phone" label="Sá»‘ Ä‘iá»‡n thoáº¡i" rules={[{ required: true, message: 'Vui lÃ²ng nháº­p sá»‘ Ä‘iá»‡n thoáº¡i' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Sá»‘ Ä‘iá»‡n thoáº¡i khÃ´ng há»£p lá»‡' }]}>
+          <Form.Item name="phone" label="Số điện thoại" rules={[{ required: true, message: 'Vui lòng nhập số điện thoại' }, { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ' }]}>
             <Input />
           </Form.Item>
-          <Form.Item label="Äá»‹a chá»‰ giao hÃ ng" style={{ marginBottom: 0 }}>
+          <Form.Item label="Địa chỉ giao hàng" style={{ marginBottom: 0 }}>
             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
               <Button type="dashed" onClick={() => setIsMapModalVisible(true)} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
-                Chá»n tá»« Google Maps
+                Chọn từ Google Maps
               </Button>
             </div>
-            <Form.Item name="address" rules={[{ required: true, message: 'Vui lÃ²ng nháº­p Ä‘á»‹a chá»‰' }]}>
-              <TextArea rows={3} placeholder="Hoáº·c Ä‘iá»n thá»§ cÃ´ng Ä‘á»‹a chá»‰ nháº­n hÃ ng..." />
+            <Form.Item name="address" rules={[{ required: true, message: 'Vui lòng nhập địa chỉ' }]}>
+              <TextArea rows={3} placeholder="Hoặc điền thủ công địa chỉ nhận hàng..." />
             </Form.Item>
           </Form.Item>
         </Form>
