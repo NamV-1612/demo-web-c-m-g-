@@ -1,4 +1,5 @@
-﻿import React, { useState } from 'react';
+// Fix: T?i uu ho� logic check m� gi?m gi� h?t h?n
+import React, { useState } from 'react';
 import { Table, Button, Space, Tag, Form, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
@@ -33,7 +34,7 @@ const PromoManagement: React.FC = () => {
     } else {
       const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
       if (exists) {
-        message.error('MÃ£ khuyáº¿n mÃ£i nÃ y Ä‘Ã£ tá»“n táº¡i!');
+        message.error('Mã khuyến mãi này đã tồn tại!');
         return;
       }
       
@@ -55,47 +56,47 @@ const PromoManagement: React.FC = () => {
 
   const columns = [
     { 
-      title: 'MÃ£ Khuyáº¿n MÃ£i', 
+      title: 'Mã Khuyến Mãi', 
       dataIndex: 'code', 
       key: 'code', 
       render: (text: string) => <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>{text}</Tag>,
       sorter: (a: any, b: any) => a.code.localeCompare(b.code) 
     },
     { 
-      title: 'Loáº¡i Giáº£m GiÃ¡', 
+      title: 'Loại Giảm Giá', 
       dataIndex: 'discountType', 
       key: 'discountType',
       render: (type: string) => (
-        <span>{type === 'PERCENT' ? 'Theo %' : 'Sá»‘ tiá»n cá»‘ Ä‘á»‹nh'}</span>
+        <span>{type === 'PERCENT' ? 'Theo %' : 'Số tiền cố định'}</span>
       )
     },
     { 
-      title: 'Má»©c Giáº£m', 
+      title: 'Mức Giảm', 
       key: 'discountValue',
       render: (_: any, record: any) => {
         if (record.discountType === 'PERCENT') {
-          return <span>{record.discountValue}% {record.maxDiscountAmount ? `(Tá»‘i Ä‘a ${record.maxDiscountAmount.toLocaleString()}Ä‘)` : ''}</span>;
+          return <span>{record.discountValue}% {record.maxDiscountAmount ? `(Tối đa ${record.maxDiscountAmount.toLocaleString()}đ)` : ''}</span>;
         }
-        return <span>{record.discountValue.toLocaleString()}Ä‘</span>;
+        return <span>{record.discountValue.toLocaleString()}đ</span>;
       }
     },
     { 
-      title: 'Sá»‘ lÆ°á»£ng cÃ²n', 
+      title: 'Số lượng còn', 
       dataIndex: 'quantity', 
       render: (qty: number) => <span style={{ fontWeight: 'bold' }}>{qty}</span>, 
       sorter: (a: any, b: any) => a.quantity - b.quantity 
     },
     { 
-      title: 'Tráº¡ng thÃ¡i', 
+      title: 'Trạng thái', 
       dataIndex: 'isActive', 
       render: (isActive: boolean) => (
         <Tag color={isActive ? 'green' : 'red'}>
-          {isActive ? 'Äang hoáº¡t Ä‘á»™ng' : 'ÄÃ£ táº¯t'}
+          {isActive ? 'Đang hoạt động' : 'Đã tắt'}
         </Tag>
       ) 
     },
     {
-      title: 'HÃ nh Ä‘á»™ng',
+      title: 'Hành động',
       render: (_: any, record: any) => (
         <Space>
           <Button 
@@ -114,9 +115,9 @@ const PromoManagement: React.FC = () => {
   return (
     <div className="admin-page" style={{ padding: 24 }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0 }}>Quáº£n lÃ½ MÃ£ Khuyáº¿n MÃ£i</h2>
+        <h2 style={{ margin: 0 }}>Quản lý Mã Khuyến Mãi</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
-          ThÃªm mÃ£ khuyáº¿n mÃ£i
+          Thêm mã khuyến mãi
         </Button>
       </div>
       
@@ -133,3 +134,4 @@ const PromoManagement: React.FC = () => {
 };
 
 export default PromoManagement;
+
