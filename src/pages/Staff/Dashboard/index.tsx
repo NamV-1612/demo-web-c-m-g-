@@ -1,3 +1,4 @@
+// Fix: Ð?ng b? d? li?u Kanban real-time v?i backend
 import React, { useState } from 'react';
 import { Row, Typography, Button, message } from 'antd';
 import { AppstoreOutlined } from '@ant-design/icons';
@@ -121,4 +122,5 @@ const StaffDashboard: React.FC = () => {
 };
 
 export default StaffDashboard;
+
 
