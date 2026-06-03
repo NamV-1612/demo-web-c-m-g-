@@ -57,56 +57,74 @@ const ProductCustomizationModal: React.FC<Props> = ({ product, visible, onClose,
     <Modal
       title={<Title level={4} style={{ margin: 0 }}>{product.name}</Title>}
       visible={visible}
+      centered
       onCancel={onClose}
+      width={700}
       footer={[
         <Button key="add" type="primary" size="large" block className="add-btn" onClick={handleAdd}>
           {isGuest ? 'Đăng nhập để đặt món' : `Thêm vào giỏ - ${totalPrice.toLocaleString()}đ`}
         </Button>,
       ]}
-      bodyStyle={{ padding: '16px 24px' }}
+      bodyStyle={{ padding: '24px' }}
     >
-      <img src={product.image || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'} alt={product.name} className="modal-image" />
-      
-      {product.toppings && product.toppings.length > 0 && (
-        <div className="section-margin">
-          <Text strong>Tùy chọn thêm (5.000đ/món)</Text>
-          <Checkbox.Group 
-            value={selectedToppings} 
-            onChange={(values) => setSelectedToppings(values as string[])}
-            className="topping-group"
-            disabled={isGuest}
-          >
-            <Space direction="vertical" style={{ width: '100%' }}>
-              {(product.toppings?.filter(t => !((product as any).outOfStockToppings || []).includes(t)) || []).map(t => (
-                <Checkbox key={t} value={t} style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
-                  <span>{t}</span>
-                  <span style={{ color: '#BA1A21', float: 'right', marginLeft: 16 }}>+5.000đ</span>
-                </Checkbox>
-              ))}
-            </Space>
-          </Checkbox.Group>
+      <div className="modal-flex-container">
+        {/* Cột trái: Ảnh và chi tiết */}
+        <div className="modal-left-col">
+          <img src={product.image || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'} alt={product.name} className="modal-image" style={{ marginBottom: 0 }} />
+          <div style={{ color: '#D53E0F', fontWeight: 900, fontSize: '20px' }}>
+            {product.price.toLocaleString()}đ
+          </div>
+          {product.description && (
+            <div style={{ color: '#595959', fontSize: '14px', lineHeight: '1.5' }}>
+              {product.description}
+            </div>
+          )}
         </div>
-      )}
 
-      <div className={`section-margin flex-between`}>
-        <Text strong>Số lượng</Text>
-        <Space>
-          <Button shape="circle" icon={<MinusOutlined />} disabled={isGuest} onClick={() => setQuantity(Math.max(1, quantity - 1))} />
-          <Text strong className="qty-text">{quantity}</Text>
-          <Button shape="circle" icon={<PlusOutlined />} disabled={isGuest} onClick={() => setQuantity(quantity + 1)} />
-        </Space>
-      </div>
+        {/* Cột phải: Tùy chọn */}
+        <div className="modal-right-col">
+          {product.toppings && product.toppings.length > 0 && (
+            <div>
+              <Text strong style={{ display: 'block', marginBottom: '8px' }}>Tùy chọn thêm (5.000đ/món)</Text>
+              <Checkbox.Group 
+                value={selectedToppings} 
+                onChange={(values) => setSelectedToppings(values as string[])}
+                className="topping-group"
+                disabled={isGuest}
+                style={{ marginTop: 0 }}
+              >
+                <Space direction="vertical" style={{ width: '100%' }}>
+                  {(product.toppings?.filter(t => !((product as any).outOfStockToppings || []).includes(t)) || []).map(t => (
+                    <Checkbox key={t} value={t} style={{ width: '100%', display: 'flex', justifyContent: 'space-between' }}>
+                      <span>{t}</span>
+                      <span style={{ color: '#D53E0F', float: 'right', marginLeft: 16 }}>+5.000đ</span>
+                    </Checkbox>
+                  ))}
+                </Space>
+              </Checkbox.Group>
+            </div>
+          )}
 
-      <div className="section-margin">
-        <Text strong>Ghi chú cho quán</Text>
-        <TextArea 
-          rows={3} 
-          placeholder="VD: Không hành, nhiều cơm..." 
-          value={note}
-          onChange={(e) => setNote(e.target.value)}
-          disabled={isGuest}
-          style={{ marginTop: 8 }}
-        />
+          <div className="flex-between">
+            <Text strong>Số lượng</Text>
+            <Space>
+              <Button shape="circle" icon={<MinusOutlined />} disabled={isGuest} onClick={() => setQuantity(Math.max(1, quantity - 1))} />
+              <Text strong className="qty-text">{quantity}</Text>
+              <Button shape="circle" icon={<PlusOutlined />} disabled={isGuest} onClick={() => setQuantity(quantity + 1)} />
+            </Space>
+          </div>
+
+          <div>
+            <Text strong style={{ display: 'block', marginBottom: '8px' }}>Ghi chú cho quán</Text>
+            <TextArea 
+              rows={3} 
+              placeholder="VD: Không hành, nhiều cơm..." 
+              value={note}
+              onChange={(e) => setNote(e.target.value)}
+              disabled={isGuest}
+            />
+          </div>
+        </div>
       </div>
     </Modal>
   );
