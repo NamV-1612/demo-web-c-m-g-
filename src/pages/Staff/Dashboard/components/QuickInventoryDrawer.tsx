@@ -1,8 +1,9 @@
-﻿import React, { useState } from 'react';
-import { Drawer, Input, List, Typography, Switch, Space, Tag, message } from 'antd';
-import { SearchOutlined } from '@ant-design/icons';
+import React, { useState } from 'react';
+import { Drawer, Input, List, Typography, Switch, Space, Tag, message, Select } from 'antd';
+import { SearchOutlined, FilterOutlined } from '@ant-design/icons';
 
 const { Text } = Typography;
+const { Option } = Select;
 
 interface QuickInventoryDrawerProps {
   visible: boolean;
@@ -20,49 +21,84 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
   updateProduct
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [updateTick, setUpdateTick] = useState(0);
 
-  const filteredProducts = products.filter(p => 
-    p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-    (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()))
-  );
+  // Lấy các danh mục duy nhất từ sản phẩm
+  const categories = Array.from(new Set(products.map(p => p.category).filter(Boolean)));
+
+  const filteredProducts = products.filter(p => {
+    const matchSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
+      (p.category && p.category.toLowerCase().includes(searchTerm.toLowerCase()));
+    
+    let matchCategory = true;
+    if (categoryFilter === 'UNAVAILABLE') {
+      matchCategory = p.isAvailable === false;
+    } else if (categoryFilter !== 'ALL') {
+      matchCategory = p.category === categoryFilter;
+    }
+    
+    return matchSearch && matchCategory;
+  });
 
   return (
     <Drawer 
-      title="Quáº£n lÃ½ Tá»“n kho cáº¥p tá»‘c" 
+      title="Quản lý Tổng kho cấp tốc" 
       placement="right" 
       onClose={onClose} 
       visible={visible} 
       width="50vw"
     >
-      <div style={{ marginBottom: 16 }}>
+      <div style={{ marginBottom: 16, display: 'flex', gap: '8px' }}>
         <Input 
-          placeholder="TÃ¬m kiáº¿m mÃ³n Äƒn theo tÃªn hoáº·c danh má»¥c..." 
+          placeholder="Tìm kiếm món ăn theo tên..." 
           prefix={<SearchOutlined style={{ color: '#bfbfbf' }} />}
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
           allowClear
           size="large"
-          style={{ borderRadius: 8 }}
+          style={{ borderRadius: 8, flex: 1 }}
         />
+        <Select 
+          value={categoryFilter} 
+          onChange={setCategoryFilter} 
+          size="large" 
+          style={{ width: 160, borderRadius: 8 }}
+        >
+          <Option value="ALL"><FilterOutlined /> Tất cả</Option>
+          {categories.map((cat: any) => (
+            <Option key={cat} value={cat}>{cat}</Option>
+          ))}
+          <Option value="UNAVAILABLE">🔴 Đã tắt (Hết hàng)</Option>
+        </Select>
       </div>
       <List
         dataSource={filteredProducts}
-        renderItem={item => (
+        renderItem={item => {
+          const isUnavailable = item.isAvailable === false;
+          return (
           <List.Item
-            style={{ display: 'block', padding: '8px 0', borderBottom: '1px solid #f0f0f0' }}
+            style={{ 
+              display: 'block', 
+              padding: '12px 8px', 
+              borderBottom: '1px solid #f0f0f0',
+              backgroundColor: isUnavailable ? '#f5f5f5' : '#fff',
+              opacity: isUnavailable ? 0.6 : 1,
+              filter: isUnavailable ? 'grayscale(100%)' : 'none',
+              transition: 'all 0.3s ease'
+            }}
           >
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
               <div>
-                <Text strong style={{ fontSize: 14 }}>{item.name}</Text>
-                <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}Ä‘</div>
+                <Text strong style={{ fontSize: 14, textDecoration: isUnavailable ? 'line-through' : 'none' }}>{item.name}</Text>
+                <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}đ</div>
               </div>
               <Switch 
                 size="small"
-                checked={item.isAvailable !== false} 
+                checked={!isUnavailable} 
                 onChange={(checked) => updateProductAvailability(item.id, checked)} 
-                checkedChildren="CÃ²n" 
-                unCheckedChildren="Háº¿t"
+                checkedChildren="Còn" 
+                unCheckedChildren="Hết"
               />
             </div>
 
@@ -90,10 +126,10 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
 
                           // Update topping availability
                           updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
-                          message.success(`ÄÃ£ Ä‘á»•i tráº¡ng thÃ¡i topping ${topping} thÃ nh: ${isOutOfStock ? 'CÃ²n hÃ ng' : 'Háº¿t hÃ ng'}`);
+                          message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
                         }}
                       >
-                        {topping} {isOutOfStock ? 'âŒ Háº¿t' : 'âœ… CÃ²n'}
+                        {topping} {isOutOfStock ? '❌ Hết' : '✅ Còn'}
                       </Tag>
                     );
                   })}
@@ -101,7 +137,8 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
               </div>
             )}
           </List.Item>
-        )}
+          );
+        }}
       />
     </Drawer>
   );

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, Typography, Button, Space, Tag, Switch, Popconfirm } from 'antd';
 import { CheckOutlined, CloseOutlined, PrinterOutlined } from '@ant-design/icons';
 import { Order } from '@/services/typing';
@@ -18,6 +18,29 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
   const isUrgent = order.pickupTime !== 'asap' && moment(order.pickupTime, ['HH:mm', 'hh:mm A']).diff(moment(), 'minutes') < 10;
   const isNewOrder = order.status === 'PENDING' && moment().diff(moment(order.createdAt), 'minutes') < 5;
   
+  const [timeLeft, setTimeLeft] = useState('');
+
+  useEffect(() => {
+    if (order.status?.toUpperCase() !== 'PENDING') return;
+
+    const interval = setInterval(() => {
+      const now = Date.now();
+      const createdAtMs = moment(order.createdAt).valueOf();
+      const expiresAt = createdAtMs + 15 * 60 * 1000;
+      const diff = expiresAt - now;
+
+      if (diff <= 0) {
+        setTimeLeft('00:00');
+      } else {
+        const m = Math.floor(diff / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        setTimeLeft(`${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`);
+      }
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [order.createdAt, order.status]);
+
   return (
     <Card 
       size="small" 
@@ -26,7 +49,12 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
     >
       {isNewOrder && <div className="new-badge">MỚI</div>}
       <div className="card-header" style={{ marginBottom: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text strong style={{ fontSize: 14 }}>#{order.id}</Text>
+        <Text strong style={{ fontSize: 14 }}>
+          #{order.id}
+          {order.status === 'PENDING' && timeLeft && (
+            <span style={{ fontSize: 11, color: '#cf1322', display: 'block', fontWeight: 'bold' }}>Tự hủy: {timeLeft}</span>
+          )}
+        </Text>
         <div style={{ fontSize: 12, textAlign: 'right' }}>
           <Text strong>{order.customerName}</Text>
           <br />
@@ -40,7 +68,7 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
           {order.note !== 'Khách tự đến lấy' && (
             <>
               <br />
-              <Text type="secondary" style={{ fontSize: 10, maxWidth: 140, display: 'inline-block', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', marginTop: 4 }}>
+              <Text type="secondary" style={{ fontSize: 10, display: 'inline-block', wordWrap: 'break-word', whiteSpace: 'normal', marginTop: 4, width: '100%' }}>
                 📍 {order.customerAddress || order.note?.replace('Giao đến: ', '')}
               </Text>
             </>
@@ -60,8 +88,8 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
       <div className="item-list" style={{ padding: '4px 6px', margin: '4px 0', background: '#fffbe6', borderRadius: 4, border: '1px solid #ffe58f' }}>
         {order.items.map((item, idx) => (
           <div key={idx} className="item-row" style={{ display: 'flex', flexDirection: 'column', marginBottom: idx < order.items.length - 1 ? 4 : 0, borderBottom: idx < order.items.length - 1 ? '1px dashed #ffe58f' : 'none', paddingBottom: idx < order.items.length - 1 ? 4 : 0 }}>
-            <div style={{ fontSize: 13, lineHeight: '1.2' }}><Text strong>{item.quantity}x</Text> {item.product.name}</div>
-            {item.selectedToppings.length > 0 && <div className="topping-text" style={{ fontSize: 11, color: '#8c8c8c', lineHeight: '1.2', marginTop: 2 }}>+ {item.selectedToppings.join(', ')}</div>}
+            <div style={{ fontSize: 13, lineHeight: '1.2', wordWrap: 'break-word', whiteSpace: 'normal' }}><Text strong>{item.quantity}x</Text> {item.product.name}</div>
+            {item.selectedToppings.length > 0 && <div className="topping-text" style={{ fontSize: 11, color: '#8c8c8c', lineHeight: '1.2', marginTop: 2, wordWrap: 'break-word', whiteSpace: 'normal' }}>+ {item.selectedToppings.join(', ')}</div>}
             {item.note && <div className="note-text" style={{ fontSize: 11, color: '#BA1A21', fontWeight: 'bold', lineHeight: '1.2', marginTop: 2 }}>* Lưu ý: {item.note}</div>}
           </div>
         ))}
@@ -86,7 +114,9 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
             </Popconfirm>
           )}
           
-          <Button size="small" icon={<PrinterOutlined />} className="custom-icon-btn" onClick={() => onPrint(order)} />
+          {order.status === 'READY' && (
+            <Button size="small" icon={<PrinterOutlined />} className="custom-icon-btn" onClick={() => onPrint(order)} />
+          )}
           {order.status === 'PENDING' && (
             <Popconfirm overlayClassName="custom-popconfirm" title="Bạn có chắc chắn muốn hủy đơn này?" onConfirm={() => onStatusChange(order.id, 'CANCELLED')} okText="Hủy đơn" cancelText="Không" okButtonProps={{ danger: true }}>
               <Button size="small" className="custom-icon-btn btn-danger" icon={<CloseOutlined />} />
