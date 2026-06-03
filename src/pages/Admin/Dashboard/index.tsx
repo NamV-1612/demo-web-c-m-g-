@@ -27,6 +27,7 @@ const AdminDashboard: React.FC = () => {
 
   const validOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'COMPLETED');
   const cancelledOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'CANCELLED');
+  const timeoutCancelledOrders = filteredOrders.filter((o: any) => o.status?.toUpperCase() === 'CANCELLED' && o.cancelMessage?.includes('quá 15 phút'));
   
   const totalRevenue = validOrders.reduce((sum: number, o: any) => sum + o.totalAmount, 0);
 
@@ -83,9 +84,9 @@ const AdminDashboard: React.FC = () => {
           style={{ borderRadius: 8 }}
         />
       </div>
-      <Row gutter={16}>
-        <Col span={6}>
-          <Card className="stat-card">
+      <Row gutter={[24, 24]}>
+        <Col xs={12} lg={6}>
+          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <Statistic
               title="Tổng Doanh thu"
               value={totalRevenue}
@@ -96,8 +97,8 @@ const AdminDashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card className="stat-card">
+        <Col xs={12} lg={6}>
+          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <Statistic
               title="Đơn hợp lệ"
               value={validOrders.length}
@@ -106,18 +107,28 @@ const AdminDashboard: React.FC = () => {
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card className="stat-card">
+        <Col xs={12} lg={4}>
+          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <Statistic
-              title="Đơn bị hủy"
+              title="Tổng đơn hủy"
               value={cancelledOrders.length}
               valueStyle={{ color: '#cf1322' }}
               prefix={<CloseCircleOutlined />}
             />
           </Card>
         </Col>
-        <Col span={6}>
-          <Card className="stat-card">
+        <Col xs={12} lg={4}>
+          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+            <Statistic
+              title="Hủy do quá giờ"
+              value={timeoutCancelledOrders.length}
+              valueStyle={{ color: '#fa8c16' }}
+              prefix={<CloseCircleOutlined />}
+            />
+          </Card>
+        </Col>
+        <Col xs={12} lg={4}>
+          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
             <Statistic
               title="Món ăn đang bán"
               value={products.length}
@@ -128,9 +139,9 @@ const AdminDashboard: React.FC = () => {
         </Col>
       </Row>
 
-      <Row gutter={16} style={{ marginTop: 24 }}>
-        <Col span={16}>
-          <Card title="Biểu đồ Doanh thu" className="stat-card" style={{ height: '100%' }}>
+      <Row gutter={[24, 24]} style={{ marginTop: 24 }}>
+        <Col xs={24} lg={16}>
+          <Card title="Biểu đồ Doanh thu" className="stat-card" style={{ height: '100%', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} bodyStyle={{ padding: '24px' }}>
             {revenueChartData.series[0].data.length > 0 ? (
               <Chart 
                 options={revenueChartData.options as any} 
@@ -145,8 +156,8 @@ const AdminDashboard: React.FC = () => {
             )}
           </Card>
         </Col>
-        <Col span={8}>
-          <Card title="Top 5 Món Ăn Bán Chạy Nhất" className="stat-card" style={{ height: '100%' }}>
+        <Col xs={24} lg={8}>
+          <Card title="Top 5 Món Ăn Bán Chạy Nhất" className="stat-card" style={{ height: '100%', borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }} bodyStyle={{ padding: '24px' }}>
             <List
               dataSource={topProducts}
               renderItem={item => (
