@@ -8,16 +8,17 @@ interface UserModalProps {
   onSave: (values: any) => void;
   form: FormInstance<any>;
   loading: boolean;
+  isEdit?: boolean;
 }
 
-const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, loading }) => {
+const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, loading, isEdit }) => {
   return (
     <Modal 
-      title="Cấp phát tài khoản Nhân viên (Staff)" 
+      title={isEdit ? "Cập nhật thông tin tài khoản" : "Cấp phát tài khoản Nhân viên (Staff)"} 
       visible={visible} 
       onCancel={onCancel} 
       onOk={() => form.submit()}
-      okText="Tạo tài khoản"
+      okText={isEdit ? "Lưu thay đổi" : "Tạo tài khoản"}
       cancelText="Hủy"
       okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
     >
@@ -37,14 +38,14 @@ const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, 
             { pattern: /^[0-9A-Za-z]+$/, message: 'Chỉ chứa số hoặc chữ viết liền không dấu!' }
           ]}
         >
-          <Input placeholder="VD: 0912345678 hoặc STAFF2" />
+          <Input placeholder="VD: 0912345678 hoặc STAFF2" disabled={isEdit} />
         </Form.Item>
         <Form.Item 
           name="password" 
-          label="Mật khẩu khởi tạo" 
-          rules={[{ required: true, message: 'Vui lòng nhập mật khẩu khởi tạo!' }]}
+          label={isEdit ? "Mật khẩu mới (Để trống nếu không đổi)" : "Mật khẩu khởi tạo"} 
+          rules={[{ required: !isEdit, message: 'Vui lòng nhập mật khẩu!' }]}
         >
-          <Input.Password placeholder="VD: 123456" />
+          <Input.Password placeholder={isEdit ? "Nhập mật khẩu mới..." : "VD: 123456"} />
         </Form.Item>
       </Form>
     </Modal>

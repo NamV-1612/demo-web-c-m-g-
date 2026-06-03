@@ -1,15 +1,15 @@
 import React, { useState } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Space } from 'antd';
 import {
-  BarChartOutlined,
-  CoffeeOutlined,
-  TableOutlined,
-  TeamOutlined,
+  PieChartOutlined,
+  AppstoreOutlined,
+  ContainerOutlined,
+  ContactsOutlined,
   UserOutlined,
   LogoutOutlined,
   MenuUnfoldOutlined,
   MenuFoldOutlined,
-  TagOutlined
+  GiftOutlined
 } from '@ant-design/icons';
 import { history, useModel } from 'umi';
 import './AdminLayout.less';
@@ -65,27 +65,27 @@ const AdminLayout: React.FC = ({ children }) => {
           items={[
             {
               key: '/admin/dashboard',
-              icon: <BarChartOutlined />,
+              icon: <PieChartOutlined />,
               label: 'Tổng quan',
             },
             {
               key: '/admin/menu',
-              icon: <CoffeeOutlined />,
+              icon: <AppstoreOutlined />,
               label: 'Quản lý Thực đơn',
             },
             {
               key: '/admin/orders',
-              icon: <TableOutlined />,
+              icon: <ContainerOutlined />,
               label: 'Quản lý Đơn hàng',
             },
             {
               key: '/admin/promos',
-              icon: <TagOutlined />,
+              icon: <GiftOutlined />,
               label: 'Quản lý Mã Khuyến Mãi',
             },
             {
               key: '/admin/users',
-              icon: <TeamOutlined />,
+              icon: <ContactsOutlined />,
               label: 'Quản lý Người dùng',
             },
           ]}

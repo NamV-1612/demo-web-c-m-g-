@@ -40,6 +40,24 @@ export const toggleUserStatus = async (id: string, isBanned: boolean): Promise<{
   }
 };
 
+export const updateUser = async (id: string, user: Partial<User>): Promise<{success: boolean, message?: string}> => {
+  try {
+    await axios.put(`${API_URL}/${id}`, user);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, message: error.response?.data?.message || 'Lỗi kết nối server' };
+  }
+};
+
+export const deleteUser = async (id: string): Promise<{success: boolean, message?: string}> => {
+  try {
+    await axios.delete(`${API_URL}/${id}`);
+    return { success: true };
+  } catch (error: any) {
+    return { success: false, message: error.response?.data?.message || 'Lỗi kết nối server' };
+  }
+};
+
 // Vẫn giữ lại phần Login (Current User) lưu trong localStorage tạm thời
 export const getCurrentUser = (): User | null => {
   const data = localStorage.getItem('CURRENT_USER');

@@ -1,8 +1,7 @@
-// Fix: C?p nh?t l?i lu?ng ph�n quy?n Admin sau khi merge
 import React, { useState, useEffect } from 'react';
 import { Table, Tag, Button, Space, message, Popconfirm, Form, Input } from 'antd';
 import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
-import { getUsers, createStaff, toggleUserStatus } from '@/services/auth';
+import { getUsers, createStaff, toggleUserStatus, updateUser, deleteUser } from '@/services/auth';
 import { User } from '@/services/typing';
 import '../admin.less';
 import UserModal from './components/UserModal';
@@ -12,6 +11,7 @@ const UserManagement: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
   const [form] = Form.useForm();
 
   const loadUsers = async () => {
@@ -48,23 +48,56 @@ const UserManagement: React.FC = () => {
     const cleanPhone = values.phone.trim();
     
     setLoading(true);
-    const res = await createStaff({
-      name: values.name.trim(),
-      phone: cleanPhone,
-      password: values.password,
-      role: 'STAFF',
-      status: 'ACTIVE'
-    });
+    let res;
+    
+    if (editingUserId) {
+      res = await updateUser(editingUserId, {
+        name: values.name.trim(),
+        phone: cleanPhone,
+        ...(values.password ? { password: values.password } : {})
+      });
+    } else {
+      res = await createStaff({
+        name: values.name.trim(),
+        phone: cleanPhone,
+        password: values.password,
+        role: 'STAFF',
+        status: 'ACTIVE'
+      });
+    }
     
     if (res.success) {
-      message.success('Đã cấp phát tài khoản Nhân viên mới thành công!');
+      message.success(editingUserId ? 'Đã cập nhật thông tin tài khoản!' : 'Đã cấp phát tài khoản Nhân viên mới thành công!');
       setIsModalVisible(false);
+      setEditingUserId(null);
       form.resetFields();
       loadUsers(); // Tải lại danh sách
     } else {
       message.error(res.message);
       setLoading(false);
     }
+  };
+
+  const handleDeleteUser = async (id: string) => {
+    setLoading(true);
+    const res = await deleteUser(id);
+    if (res.success) {
+      message.success('Đã xóa tài khoản!');
+      loadUsers();
+    } else {
+      message.error(res.message);
+      setLoading(false);
+    }
+  };
+
+  const handleEditUser = (user: User) => {
+    setEditingUserId(user.id || null);
+    form.setFieldsValue({
+      name: user.full_name || user.name,
+      phone: user.phone,
+      password: '' // Không hiện password cũ
+    });
+    setIsModalVisible(true);
   };
 
   const columns = [
@@ -133,6 +166,7 @@ const UserManagement: React.FC = () => {
         if (r === 'ADMIN') return null; // No actions for Admin
         return (
           <Space>
+            <Button size="small" onClick={() => handleEditUser(record)}>Sửa</Button>
             {s === 'ACTIVE' ? (
               <Popconfirm 
                 title={`Bạn có chắc muốn KHÓA tài khoản của ${record.name}?`} 
@@ -141,7 +175,7 @@ const UserManagement: React.FC = () => {
                 cancelText="Hủy"
                 okButtonProps={{ danger: true }}
               >
-                <Button danger icon={<StopOutlined />} size="small">Khóa tài khoản</Button>
+                <Button danger icon={<StopOutlined />} size="small">Khóa</Button>
               </Popconfirm>
             ) : (
               <Button 
@@ -154,6 +188,15 @@ const UserManagement: React.FC = () => {
                 Mở khóa
               </Button>
             )}
+            <Popconfirm 
+              title={`Bạn có chắc muốn XÓA VĨNH VIỄN tài khoản này?`} 
+              onConfirm={() => handleDeleteUser(record.id!)}
+              okText="Xóa"
+              cancelText="Hủy"
+              okButtonProps={{ danger: true }}
+            >
+              <Button danger size="small">Xóa</Button>
+            </Popconfirm>
           </Space>
         );
       },
@@ -175,7 +218,7 @@ const UserManagement: React.FC = () => {
           <Button 
             type="primary" 
             icon={<PlusOutlined />} 
-            onClick={() => { form.resetFields(); setIsModalVisible(true); }}
+            onClick={() => { setEditingUserId(null); form.resetFields(); setIsModalVisible(true); }}
             style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
           >
             Cấp tài khoản Nhân viên (Staff)
@@ -200,10 +243,10 @@ const UserManagement: React.FC = () => {
         onSave={handleAddStaff}
         form={form}
         loading={loading}
+        isEdit={!!editingUserId}
       />
     </div>
   );
 };
 
 export default UserManagement;
-
