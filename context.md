@@ -24,11 +24,11 @@ _Sở hữu toàn bộ tính năng của Guest, cộng thêm:_
   - Quản lý địa chỉ giao hàng: Tích hợp tính năng **Chọn từ Google Maps** để lấy tọa độ và địa chỉ chuẩn xác. Tự động điền SĐT và Tên từ hồ sơ người dùng. Tự động đồng bộ danh sách địa chỉ ngầm từ backend để khắc phục lỗi thiếu dữ liệu khi tải trang. Giao diện Dropdown hiển thị đầy đủ chi tiết địa chỉ dài không bị cắt xén chữ.
   - Chọn thời gian nhận đồ: Hỗ trợ đặt "Giao ngay" hoặc "Hẹn giờ khoảng thời gian đến lấy/nhận đồ" với giao diện Dropdown, định dạng giờ thuần Việt (Sáng/Chiều - SA/CH). Hệ thống tích hợp logic chặn chọn giờ không hợp lệ, yêu cầu khoảng thời gian nhận hàng phải trễ hơn thời gian hiện tại ít nhất 30 phút để quán kịp chuẩn bị.
   - Khuyến mãi & Thanh toán: Áp dụng mã Voucher giảm giá. Chọn thanh toán tiền mặt khi nhận hoặc chuyển khoản (nhân viên sẽ tự xác nhận trạng thái chuyển tiền của khách).
-  - Điều chỉnh số lượng món, xóa món trong giỏ.
+  - Điều chỉnh số lượng món, xóa món lẻ hoặc **xóa sạch toàn bộ giỏ hàng (Clear Cart)** chỉ với 1 thao tác.
 - **Lịch Sử & Theo dõi Đơn Hàng (Real-time tracking) (`/customer/history`):**
   - Theo dõi trạng thái tiến trình: Chờ duyệt (Chờ xác nhận) -> Đang nấu (Đang chế biến) -> Chờ lấy (Đã sẵn sàng) -> Hoàn thành. Hệ thống tích hợp đồng hồ đếm ngược trực quan (MM:SS) 15 phút cho các đơn đang chờ duyệt.
   - **Chỉnh sửa thông tin linh hoạt:** Hỗ trợ sửa địa chỉ qua Google Maps khi đơn đang ở trạng thái "Chờ duyệt".
-  - Chức năng tiện ích: Xem lại đơn cũ, Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại đơn này" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành. Hiển thị Popup thông báo nổi báo hiệu khi đồ ăn "Đã sẵn sàng / Chờ lấy" cho khách hàng.
+  - Chức năng tiện ích: **Tìm kiếm lịch sử đơn hàng (hỗ trợ tìm tiếng Việt không dấu)**, mã vận đơn được định dạng chuẩn chuyên nghiệp **`CD_xxxx`**. Khách hàng có thể xem lại đơn cũ, Đánh giá dịch vụ (Rating) sau khi Hoàn thành; nút "Đặt lại đơn này" để sao chép nhanh đơn hàng cũ vào giỏ; xóa các lịch sử đơn đã Hủy/Hoàn thành. Hiển thị Popup thông báo nổi báo hiệu khi đồ ăn "Đã sẵn sàng / Chờ lấy".
 - **Tài Khoản & Sổ Địa Chỉ (`/customer/profile`):**
   - Đổi mật khẩu tiện lợi chỉ cần xác thực qua Số điện thoại và Tên đăng nhập (không cần nhớ mật khẩu cũ).
   - Cập nhật thông tin cá nhân (Họ tên, SĐT).
@@ -42,7 +42,7 @@ _Sở hữu toàn bộ tính năng của Guest, cộng thêm:_
   - **Xử lý đơn hàng:** Tiếp nhận đơn, chuyển trạng thái sang đang chế biến, và báo hiệu "Đã sẵn sàng / Chờ lấy" để thông báo cho khách món ăn đã làm xong.
 - **Thanh Toán & Hóa Đơn:** Cập nhật/Xác nhận trạng thái thanh toán của khách (đã chuyển khoản hoặc nhận tiền mặt). Hỗ trợ in hóa đơn nhiệt cho bếp và khách hàng (chứa mã đơn, món ăn, lưu ý, tổng tiền).
 - **Hủy Đơn Thủ Công:** Staff có quyền hủy đơn (VD: hết nguyên liệu).
-- **Quản lý Tồn Kho Nhanh:** Nút gạt bật/tắt (in-stock/out-of-stock) nhanh trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) để ẩn khỏi ứng dụng của khách mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
+- **Quản lý Tồn Kho Nhanh:** Tích hợp **Bộ lọc kho thông minh** giúp dễ dàng tìm kiếm món ăn. Nút gạt bật/tắt (in-stock/out-of-stock) nhanh trạng thái món ăn và từng loại Topping ngay trên giao diện nhanh (Drawer) để ẩn khỏi ứng dụng của khách mà không cần vào menu Admin. Đồng thời Staff có quyền Thêm mới và Sửa thông tin món ăn (nhưng không có quyền Xóa món ăn như Admin).
 
 ### 4. Quản Trị Viên (Admin)
 

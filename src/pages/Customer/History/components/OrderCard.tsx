@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, Typography, Tag, Steps, Alert, Button, Rate, Popconfirm } from 'antd';
-import { SyncOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, StarOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
+import { SyncOutlined, FireOutlined, ShoppingOutlined, CheckCircleOutlined, CloseCircleOutlined, StarOutlined, EditOutlined, DeleteOutlined, CarOutlined } from '@ant-design/icons';
 import moment from 'moment';
 
 const { Text, Title } = Typography;
@@ -100,8 +100,10 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEdi
                 icon={order.status?.toUpperCase() === 'PREPARING' ? <FireOutlined className="icon-shake" style={{ color: '#BA1A21' }} /> : undefined}
               />
               <Step 
-                title="Chờ lấy" 
-                icon={order.status?.toUpperCase() === 'READY' ? <ShoppingOutlined className="icon-pop" style={{ color: '#1890ff' }} /> : undefined}
+                title={order.note?.includes('Giao đến') ? "Đang giao" : "Chờ lấy"} 
+                icon={order.status?.toUpperCase() === 'READY' ? (
+                  order.note?.includes('Giao đến') ? <CarOutlined className="icon-pop" style={{ color: '#1890ff' }} /> : <ShoppingOutlined className="icon-pop" style={{ color: '#1890ff' }} />
+                ) : undefined}
               />
               <Step 
                 title="Hoàn thành" 
@@ -161,7 +163,7 @@ const OrderCard: React.FC<OrderCardProps> = ({ order, onReorder, onCancel, onEdi
         {/* Bottom Row: Total Price & Actions */}
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '16px', marginTop: '8px' }}>
           <div style={{ display: 'flex', gap: '12px' }}>
-            {order.status?.toUpperCase() === 'PENDING' && (
+            {order.status?.toUpperCase() === 'PENDING' && order.note?.includes('Giao đến') && (
               <Button size="middle" className="btn-premium-edit" icon={<EditOutlined />} onClick={() => onEditAddress(order)}>
                 Sửa ĐC
               </Button>

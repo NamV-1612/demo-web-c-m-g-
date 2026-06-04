@@ -94,7 +94,7 @@ const StaffDashboard: React.FC = () => {
           onPaymentChange={handlePaymentChange}
         />
         <KanbanColumn 
-          title="3. CHỜ LẤY" 
+          title="3. SẴN SÀNG" 
           data={readyOrders} 
           className="ready" 
           onStatusChange={changeOrderStatus}
