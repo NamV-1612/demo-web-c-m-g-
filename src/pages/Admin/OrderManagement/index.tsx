@@ -1,12 +1,15 @@
-import React from 'react';
-import { Table, Tag, Button, Space, message, Popconfirm } from 'antd';
+import React, { useState, useMemo } from 'react';
+import { Table, Tag, Button, Space, message, Popconfirm, DatePicker } from 'antd';
 import { DownloadOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import moment from 'moment';
 import '../admin.less';
 
+const { RangePicker } = DatePicker;
+
 const OrderManagement: React.FC = () => {
   const { orders, changeOrderStatus } = useModel('useOrderModel');
+  const [dateRange, setDateRange] = useState<any>(null);
 
   const statusTextMap: any = { 
     PENDING: 'Chờ xác nhận', 
@@ -16,11 +19,20 @@ const OrderManagement: React.FC = () => {
     CANCELLED: 'Đã hủy' 
   };
 
+  const filteredOrders = useMemo(() => {
+    if (!dateRange || !dateRange[0] || !dateRange[1]) return orders;
+    const [start, end] = dateRange;
+    return orders.filter((o: any) => {
+      const orderDate = moment(o.createdAt);
+      return orderDate.isSameOrAfter(start, 'day') && orderDate.isSameOrBefore(end, 'day');
+    });
+  }, [orders, dateRange]);
+
   const handleExport = () => {
     let csvContent = "data:text/csv;charset=utf-8,\uFEFF";
     csvContent += "Mã đơn,Ngày tạo,Khách hàng,SĐT,Tổng tiền,Trạng thái\n";
     
-    orders.forEach(o => {
+    filteredOrders.forEach(o => {
       const date = moment(o.createdAt).format('DD/MM/YYYY HH:mm');
       const statusLabel = statusTextMap[o.status?.toUpperCase()] || o.status;
       const row = `${o.id},${date},"${o.customerName}","${o.customerPhone}",${o.totalAmount},"${statusLabel}"`;
@@ -110,12 +122,20 @@ const OrderManagement: React.FC = () => {
     <div className="admin-page" style={{ padding: 24 }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Tra soát Đơn hàng</h2>
-        <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
-          Xuất file báo cáo (CSV)
-        </Button>
+        <Space>
+          <RangePicker 
+            format="DD/MM/YYYY" 
+            value={dateRange} 
+            onChange={(dates) => setDateRange(dates)} 
+            placeholder={['Từ ngày', 'Đến ngày']}
+          />
+          <Button type="primary" icon={<DownloadOutlined />} onClick={handleExport} style={{ background: '#52c41a', borderColor: '#52c41a' }}>
+            Xuất file báo cáo (CSV)
+          </Button>
+        </Space>
       </div>
       
-      <Table columns={columns} dataSource={orders} rowKey="id" pagination={{ pageSize: 10 }} />
+      <Table columns={columns} dataSource={filteredOrders} rowKey="id" pagination={{ pageSize: 10 }} />
     </div>
   );
 };

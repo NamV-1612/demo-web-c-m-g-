@@ -1,4 +1,3 @@
-// Fix: T?i uu ho� logic check m� gi?m gi� h?t h?n
 import React, { useState } from 'react';
 import { Table, Button, Space, Tag, Form, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
@@ -32,6 +31,7 @@ const PromoManagement: React.FC = () => {
     if (values.id) {
       success = await updatePromo(values.id, promoData);
     } else {
+      // Check if code already exists
       const exists = promos.some(p => p.code.toUpperCase() === promoData.code && p.id !== values.id);
       if (exists) {
         message.error('Mã khuyến mãi này đã tồn tại!');
@@ -134,4 +134,3 @@ const PromoManagement: React.FC = () => {
 };
 
 export default PromoManagement;
-

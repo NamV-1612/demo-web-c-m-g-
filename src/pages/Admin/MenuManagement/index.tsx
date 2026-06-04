@@ -1,4 +1,4 @@
-﻿import React, { useState } from 'react';
+import React, { useState } from 'react';
 import { Table, Button, Space, Tag, Form, Switch, message } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
@@ -52,7 +52,7 @@ const MenuManagement: React.FC = () => {
 
   const columns = [
     { 
-      title: 'HÃ¬nh áº£nh', 
+      title: 'Hình ảnh', 
       dataIndex: 'image', 
       render: (url: string, record: any) => (
         <img 
@@ -62,24 +62,24 @@ const MenuManagement: React.FC = () => {
         />
       ) 
     },
-    { title: 'TÃªn mÃ³n', dataIndex: 'name', key: 'name', sorter: (a: any, b: any) => a.name.localeCompare(b.name) },
-    { title: 'Danh má»¥c', dataIndex: 'category', key: 'category', filters: [
-      { text: 'CÆ¡m rang', value: 'CÆ¡m rang' },
-      { text: 'MÃ³n Äƒn kÃ¨m', value: 'MÃ³n Äƒn kÃ¨m' },
-      { text: 'Äá»“ uá»‘ng', value: 'Äá»“ uá»‘ng' },
+    { title: 'Tên món', dataIndex: 'name', key: 'name', sorter: (a: any, b: any) => a.name.localeCompare(b.name) },
+    { title: 'Danh mục', dataIndex: 'category', key: 'category', filters: [
+      { text: 'Cơm rang', value: 'Cơm rang' },
+      { text: 'Món ăn kèm', value: 'Món ăn kèm' },
+      { text: 'Đồ uống', value: 'Đồ uống' },
     ], onFilter: (value: any, record: any) => record.category === value },
-    { title: 'GiÃ¡ tiá»n', dataIndex: 'price', render: (price: number) => <Text strong>{price?.toLocaleString()}Ä‘</Text>, sorter: (a: any, b: any) => a.price - b.price },
+    { title: 'Giá tiền', dataIndex: 'price', render: (price: number) => <Text strong>{price?.toLocaleString()}đ</Text>, sorter: (a: any, b: any) => a.price - b.price },
     { 
-      title: 'Tráº¡ng thÃ¡i', 
+      title: 'Trạng thái', 
       dataIndex: 'isAvailable', 
       render: (isAvail: boolean) => (
         <Tag color={isAvail !== false ? 'green' : 'red'}>
-          {isAvail !== false ? 'Äang bÃ¡n' : 'Táº¡m áº©n'}
+          {isAvail !== false ? 'Đang bán' : 'Tạm ẩn'}
         </Tag>
       ) 
     },
     {
-      title: 'HÃ nh Ä‘á»™ng',
+      title: 'Hành động',
       render: (_: any, record: any) => (
         <Space>
           <Button 
@@ -102,9 +102,9 @@ const MenuManagement: React.FC = () => {
   return (
     <div className="admin-page" style={{ padding: 24 }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
-        <h2 style={{ margin: 0 }}>Quáº£n lÃ½ Thá»±c Ä‘Æ¡n</h2>
+        <h2 style={{ margin: 0 }}>Quản lý Thực đơn</h2>
         <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
-          ThÃªm mÃ³n Äƒn
+          Thêm món ăn
         </Button>
       </div>
       
@@ -121,6 +121,7 @@ const MenuManagement: React.FC = () => {
   );
 };
 
+// Simple inline Text helper since Typography is not imported
 const Text = ({ children, strong, style }: any) => (
   <span style={{ fontWeight: strong ? 'bold' : 'normal', ...style }}>{children}</span>
 );

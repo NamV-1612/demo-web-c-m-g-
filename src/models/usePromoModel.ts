@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import api from '@/services/api';
 import { Promo } from '@/services/typing';
 import { message } from 'antd';
@@ -7,13 +7,13 @@ export default function usePromoModel() {
   const [promos, setPromos] = useState<Promo[]>([]);
 
   const loadData = useCallback(async () => {
-    // Láº¥y thÃ´ng tin user tá»« localStorage Ä‘á»ƒ trÃ¡nh gá»i hook useModel gÃ¢y lá»—i
+    // Lấy thông tin user từ localStorage để tránh gọi hook useModel gây lỗi
     const userStr = localStorage.getItem('CURRENT_USER');
     if (!userStr) return;
     
     try {
       const user = JSON.parse(userStr);
-      // Chá»‰ láº¥y toÃ n bá»™ mÃ£ KM náº¿u lÃ  ADMIN hoáº·c STAFF
+      // Chỉ lấy toàn bộ mã KM nếu là ADMIN hoặc STAFF
       if (user.role !== 'ADMIN' && user.role !== 'STAFF') return;
       
       const { data } = await api.get('/promos');
@@ -21,14 +21,15 @@ export default function usePromoModel() {
         id: p.id || p._id,
         code: p.code,
         discountType: p.discountType || 'AMOUNT',
+        discountValue: p.discountValue || p.discount || 0, // Fallback cho dữ liệu cũ (nếu có)
         maxDiscountAmount: p.maxDiscountAmount,
         quantity: p.quantity,
         isActive: p.isActive,
       }));
       setPromos(formattedPromos);
     } catch (error) {
-      console.error('Lá»—i táº£i danh sÃ¡ch mÃ£ khuyáº¿n mÃ£i', error);
-      message.error('Lá»—i táº£i danh sÃ¡ch mÃ£ khuyáº¿n mÃ£i');
+      console.error('Lỗi tải danh sách mã khuyến mãi', error);
+      message.error('Lỗi tải danh sách mã khuyến mãi');
     }
   }, []);
 
@@ -50,13 +51,13 @@ export default function usePromoModel() {
         maxDiscountAmount: p.maxDiscountAmount,
         quantity: p.quantity,
         isActive: p.isActive,
-        minOrderValue: 0 // Frontend hiá»‡n chÆ°a cÃ³ trÆ°á»ng nÃ y
+        minOrderValue: 0 // Frontend hiện chưa có trường này
       });
-      message.success('ÄÃ£ thÃªm mÃ£ khuyáº¿n mÃ£i má»›i thÃ nh cÃ´ng!');
+      message.success('Đã thêm mã khuyến mãi mới thành công!');
       loadData();
       return true;
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lá»—i khi thÃªm mÃ£ khuyáº¿n mÃ£i');
+      message.error(error.response?.data?.message || 'Lỗi khi thêm mã khuyến mãi');
       return false;
     }
   };
@@ -70,11 +71,11 @@ export default function usePromoModel() {
         quantity: data.quantity,
         isActive: data.isActive,
       });
-      message.success('ÄÃ£ cáº­p nháº­t mÃ£ khuyáº¿n mÃ£i thÃ nh cÃ´ng!');
+      message.success('Đã cập nhật mã khuyến mãi thành công!');
       loadData();
       return true;
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lá»—i khi cáº­p nháº­t mÃ£ khuyáº¿n mÃ£i');
+      message.error(error.response?.data?.message || 'Lỗi khi cập nhật mã khuyến mãi');
       return false;
     }
   };
@@ -82,11 +83,11 @@ export default function usePromoModel() {
   const deletePromo = async (id: string) => {
     try {
       await api.delete(`/promos/${id}`);
-      message.success('ÄÃ£ xÃ³a mÃ£ khuyáº¿n mÃ£i!');
+      message.success('Đã xóa mã khuyến mãi!');
       loadData();
       return true;
     } catch (error: any) {
-      message.error(error.response?.data?.message || 'Lá»—i khi xÃ³a mÃ£ khuyáº¿n mÃ£i');
+      message.error(error.response?.data?.message || 'Lỗi khi xóa mã khuyến mãi');
       return false;
     }
   };
@@ -101,19 +102,19 @@ export default function usePromoModel() {
       const promo: Promo = {
         id: 'temp',
         code: data.code,
-        discountType: 'AMOUNT', // KhÃ¡ch hÃ ng khÃ´ng cáº§n quan tÃ¢m type ná»¯a vÃ¬ API Ä‘Ã£ tráº£ vá» sá»‘ tiá»n cá»‘ Ä‘á»‹nh cuá»‘i cÃ¹ng rá»“i
+        discountType: 'AMOUNT', // Khách hàng không cần quan tâm type nữa vì API đã trả về số tiền cố định cuối cùng rồi
         discountValue: data.discount,
         quantity: 1,
         isActive: true
       };
-      return { isValid: true, discountAmount: data.discount, message: 'Ãp dá»¥ng mÃ£ khuyáº¿n mÃ£i thÃ nh cÃ´ng!', promo };
+      return { isValid: true, discountAmount: data.discount, message: 'Áp dụng mã khuyến mãi thành công!', promo };
     } catch (error: any) {
-      return { isValid: false, discountAmount: 0, message: error.response?.data?.message || 'MÃ£ khuyáº¿n mÃ£i khÃ´ng há»£p lá»‡' };
+      return { isValid: false, discountAmount: 0, message: error.response?.data?.message || 'Mã khuyến mãi không hợp lệ' };
     }
   };
   
   const decreasePromoQuantity = (code: string) => {
-    // KhÃ´ng cáº§n xá»­ lÃ½ á»Ÿ frontend ná»¯a vÃ¬ backend sáº½ tá»± trá»« khi Ä‘áº·t hÃ ng thÃ nh cÃ´ng
+    // Không cần xử lý ở frontend nữa vì backend sẽ tự trừ khi đặt hàng thành công
   };
 
   return { promos, addPromo, updatePromo, deletePromo, togglePromoStatus, validateAndApplyPromo, decreasePromoQuantity, reloadPromos: loadData };
