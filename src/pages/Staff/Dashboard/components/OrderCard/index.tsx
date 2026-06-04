@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Card, Typography, Button, Space, Tag, Switch, Popconfirm } from 'antd';
-import { CheckOutlined, CloseOutlined, PrinterOutlined } from '@ant-design/icons';
+import { Typography, Button, Tag, Popconfirm, Modal, Radio, Input, message } from 'antd';
+import { CloseOutlined, PrinterOutlined, CheckCircleFilled } from '@ant-design/icons';
 import { Order } from '@/services/typing';
 import moment from 'moment';
 import './style.less';
@@ -9,7 +9,7 @@ const { Text } = Typography;
 
 interface Props {
   order: Order;
-  onStatusChange: (id: string, status: Order['status']) => void;
+  onStatusChange: (id: string, status: Order['status'], cancelMessage?: string) => void;
   onPrint: (order: Order) => void;
   onPaymentChange: (id: string, isPaid: boolean) => void;
 }
@@ -18,7 +18,10 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
   const isUrgent = order.pickupTime !== 'asap' && moment(order.pickupTime, ['HH:mm', 'hh:mm A']).diff(moment(), 'minutes') < 10;
   const isNewOrder = order.status === 'PENDING' && moment().diff(moment(order.createdAt), 'minutes') < 5;
   
-  const [timeLeft, setTimeLeft] = useState('');
+  const [timeLeft, setTimeLeft] = useState<string>('');
+  const [isCancelModalVisible, setIsCancelModalVisible] = useState<boolean>(false);
+  const [cancelReason, setCancelReason] = useState<string>('Hết nguyên liệu / Hết món');
+  const [otherReason, setOtherReason] = useState<string>('');
 
   useEffect(() => {
     if (order.status?.toUpperCase() !== 'PENDING') return;
@@ -42,89 +45,180 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
   }, [order.createdAt, order.status]);
 
   return (
-    <Card 
-      size="small" 
-      className={`order-card ${isUrgent ? 'urgent' : 'normal'} ${isNewOrder ? 'new-order-highlight' : ''}`}
-      bodyStyle={{ padding: '8px' }}
-    >
+    <div className={`ticket-card ${isUrgent ? 'urgent' : 'normal'} ${isNewOrder ? 'new-order-highlight' : ''}`}>
       {isNewOrder && <div className="new-badge">MỚI</div>}
-      <div className="card-header" style={{ marginBottom: 2, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Text strong style={{ fontSize: 14 }}>
-          #{order.id}
-          {order.status === 'PENDING' && timeLeft && (
-            <span style={{ fontSize: 11, color: '#cf1322', display: 'block', fontWeight: 'bold' }}>Tự hủy: {timeLeft}</span>
-          )}
-        </Text>
-        <div style={{ fontSize: 12, textAlign: 'right' }}>
-          <Text strong>{order.customerName}</Text>
-          <br />
-          <Text type="secondary" style={{ fontSize: 11 }}>{order.customerPhone}</Text>
-          <br />
-          {order.note === 'Khách tự đến lấy' ? (
-            <Tag color="volcano" style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>🏪 Tự lấy</Tag>
-          ) : (
-            <Tag color="geekblue" style={{ margin: '4px 0 0 0', fontWeight: 'bold' }}>🛵 Nhờ ship</Tag>
-          )}
-          {order.note !== 'Khách tự đến lấy' && (
-            <>
-              <br />
-              <Text type="secondary" style={{ fontSize: 10, display: 'inline-block', wordWrap: 'break-word', whiteSpace: 'normal', marginTop: 4, width: '100%' }}>
-                📍 {order.customerAddress || order.note?.replace('Giao đến: ', '')}
-              </Text>
-            </>
-          )}
-        </div>
+      {isUrgent && <div className="urgent-pulse"></div>}
+      
+      {/* HEADER: ID & TIMER */}
+      <div className="ticket-header">
+        <div className="order-id">{order.id}</div>
+        {order.status === 'PENDING' && timeLeft && (
+          <div className={`countdown-timer ${timeLeft === '00:00' ? 'expired' : ''}`}>
+            Tự hủy: {timeLeft}
+          </div>
+        )}
       </div>
       
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4, borderBottom: '1px dashed #f0f0f0', paddingBottom: 4 }}>
-        <Tag color="volcano" style={{ margin: 0, fontSize: 11, lineHeight: '18px', padding: '0 4px' }}>
-          {order.pickupTime === 'asap' ? 'Ngay (15p)' : order.pickupTime}
-        </Tag>
-        <div className="payment-status" style={{ margin: 0, gap: 4, display: 'flex', alignItems: 'center' }}>
-          <Text style={{ fontSize: 12 }}>{order.paymentMethod === 'cash' ? '💵 Tiền mặt' : '💳 Chuyển khoản'}</Text>
+      {/* CUSTOMER INFO */}
+      <div className="ticket-info">
+        <div className="customer-row">
+          <Text strong className="customer-name">{order.customerName}</Text>
+          <Text type="secondary" className="customer-phone">{order.customerPhone}</Text>
         </div>
+        <div className="delivery-row">
+          {order.note === 'Khách tự đến lấy' ? (
+            <Tag color="volcano" className="method-tag">🏪 Tự lấy ({order.pickupTime === 'asap' ? 'Ngay' : order.pickupTime})</Tag>
+          ) : (
+            <Tag color="geekblue" className="method-tag">🛵 Nhờ ship ({order.pickupTime === 'asap' ? 'Ngay' : order.pickupTime})</Tag>
+          )}
+        </div>
+        {order.note !== 'Khách tự đến lấy' && (
+          <div className="address-row">
+            📍 {order.customerAddress || order.note?.replace('Giao đến: ', '')}
+          </div>
+        )}
       </div>
 
-      <div className="item-list" style={{ padding: '4px 6px', margin: '4px 0', background: '#fffbe6', borderRadius: 4, border: '1px solid #ffe58f' }}>
+      <div className="ticket-divider"></div>
+
+      {/* ITEMS LIST (RECEIPT STYLE) */}
+      <div className="ticket-items">
         {order.items.map((item, idx) => (
-          <div key={idx} className="item-row" style={{ display: 'flex', flexDirection: 'column', marginBottom: idx < order.items.length - 1 ? 4 : 0, borderBottom: idx < order.items.length - 1 ? '1px dashed #ffe58f' : 'none', paddingBottom: idx < order.items.length - 1 ? 4 : 0 }}>
-            <div style={{ fontSize: 13, lineHeight: '1.2', wordWrap: 'break-word', whiteSpace: 'normal' }}><Text strong>{item.quantity}x</Text> {item.product.name}</div>
-            {item.selectedToppings.length > 0 && <div className="topping-text" style={{ fontSize: 11, color: '#8c8c8c', lineHeight: '1.2', marginTop: 2, wordWrap: 'break-word', whiteSpace: 'normal' }}>+ {item.selectedToppings.join(', ')}</div>}
-            {item.note && <div className="note-text" style={{ fontSize: 11, color: '#BA1A21', fontWeight: 'bold', lineHeight: '1.2', marginTop: 2 }}>* Lưu ý: {item.note}</div>}
+          <div key={idx} className="item-row">
+            <div className="item-main">
+              <span className="item-qty">{item.quantity}x</span> 
+              <span className="item-name">{item.product.name}</span>
+            </div>
+            {item.selectedToppings.length > 0 && (
+              <div className="topping-text">+ {item.selectedToppings.join(', ')}</div>
+            )}
+            {item.note && (
+              <div className="note-text">* {item.note}</div>
+            )}
           </div>
         ))}
       </div>
 
-      <div className="card-footer">
-        <Text className="price">{order.totalAmount.toLocaleString()}đ</Text>
-        <Space size="small">
-          {order.status === 'PENDING' && (
-            <Popconfirm overlayClassName="custom-popconfirm" title="Xác nhận duyệt đơn cho bếp nấu?" onConfirm={() => onStatusChange(order.id, 'PREPARING')} okText="Duyệt" cancelText="Hủy">
-              <Button size="small" className="custom-action-btn btn-primary-red">Duyệt nấu</Button>
-            </Popconfirm>
-          )}
-          {order.status === 'PREPARING' && (
-            <Popconfirm overlayClassName="custom-popconfirm custom-popconfirm-green" title="Món ăn đã sẵn sàng?" onConfirm={() => onStatusChange(order.id, 'READY')} okText="Xong" cancelText="Chưa">
-              <Button size="small" className="custom-action-btn btn-primary-green">Xong</Button>
-            </Popconfirm>
-          )}
-          {order.status === 'READY' && (
-            <Popconfirm overlayClassName="custom-popconfirm" title="Xác nhận giao hàng thành công?" onConfirm={() => onStatusChange(order.id, 'COMPLETED')} okText="Giao" cancelText="Chưa">
-              <Button size="small" icon={<CheckOutlined />} className="custom-action-btn btn-primary-red">Giao</Button>
-            </Popconfirm>
-          )}
-          
-          {order.status === 'READY' && (
-            <Button size="small" icon={<PrinterOutlined />} className="custom-icon-btn" onClick={() => onPrint(order)} />
-          )}
-          {order.status === 'PENDING' && (
-            <Popconfirm overlayClassName="custom-popconfirm" title="Bạn có chắc chắn muốn hủy đơn này?" onConfirm={() => onStatusChange(order.id, 'CANCELLED')} okText="Hủy đơn" cancelText="Không" okButtonProps={{ danger: true }}>
-              <Button size="small" className="custom-icon-btn btn-danger" icon={<CloseOutlined />} />
-            </Popconfirm>
-          )}
-        </Space>
+      <div className="ticket-divider"></div>
+
+      {/* FOOTER: TOTAL & PAYMENT */}
+      <div className="ticket-footer">
+        <div className="total-price">{order.totalAmount.toLocaleString()}đ</div>
+        <div className="payment-status">
+          {order.paymentMethod === 'cash' ? '💵 T/mặt' : '💳 C/k'}
+        </div>
       </div>
-    </Card>
+
+      {/* ACTIONS (MODERN FULL-WIDTH) */}
+      <div className="ticket-actions">
+        {order.status === 'PENDING' && (
+          <div className="action-row">
+            {(!order.isPaid && order.paymentMethod === 'transfer') ? (
+              <Popconfirm
+                overlayClassName="custom-popconfirm"
+                title="Khách thanh toán đơn này chưa?"
+                onConfirm={() => {
+                  onPaymentChange(order.id, true);
+                  onStatusChange(order.id, 'PREPARING');
+                }}
+                okText="Đã thanh toán"
+                cancelText="Hủy"
+              >
+                <Button className="action-btn btn-accept" type="primary">
+                  NẤU MÓN NÀY
+                </Button>
+              </Popconfirm>
+            ) : (
+              <Button className="action-btn btn-accept" type="primary" onClick={() => onStatusChange(order.id, 'PREPARING')}>
+                NẤU MÓN NÀY
+              </Button>
+            )}
+            <div className="action-group">
+              <Button className="action-btn btn-icon btn-print" onClick={() => onPrint(order)} icon={<PrinterOutlined />} />
+              <Button className="action-btn btn-icon btn-reject" onClick={() => setIsCancelModalVisible(true)} icon={<CloseOutlined />} />
+            </div>
+          </div>
+        )}
+
+        {order.status === 'PREPARING' && (
+          <div className="action-row">
+            <Button className="action-btn btn-ready" type="primary" onClick={() => onStatusChange(order.id, 'READY')}>
+              XONG, BÁO KHÁCH
+            </Button>
+          </div>
+        )}
+
+        {order.status === 'READY' && (
+          <div className="action-row column-layout">
+            <div style={{ display: 'flex', gap: 8, width: '100%' }}>
+              <Popconfirm overlayClassName="custom-popconfirm custom-popconfirm-green" title="Xác nhận giao hàng thành công?" onConfirm={() => onStatusChange(order.id, 'COMPLETED')} okText="Đã giao" cancelText="Hủy">
+                <Button className="action-btn btn-complete" type="primary" icon={<CheckCircleFilled />} style={{ flex: 1 }}>
+                  GIAO KHÁCH
+                </Button>
+              </Popconfirm>
+              <Button className="action-btn btn-icon btn-print" onClick={() => onPrint(order)} icon={<PrinterOutlined />} />
+            </div>
+            {!order.isPaid && (
+              <Popconfirm overlayClassName="custom-popconfirm" title="Xác nhận khách đã thanh toán?" onConfirm={() => onPaymentChange(order.id, true)} okText="Đã thu tiền" cancelText="Hủy">
+                <Button className="action-btn btn-collect">
+                  THU TIỀN
+                </Button>
+              </Popconfirm>
+            )}
+          </div>
+        )}
+
+        {order.status === 'COMPLETED' && (
+          <div className="action-row">
+            <Button className="action-btn" onClick={() => onPrint(order)} icon={<PrinterOutlined />} block style={{ color: '#666', borderColor: '#d9d9d9' }}>
+              IN LẠI PHIẾU
+            </Button>
+          </div>
+        )}
+      </div>
+
+
+
+      <Modal
+        title="Lý do hủy đơn hàng"
+        visible={isCancelModalVisible}
+        onCancel={() => {
+          setIsCancelModalVisible(false);
+          setCancelReason('Hết nguyên liệu / Hết món');
+          setOtherReason('');
+        }}
+        onOk={() => {
+          const finalReason = cancelReason === 'Lý do khác' ? otherReason : cancelReason;
+          if (cancelReason === 'Lý do khác' && !finalReason.trim()) {
+            message.error('Vui lòng nhập lý do hủy cụ thể!');
+            return;
+          }
+          onStatusChange(order.id, 'CANCELLED', finalReason);
+          setIsCancelModalVisible(false);
+        }}
+        okText="Xác nhận hủy"
+        cancelText="Bỏ qua"
+        okButtonProps={{ danger: true, disabled: cancelReason === 'Lý do khác' && !otherReason.trim() }}
+      >
+        <Radio.Group onChange={(e) => setCancelReason(e.target.value)} value={cancelReason} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <Radio value="Hết nguyên liệu / Hết món">Hết nguyên liệu / Hết món</Radio>
+          <Radio value="Quán đang quá tải, không thể phục vụ kịp">Quán đang quá tải, không thể phục vụ kịp</Radio>
+          <Radio value="Không liên lạc được với khách hàng">Không liên lạc được với khách hàng</Radio>
+          <Radio value="Khách hàng chủ động yêu cầu hủy">Khách hàng chủ động yêu cầu hủy</Radio>
+          <Radio value="Lý do khác">Lý do khác...</Radio>
+        </Radio.Group>
+        
+        {cancelReason === 'Lý do khác' && (
+          <Input.TextArea 
+            rows={3}
+            placeholder="Nhập lý do hủy..."
+            value={otherReason}
+            onChange={e => setOtherReason(e.target.value)}
+            style={{ marginTop: 12 }}
+          />
+        )}
+      </Modal>
+    </div>
   );
 };
 
