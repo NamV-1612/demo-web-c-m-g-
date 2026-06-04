@@ -1,4 +1,4 @@
-﻿.admin-dashboard {
+.admin-dashboard {
   padding: 24px;
 
   .dashboard-title {
@@ -37,5 +37,55 @@
     p {
       color: #999;
     }
+  }
+}
+
+/* Premium Date Picker Styles */
+.premium-date-picker {
+  .ant-picker-panel-container {
+    border-radius: 16px !important;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.12) !important;
+    overflow: hidden;
+    border: 1px solid rgba(0, 0, 0, 0.04);
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-selected .ant-picker-cell-inner,
+  .ant-picker-cell-in-view.ant-picker-cell-range-start .ant-picker-cell-inner,
+  .ant-picker-cell-in-view.ant-picker-cell-range-end .ant-picker-cell-inner {
+    background: linear-gradient(135deg, #1890ff 0%, #096dd9 100%) !important;
+    border-radius: 8px !important;
+    box-shadow: 0 4px 12px rgba(24, 144, 255, 0.35) !important;
+  }
+
+  .ant-picker-cell-in-view.ant-picker-cell-today .ant-picker-cell-inner::before {
+    border-color: #1890ff !important;
+    border-radius: 8px !important;
+  }
+
+  .ant-picker-cell-inner {
+    border-radius: 8px !important;
+    transition: all 0.3s ease;
+  }
+
+  .ant-picker-cell-inner:hover {
+    background: #e6f7ff !important;
+  }
+
+  .ant-picker-header {
+    border-bottom: 1px solid rgba(0, 0, 0, 0.04) !important;
+    padding: 12px 16px !important;
+    
+    button {
+      color: #666 !important;
+      transition: color 0.3s;
+      &:hover {
+        color: #1890ff !important;
+      }
+    }
+  }
+
+  .ant-picker-footer {
+    border-top: 1px solid rgba(0, 0, 0, 0.04) !important;
+    background: #fafafa !important;
   }
 }

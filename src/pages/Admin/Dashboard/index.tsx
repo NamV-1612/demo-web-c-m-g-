@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from 'react';
-import { Row, Col, Card, Statistic, Typography, Progress, List, DatePicker, Empty } from 'antd';
+import { Row, Col, Card, Statistic, Typography, Progress, List, DatePicker, Empty, Tooltip } from 'antd';
 import { ArrowUpOutlined, ShoppingCartOutlined, DollarOutlined, CloseCircleOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import moment from 'moment';
@@ -82,58 +82,117 @@ const AdminDashboard: React.FC = () => {
           placeholder={['Từ ngày', 'Đến ngày']}
           size="large"
           style={{ borderRadius: 8 }}
+          popupClassName="premium-date-picker"
         />
       </div>
       <Row gutter={[24, 24]}>
         <Col xs={12} lg={6}>
-          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <Card 
+            className="stat-card" 
+            style={{ 
+              borderRadius: 16, 
+              background: 'linear-gradient(135deg, #73d13d 0%, #389e0d 100%)',
+              boxShadow: '0 10px 20px rgba(82, 196, 26, 0.25)', 
+              border: 'none',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ position: 'absolute', right: '-10%', top: '-20%', opacity: 0.15, fontSize: '150px', color: '#fff', transform: 'rotate(-15deg)' }}>
+              <DollarOutlined />
+            </div>
             <Statistic
-              title="Tổng Doanh thu"
+              title={<span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: 600, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tổng Doanh thu</span>}
               value={totalRevenue}
               precision={0}
-              valueStyle={{ color: '#3f8600' }}
-              prefix={<DollarOutlined />}
-              suffix="đ"
+              valueStyle={{ color: '#ffffff', fontWeight: 800, fontSize: '36px', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}
+              suffix={<span style={{ fontSize: '24px', marginLeft: 4 }}>đ</span>}
             />
           </Card>
         </Col>
         <Col xs={12} lg={6}>
-          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+          <Card 
+            className="stat-card" 
+            style={{ 
+              borderRadius: 16, 
+              background: 'linear-gradient(135deg, #40a9ff 0%, #096dd9 100%)',
+              boxShadow: '0 10px 20px rgba(24, 144, 255, 0.25)', 
+              border: 'none',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ position: 'absolute', right: '-10%', top: '-20%', opacity: 0.15, fontSize: '150px', color: '#fff', transform: 'rotate(-15deg)' }}>
+              <ShoppingCartOutlined />
+            </div>
             <Statistic
-              title="Đơn hợp lệ"
+              title={<span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: 600, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Đơn hợp lệ</span>}
               value={validOrders.length}
-              valueStyle={{ color: '#1890ff' }}
-              prefix={<ShoppingCartOutlined />}
+              valueStyle={{ color: '#ffffff', fontWeight: 800, fontSize: '36px', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}
             />
           </Card>
         </Col>
-        <Col xs={12} lg={4}>
-          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <Statistic
-              title="Tổng đơn hủy"
-              value={cancelledOrders.length}
-              valueStyle={{ color: '#cf1322' }}
-              prefix={<CloseCircleOutlined />}
-            />
-          </Card>
+        <Col xs={12} lg={6}>
+          <Tooltip 
+            title={
+              <div style={{ fontFamily: "'Inter', 'Roboto', sans-serif", padding: '6px 4px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12, borderBottom: '1px solid rgba(255,255,255,0.2)', paddingBottom: 8 }}>
+                  <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', marginRight: 16 }}>Tự động hủy (Quá 15p):</span>
+                  <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 6, color: '#fff', fontWeight: 'bold', fontSize: '15px' }}>{timeoutCancelledOrders.length} đơn</span>
+                </div>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <span style={{ color: 'rgba(255,255,255,0.9)', fontSize: '14px', marginRight: 16 }}>Hủy thủ công:</span>
+                  <span style={{ background: 'rgba(255,255,255,0.2)', padding: '2px 8px', borderRadius: 6, color: '#fff', fontWeight: 'bold', fontSize: '15px' }}>{cancelledOrders.length - timeoutCancelledOrders.length} đơn</span>
+                </div>
+              </div>
+            }
+            color="#a8071a"
+            overlayInnerStyle={{ borderRadius: 8, padding: '12px 16px', fontSize: '14px', boxShadow: '0 8px 24px rgba(207, 19, 34, 0.4)' }}
+            placement="bottom"
+          >
+            <Card 
+              className="stat-card" 
+              style={{ 
+                borderRadius: 16, 
+                background: 'linear-gradient(135deg, #ff4d4f 0%, #a8071a 100%)',
+                boxShadow: '0 10px 20px rgba(207, 19, 34, 0.25)', 
+                cursor: 'pointer',
+                border: 'none',
+                position: 'relative',
+                overflow: 'hidden'
+              }}
+            >
+              <div style={{ position: 'absolute', right: '-15%', top: '-20%', opacity: 0.15, fontSize: '150px', color: '#fff', transform: 'rotate(-15deg)' }}>
+                <CloseCircleOutlined />
+              </div>
+              <Statistic
+                title={<span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: 600, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Tổng Đơn Hủy</span>}
+                value={cancelledOrders.length}
+                valueStyle={{ color: '#ffffff', fontWeight: 800, fontSize: '36px', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}
+              />
+            </Card>
+          </Tooltip>
         </Col>
-        <Col xs={12} lg={4}>
-          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
+        <Col xs={12} lg={6}>
+          <Card 
+            className="stat-card" 
+            style={{ 
+              borderRadius: 16, 
+              background: 'linear-gradient(135deg, #b37feb 0%, #531dab 100%)',
+              boxShadow: '0 10px 20px rgba(114, 46, 209, 0.25)', 
+              border: 'none',
+              position: 'relative',
+              overflow: 'hidden'
+            }}
+          >
+            <div style={{ position: 'absolute', right: '-10%', top: '-20%', opacity: 0.15, fontSize: '150px', color: '#fff', transform: 'rotate(-15deg)' }}>
+              <ArrowUpOutlined />
+            </div>
             <Statistic
-              title="Hủy do quá giờ"
-              value={timeoutCancelledOrders.length}
-              valueStyle={{ color: '#fa8c16' }}
-              prefix={<CloseCircleOutlined />}
-            />
-          </Card>
-        </Col>
-        <Col xs={12} lg={4}>
-          <Card className="stat-card" style={{ borderRadius: 12, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
-            <Statistic
-              title="Món ăn đang bán"
+              title={<span style={{ color: 'rgba(255, 255, 255, 0.9)', fontWeight: 600, fontSize: '15px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Món ăn đang bán</span>}
               value={products.length}
-              prefix={<ArrowUpOutlined />}
-              suffix="món"
+              valueStyle={{ color: '#ffffff', fontWeight: 800, fontSize: '36px', textShadow: '0 2px 10px rgba(0,0,0,0.2)' }}
+              suffix={<span style={{ fontSize: '20px', marginLeft: 8, fontWeight: 'normal' }}>món</span>}
             />
           </Card>
         </Col>
