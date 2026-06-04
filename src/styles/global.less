@@ -1156,3 +1156,42 @@ canvas {
 .premium-fire-wrapper .product-card:hover {
   transform: none !important;
 }
+
+/* ========================================================= */
+/* PREMIUM GLOBAL MESSAGE (DARK TOAST) OVERRIDES             */
+/* ========================================================= */
+
+.ant-message {
+  .ant-message-notice-content {
+    background: #000000 !important;
+    color: #EEEEEE !important;
+    border: 1px solid #333333 !important;
+    border-radius: 12px !important;
+    padding: 14px 28px !important;
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4) !important;
+    font-weight: 600 !important;
+    font-family: 'Inter', 'Roboto', sans-serif !important;
+    letter-spacing: 0.3px !important;
+  }
+
+  .anticon {
+    font-size: 20px !important;
+    margin-right: 12px !important;
+  }
+
+  .ant-message-error .anticon {
+    color: #CB2957 !important;
+  }
+
+  .ant-message-success .anticon {
+    color: #52c41a !important;
+  }
+
+  .ant-message-warning .anticon {
+    color: #faad14 !important;
+  }
+  
+  .ant-message-info .anticon {
+    color: #DDDDDD !important;
+  }
+}
