@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Tabs, Modal } from 'antd';
-import { UserOutlined, LockOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, ArrowLeftOutlined, SwapOutlined, PhoneOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
 import './style.less';
 
@@ -16,10 +16,32 @@ const StaffLogin: React.FC = () => {
     }
   }, []);
 
+  const triggerStaffTransition = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'role-login-transition';
+    overlay.id = 'staff-login-transition';
+    overlay.innerHTML = `<div class="staff-icon-bounce">🧾</div><h2>Đang tải dữ liệu bếp...</h2>`;
+    document.body.appendChild(overlay);
+    
+    // Trigger fade in
+    setTimeout(() => {
+      overlay.classList.add('active');
+    }, 10);
+
+    setTimeout(() => {
+      history.push('/staff/dashboard');
+      // After navigation, fade out
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 500);
+      }, 500);
+    }, 1000);
+  };
+
   const onLogin = async (values: any) => {
     const success = await login(values.username, values.password, ['STAFF', 'ADMIN']);
     if (success) {
-      history.push('/staff/dashboard');
+      triggerStaffTransition();
     }
   };
 
@@ -61,8 +83,8 @@ const StaffLogin: React.FC = () => {
           <Tabs activeKey={activeTab} onChange={handleTabChange} size="large">
             <TabPane tab="Đăng nhập" key="1">
               <Form name="staff_login" onFinish={onLogin} size="large" layout="vertical">
-                <Form.Item name="username" rules={[{ required: true, message: 'Vui lòng nhập Tên đăng nhập / Số điện thoại!' }]}>
-                  <Input prefix={<UserOutlined style={{ color: '#bfbfbf' }} />} placeholder="Tên đăng nhập / Số điện thoại" />
+                <Form.Item name="username" rules={[{ required: true, message: 'Vui lòng nhập Số điện thoại!' }]}>
+                  <Input prefix={<PhoneOutlined style={{ color: '#bfbfbf' }} />} placeholder="Số điện thoại" />
                 </Form.Item>
                 <Form.Item name="password" rules={[{ required: true, message: 'Vui lòng nhập mật khẩu!' }]}>
                   <Input.Password prefix={<LockOutlined style={{ color: '#bfbfbf' }} />} placeholder="Mật khẩu" />
@@ -74,8 +96,11 @@ const StaffLogin: React.FC = () => {
             </TabPane>
           </Tabs>
 
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <a onClick={() => history.push('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#BA1A21'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
+          <div style={{ textAlign: 'center', marginTop: 32, display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <a onClick={() => history.push('/user/login')} style={{ color: '#D53E0F', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', border: '1px dashed #D53E0F', borderRadius: '8px' }}>
+              <SwapOutlined /> Chuyển sang Cổng Quản Trị
+            </a>
+            <a onClick={() => history.push('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#D53E0F'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
               <ArrowLeftOutlined /> Quay lại Trang Khách hàng
             </a>
           </div>

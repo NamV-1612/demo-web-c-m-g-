@@ -1,6 +1,6 @@
 import React from 'react';
 import { Form, Input, Button, Tabs, Modal } from 'antd';
-import { UserOutlined, LockOutlined, CrownOutlined, ArrowLeftOutlined } from '@ant-design/icons';
+import { UserOutlined, LockOutlined, CrownOutlined, ArrowLeftOutlined, SwapOutlined } from '@ant-design/icons';
 import { history, useModel } from 'umi';
 import './style.less';
 
@@ -17,17 +17,46 @@ const AdminLogin: React.FC = () => {
     }
   }, []);
 
+  const triggerAdminTransition = () => {
+    const overlay = document.createElement('div');
+    overlay.className = 'role-login-transition';
+    overlay.id = 'admin-login-transition';
+    overlay.innerHTML = `
+      <svg class="admin-animated-chart" viewBox="0 0 100 100" width="120" height="120">
+        <path d="M 10 90 L 90 90 M 10 90 L 10 10" stroke="rgba(255,255,255,0.5)" stroke-width="4" fill="none" stroke-linecap="round"/>
+        <path class="chart-line" d="M 10 90 L 30 65 L 50 75 L 70 30 L 90 10" stroke="#FFD700" stroke-width="6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <polygon class="chart-arrow" points="80,5 95,5 95,20" fill="#FFD700" />
+      </svg>
+      <h2>Đang tải dữ liệu quản trị...</h2>
+    `;
+    document.body.appendChild(overlay);
+    
+    // Trigger fade in
+    setTimeout(() => {
+      overlay.classList.add('active');
+    }, 10);
+
+    setTimeout(() => {
+      history.push('/admin/dashboard');
+      // After navigation, fade out
+      setTimeout(() => {
+        overlay.classList.remove('active');
+        setTimeout(() => overlay.remove(), 500);
+      }, 500);
+    }, 1000);
+  };
+
   const onLogin = async (values: any) => {
     const success = await login(values.username.trim(), values.password, ['ADMIN']);
     if (success) {
-      history.push('/admin/dashboard');
+      triggerAdminTransition();
     }
   };
 
   const onRegister = async (values: any) => {
     const success = await register(values.name, values.username.trim(), values.phone, values.password, 'ADMIN');
     if (success) {
-      history.push('/admin/dashboard');
+      triggerAdminTransition();
     }
   };
 
@@ -111,8 +140,11 @@ const AdminLogin: React.FC = () => {
             </Form.Item>
           </Form>
 
-          <div style={{ textAlign: 'center', marginTop: 32 }}>
-            <a onClick={() => history.push('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#BA1A21'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
+          <div style={{ textAlign: 'center', marginTop: 32, display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16 }}>
+            <a onClick={() => history.push('/staff/login')} style={{ color: '#D53E0F', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', border: '1px dashed #D53E0F', borderRadius: '8px' }}>
+              <SwapOutlined /> Chuyển sang Cổng Nhân Viên
+            </a>
+            <a onClick={() => history.push('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#D53E0F'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
               <ArrowLeftOutlined /> Quay lại Trang Khách hàng
             </a>
           </div>
