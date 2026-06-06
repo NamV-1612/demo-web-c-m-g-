@@ -9,7 +9,7 @@ interface KanbanColumnProps {
   title: string;
   data: Order[];
   className: string;
-  onStatusChange: (id: string, newStatus: string) => void;
+  onStatusChange: (id: string, newStatus: string, cancelMessage?: string) => void;
   onPrint: (order: Order) => void;
   onPaymentChange: (id: string, isPaid: boolean) => void;
 }

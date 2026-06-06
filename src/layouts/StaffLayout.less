@@ -3,34 +3,52 @@
   background: #f5f7fa;
   
   .staff-header {
-    background: #ffffff;
+    background: linear-gradient(90deg, #1f1f1f 0%, #3a3a3a 100%);
     padding: 0 24px;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
     z-index: 10;
     height: 70px;
+    border-bottom: 3px solid #D53E0F;
 
     .logo {
       display: flex;
       align-items: center;
       font-size: 22px;
       font-weight: 800;
-      color: #262626;
+      color: #ffffff;
+      letter-spacing: 1px;
 
       .logo-icon {
-        background: #BA1A21;
+        background: #D53E0F;
         color: white;
         border-radius: 50%;
-        width: 40px;
-        height: 40px;
+        width: 44px;
+        height: 44px;
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        font-size: 16px;
+        font-size: 22px;
         margin-right: 12px;
-        box-shadow: 0 4px 12px rgba(186, 26, 33, 0.3);
+        box-shadow: 0 4px 12px rgba(213, 62, 15, 0.4);
+        border: 2px solid #fff;
+      }
+    }
+
+    .logout-btn {
+      background: transparent;
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: #fff;
+      border-radius: 20px;
+      font-weight: bold;
+      transition: all 0.3s;
+
+      &:hover {
+        background: #D53E0F;
+        border-color: #D53E0F;
+        color: #fff;
       }
     }
   }

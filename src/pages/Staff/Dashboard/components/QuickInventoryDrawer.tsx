@@ -80,11 +80,13 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
           <List.Item
             style={{ 
               display: 'block', 
-              padding: '12px 8px', 
-              borderBottom: '1px solid #f0f0f0',
-              backgroundColor: isUnavailable ? '#f5f5f5' : '#fff',
-              opacity: isUnavailable ? 0.6 : 1,
-              filter: isUnavailable ? 'grayscale(100%)' : 'none',
+              padding: '16px 20px', 
+              marginBottom: '12px',
+              borderRadius: '12px',
+              border: isUnavailable ? '1px dashed #d9d9d9' : '1px solid #f0f0f0',
+              backgroundColor: isUnavailable ? '#fafafa' : '#fff',
+              boxShadow: isUnavailable ? 'none' : '0 4px 12px rgba(0,0,0,0.04)',
+              opacity: isUnavailable ? 0.7 : 1,
               transition: 'all 0.3s ease'
             }}
           >
@@ -94,7 +96,6 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
                 <div style={{ color: '#8c8c8c', fontSize: 12 }}>{item.price.toLocaleString()}đ</div>
               </div>
               <Switch 
-                size="small"
                 checked={!isUnavailable} 
                 onChange={(checked) => updateProductAvailability(item.id, checked)} 
                 checkedChildren="Còn" 
@@ -104,7 +105,7 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
 
             {/* Toppings stock toggler */}
             {item.toppings && item.toppings.length > 0 && (
-              <div style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid #BA1A21' }}>
+              <div style={{ marginTop: 6, paddingLeft: 8, borderLeft: '2px solid #D53E0F' }}>
                 <Text type="secondary" style={{ fontSize: 11, display: 'block', marginBottom: 4 }}>Toppings:</Text>
                 <Space wrap size={[4, 4]}>
                   {item.toppings.map((topping: string) => {
@@ -112,8 +113,14 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
                     return (
                       <Tag 
                         key={topping}
-                        color={isOutOfStock ? 'default' : 'orange'}
-                        style={{ cursor: 'pointer', padding: '2px 8px', borderRadius: '4px' }}
+                        color={isOutOfStock ? 'default' : 'red'}
+                        style={{ 
+                          cursor: 'pointer', 
+                          padding: '4px 12px', 
+                          borderRadius: '16px',
+                          border: isOutOfStock ? '1px dashed #d9d9d9' : '1px solid #ffa39e',
+                          fontWeight: 500
+                        }}
                         onClick={() => {
                           let newOutOfStock = [...(item.outOfStockToppings || [])];
                           if (isOutOfStock) {
@@ -124,12 +131,11 @@ const QuickInventoryDrawer: React.FC<QuickInventoryDrawerProps> = ({
                           item.outOfStockToppings = newOutOfStock;
                           setUpdateTick(prev => prev + 1);
 
-                          // Update topping availability
-                          updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any);
-                          message.success(`Đã đổi trạng thái topping ${topping} thành: ${isOutOfStock ? 'Còn hàng' : 'Hết hàng'}`);
+                          // Update topping availability silently
+                          updateProduct(item.id, { outOfStockToppings: newOutOfStock } as any, undefined, true);
                         }}
                       >
-                        {topping} {isOutOfStock ? '❌ Hết' : '✅ Còn'}
+                        {topping} {isOutOfStock ? '❌' : '✅'}
                       </Tag>
                     );
                   })}
