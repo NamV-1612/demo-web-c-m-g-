@@ -66,4 +66,52 @@ router.put('/:id/status', (req, res) => __awaiter(void 0, void 0, void 0, functi
         res.status(500).json({ success: false, message: error.message });
     }
 }));
+// Cập nhật thông tin người dùng (Sửa tài khoản)
+router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const { name, phone, password } = req.body;
+        const user = yield userModel_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+        // Kiểm tra trùng số điện thoại nếu có đổi
+        if (phone && phone !== user.phone) {
+            const existing = yield userModel_1.default.findOne({ phone });
+            if (existing) {
+                return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
+            }
+            user.phone = phone;
+        }
+        if (name) {
+            user.name = name;
+            user.full_name = name;
+        }
+        if (password) {
+            const salt = yield bcryptjs_1.default.genSalt(10);
+            user.password = yield bcryptjs_1.default.hash(password, salt);
+        }
+        yield user.save();
+        res.json({ success: true, data: user });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}));
+// Xóa người dùng
+router.delete('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel_1.default.findById(req.params.id);
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'Không tìm thấy người dùng' });
+        }
+        if (user.role === 'ADMIN') {
+            return res.status(400).json({ success: false, message: 'Không thể xóa tài khoản Admin!' });
+        }
+        yield userModel_1.default.findByIdAndDelete(req.params.id);
+        res.json({ success: true, message: 'Đã xóa người dùng' });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error.message });
+    }
+}));
 exports.default = router;

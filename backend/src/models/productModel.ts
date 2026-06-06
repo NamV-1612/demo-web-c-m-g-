@@ -1,4 +1,4 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IProduct extends Document {
   name: string;
@@ -18,7 +18,7 @@ const ProductSchema: Schema = new Schema(
     description: { type: String },
     price: { type: Number, required: true, min: 0 },
     image: { type: String },
-    category: { type: String, default: 'MÃ³n chÃ­nh' },
+    category: { type: String, default: 'Món chính' },
     toppings: [{ type: String }],
     outOfStockToppings: [{ type: String }],
     isAvailable: { type: Boolean, default: true }
@@ -28,6 +28,7 @@ const ProductSchema: Schema = new Schema(
   }
 );
 
+// Map _id to id
 ProductSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,

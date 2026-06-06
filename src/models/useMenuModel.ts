@@ -53,7 +53,7 @@ export default function useMenuModel() {
     }
   };
 
-  const updateProduct = async (id: string, data: any, file?: File) => {
+  const updateProduct = async (id: string, data: any, file?: File, silent: boolean = false) => {
     try {
       const formData = new FormData();
       if (data.name) formData.append('name', data.name);
@@ -71,10 +71,10 @@ export default function useMenuModel() {
       await api.put(`/products/${id}`, formData, {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
-      message.success('Cập nhật món thành công!');
+      if (!silent) message.success('Cập nhật món thành công!');
       loadData();
     } catch (error) {
-      message.error('Lỗi khi cập nhật món');
+      if (!silent) message.error('Lỗi khi cập nhật món');
     }
   };
 

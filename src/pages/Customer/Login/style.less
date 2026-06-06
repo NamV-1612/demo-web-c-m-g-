@@ -45,6 +45,7 @@
         text-align: left;
         margin-top: auto;
         margin-bottom: auto;
+        animation: slideInLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1);
       }
 
       .banner-carousel {
@@ -358,6 +359,29 @@
 @keyframes slideInRight {
   from { opacity: 0; transform: translateX(30px); }
   to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(30px); }
+}
+
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-30px); }
+}
+
+.exit-right {
+  animation: slideOutRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+.exit-left {
+  animation: slideOutLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
 }
 
 @keyframes formFadeInUp {

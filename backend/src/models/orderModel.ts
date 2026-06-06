@@ -1,9 +1,10 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IOrder extends Document {
+  customerId?: mongoose.Types.ObjectId; // User ID
   customerName: string;
   customerPhone: string;
-  customerAddress?: string; // Äá»‹a chá»‰ giao hÃ ng
+  customerAddress?: string; // Địa chỉ giao hàng
   items: Array<{
     productId: mongoose.Types.ObjectId;
     name: string;
@@ -24,15 +25,17 @@ export interface IOrder extends Document {
     stars: number;
     comment: string;
   };
+  cancelMessage?: string;
   createdAt: Date;
 }
 
 const OrderSchema: Schema = new Schema(
   {
+    _id: { type: String },
     customerId: { type: mongoose.Schema.Types.ObjectId, ref: 'User' },
     customerName: { type: String, required: true },
     customerPhone: { type: String, required: true },
-    customerAddress: { type: String }, // Äá»‹a chá»‰ giao hÃ ng
+    customerAddress: { type: String }, // Địa chỉ giao hàng
     items: [
       {
         productId: { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
@@ -58,13 +61,15 @@ const OrderSchema: Schema = new Schema(
     rating: {
       stars: { type: Number, min: 1, max: 5 },
       comment: { type: String }
-    }
+    },
+    cancelMessage: { type: String }
   },
   {
     timestamps: true,
   }
 );
 
+// Map _id to id
 OrderSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,

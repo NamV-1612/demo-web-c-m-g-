@@ -9,6 +9,7 @@ const { TabPane } = Tabs;
 const AdminLogin: React.FC = () => {
   const { login, register, currentUser, logout } = useModel('useAuthModel');
   const [activeTab, setActiveTab] = React.useState('1');
+  const [isExiting, setIsExiting] = React.useState(false);
   const [form] = Form.useForm();
 
   React.useEffect(() => {
@@ -79,10 +80,16 @@ const AdminLogin: React.FC = () => {
       setActiveTab(key);
     }
   };
+  const handleNavigateInternal = (path: string) => {
+    setIsExiting(true);
+    setTimeout(() => {
+      history.push(path);
+    }, 800);
+  };
 
   return (
     <div className="login-split-container">
-      <div className="login-banner admin-banner">
+      <div className={`login-banner admin-banner ${isExiting ? 'exit-left' : ''}`}>
         <div className="banner-overlay">
           <h1>Quản Trị Viên</h1>
           <p>Hệ thống Quản trị Doanh thu, Thực đơn & Chuỗi cung ứng toàn diện.</p>
@@ -90,9 +97,9 @@ const AdminLogin: React.FC = () => {
       </div>
       
       <div className="login-form-wrapper">
-        <div className="form-container">
-          <div className="logo-mobile">💼 Quản Trị</div>
-          <h2>Cổng Quản Trị</h2>
+        <div className={`form-container ${isExiting ? 'exit-right' : ''}`}>
+          <div className="logo-mobile">👑 Doki Food</div>
+          <h2>Quản Trị Viên</h2>
           <p className="subtitle">Đăng nhập để vào bảng điều khiển quản trị.</p>
 
           <Tabs activeKey={activeTab} onChange={(key) => { handleTabChange(key); form.resetFields(); }} size="large">
@@ -141,10 +148,10 @@ const AdminLogin: React.FC = () => {
           </Form>
 
           <div style={{ textAlign: 'center', marginTop: 32, display: 'flex', flexDirection: 'row', justifyContent: 'center', flexWrap: 'wrap', gap: 16 }}>
-            <a onClick={() => history.push('/staff/login')} style={{ color: '#D53E0F', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', border: '1px dashed #D53E0F', borderRadius: '8px' }}>
+            <a onClick={() => handleNavigateInternal('/staff/login')} style={{ color: '#D53E0F', fontWeight: 600, display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, padding: '8px 16px', border: '1px dashed #D53E0F', borderRadius: '8px' }}>
               <SwapOutlined /> Chuyển sang Cổng Nhân Viên
             </a>
-            <a onClick={() => history.push('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#D53E0F'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
+            <a onClick={() => handleNavigateInternal('/login')} style={{ color: '#8c8c8c', display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 6, transition: 'all 0.3s' }} onMouseOver={(e) => e.currentTarget.style.color = '#D53E0F'} onMouseOut={(e) => e.currentTarget.style.color = '#8c8c8c'}>
               <ArrowLeftOutlined /> Quay lại Trang Khách hàng
             </a>
           </div>

@@ -22,8 +22,8 @@ const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({ visible, on
     }
   }, [visible, currentUser, form]);
 
-  const handleFinish = (values: any) => {
-    const success = updateAccount(
+  const handleFinish = async (values: any) => {
+    const success = await updateAccount(
       values.phone,
       values.username,
       values.newPassword
@@ -49,7 +49,7 @@ const AccountSettingsModal: React.FC<AccountSettingsModalProps> = ({ visible, on
         style={{ marginTop: 24 }}
       >
         <div style={{ background: '#fafafa', padding: '12px', borderRadius: '8px', marginBottom: '24px', border: '1px solid #f0f0f0' }}>
-          <p style={{ margin: 0, fontWeight: 500, color: '#BA1A21', marginBottom: 12 }}>Xác thực để Đổi mật khẩu</p>
+          <p style={{ margin: 0, fontWeight: 500, color: '#D53E0F', marginBottom: 12 }}>Xác thực để Đổi mật khẩu</p>
           <Form.Item
             name="phone"
             rules={[{ required: true, message: 'Vui lòng nhập số điện thoại!' }]}

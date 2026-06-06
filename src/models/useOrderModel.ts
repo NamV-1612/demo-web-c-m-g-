@@ -134,7 +134,8 @@ export default function useOrderModel() {
               notification.error({
                 message: 'Đơn hàng tự động hủy',
                 description: `Đơn #${newOrder.id} đã bị hủy do quá 15 phút không được duyệt.`,
-                placement: 'topRight'
+                placement: 'topRight',
+                className: 'auto-cancel-notification'
               });
             }
           }
@@ -179,8 +180,8 @@ export default function useOrderModel() {
       };
 
       await api.post('/orders', formattedOrder);
-      loadData(); // Tải lại danh sách
-      message.success('Đặt hàng thành công!');
+      loadData(); // load lai list
+      // Xóa message global để nhường chỗ cho hiệu ứng dấu tích ở giao diện
       return true;
     } catch (error: any) {
       message.error(error.response?.data?.message || 'Lỗi đặt hàng');
@@ -188,9 +189,10 @@ export default function useOrderModel() {
     }
   };
 
-  const changeOrderStatus = async (id: string, newStatus: string) => {
+  const changeOrderStatus = async (id: string, newStatus: string, cancelMessage?: string) => {
     try {
-      await api.put(`/orders/${id}/status`, { status: newStatus.toUpperCase() });
+      console.log('--- changing status ---', id, newStatus, cancelMessage);
+      await api.put(`/orders/${id}/status`, { status: newStatus.toUpperCase(), cancelMessage });
       
       if (newStatus.toUpperCase() === 'CANCELLED') {
         const order = orders.find(o => o.id === id);
@@ -201,6 +203,8 @@ export default function useOrderModel() {
         }
       }
       
+      // Update local state temporarily
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus.toUpperCase() as any, cancelMessage } : o));
       message.success('Cập nhật trạng thái thành công');
       loadData();
     } catch (error) {
@@ -218,8 +222,17 @@ export default function useOrderModel() {
     }
   };
 
-  const togglePaymentStatus = (id: string, isPaid: boolean) => {
-    message.warning('Tính năng đang được phát triển!');
+  const togglePaymentStatus = async (id: string, isPaid: boolean) => {
+    try {
+      await api.put(`/orders/${id}/payment`, { isPaid }).catch(() => {
+        // Fallback to general update if /payment endpoint doesn't exist
+        return api.put(`/orders/${id}`, { isPaid });
+      });
+      message.success(`Đã cập nhật trạng thái thanh toán đơn #${id.slice(-4)}`);
+      setOrders(prev => prev.map(o => o.id === id ? { ...o, isPaid } : o));
+    } catch (error) {
+      message.error('Lỗi cập nhật thanh toán');
+    }
   };
 
   const updateOrderInfo = async (id: string, info: { phone: string; address: string }) => {
@@ -232,9 +245,9 @@ export default function useOrderModel() {
     }
   };
 
-  const cancelOrder = async (id: string) => {
+  const cancelOrder = async (id: string, cancelMessage?: string) => {
     try {
-      await changeOrderStatus(id, 'CANCELLED');
+      await changeOrderStatus(id, 'CANCELLED', cancelMessage);
     } catch (error) {}
   };
 

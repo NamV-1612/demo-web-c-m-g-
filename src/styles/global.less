@@ -1395,3 +1395,30 @@ canvas {
     font-weight: 500;
   }
 }
+
+/* Global Animations for Login Pages */
+@keyframes slideInRight {
+  from { opacity: 0; transform: translateX(30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideInLeft {
+  from { opacity: 0; transform: translateX(-30px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+@keyframes slideOutRight {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(30px); }
+}
+@keyframes slideOutLeft {
+  from { opacity: 1; transform: translateX(0); }
+  to { opacity: 0; transform: translateX(-30px); }
+}
+.exit-right {
+  animation: slideOutRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+.exit-left {
+  animation: slideOutLeft 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+}
+
+/* Add to Cart Flying Animation */
+.cart-flyer { position: fixed; z-index: 99999; border-radius: 50%; background-size: cover; background-position: center; pointer-events: none; transition: transform 0.8s cubic-bezier(0.2, 1, 0.3, 1), opacity 0.8s ease-in; box-shadow: 0 10px 20px rgba(0,0,0,0.3); border: 2px solid #fff; }

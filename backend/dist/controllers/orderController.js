@@ -20,12 +20,13 @@ const promoModel_1 = __importDefault(require("../models/promoModel"));
 // @access  Private (Customer)
 const createOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        const { items, customerName, customerPhone, customerAddress, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
+        const { id, items, customerName, customerPhone, customerAddress, totalAmount, note, paymentMethod, pickupTime, promoCode, discountAmount } = req.body;
         if (items && items.length === 0) {
             res.status(400).json({ message: 'Giỏ hàng rỗng' });
             return;
         }
         const order = new orderModel_1.default({
+            _id: id || ('CD_' + Math.floor(1000 + Math.random() * 9000).toString()),
             customerId: req.user._id,
             customerName,
             customerPhone,
@@ -89,7 +90,7 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
-        const { status } = req.body;
+        const { status, cancelMessage } = req.body;
         // Check Role
         if (req.user.role === 'CUSTOMER') {
             if (status !== 'CANCELLED') {
@@ -104,6 +105,9 @@ const updateOrderStatus = (req, res) => __awaiter(void 0, void 0, void 0, functi
         }
         const previousStatus = order.status;
         order.status = status || order.status;
+        if (cancelMessage) {
+            order.cancelMessage = cancelMessage;
+        }
         // Nếu cập nhật thành PREPARING (Đang nấu) thì tự động coi như Đã thanh toán theo yêu cầu
         if (status === 'PREPARING') {
             order.isPaid = true;
@@ -128,7 +132,7 @@ exports.updateOrderStatus = updateOrderStatus;
 // @route   PUT /api/orders/:id
 // @access  Private
 const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _b;
     try {
         const order = yield orderModel_1.default.findById(req.params.id);
         if (!order) {
@@ -138,7 +142,7 @@ const updateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* ()
             if (order.status !== 'PENDING') {
                 return res.status(400).json({ message: 'Chỉ có thể sửa khi đơn đang Chờ xác nhận' });
             }
-            if (((_a = order.customerId) === null || _a === void 0 ? void 0 : _a.toString()) !== req.user._id.toString()) {
+            if (((_b = order.customerId) === null || _b === void 0 ? void 0 : _b.toString()) !== req.user._id.toString()) {
                 return res.status(403).json({ message: 'Không có quyền sửa đơn này' });
             }
         }
@@ -159,14 +163,14 @@ exports.updateOrder = updateOrder;
 // @route   PUT /api/orders/:id/rate
 // @access  Private
 const rateOrder = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _c;
     try {
         const order = yield orderModel_1.default.findById(req.params.id);
         if (!order) {
             return res.status(404).json({ message: 'Không tìm thấy đơn hàng' });
         }
         // Check Role & Status
-        if (((_a = order.customerId) === null || _a === void 0 ? void 0 : _a.toString()) !== req.user._id.toString()) {
+        if (((_c = order.customerId) === null || _c === void 0 ? void 0 : _c.toString()) !== req.user._id.toString()) {
             return res.status(403).json({ message: 'Không có quyền đánh giá đơn này' });
         }
         if (order.status !== 'COMPLETED') {

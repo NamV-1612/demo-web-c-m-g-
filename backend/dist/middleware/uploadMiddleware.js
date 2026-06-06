@@ -9,7 +9,7 @@ const cloudinary_1 = __importDefault(require("../config/cloudinary"));
 const storage = new multer_storage_cloudinary_1.CloudinaryStorage({
     cloudinary: cloudinary_1.default,
     params: {
-        folder: 'chicken_doki', // Tên folder trên Cloudinary
+        folder: 'chicken_doki',
         allowed_formats: ['jpg', 'png', 'jpeg', 'webp'],
     },
 });

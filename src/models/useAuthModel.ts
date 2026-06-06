@@ -66,7 +66,6 @@ export default function useAuthModel() {
 
 			localStorage.setItem('CURRENT_USER', JSON.stringify(data));
 			window.dispatchEvent(new Event('storage'));
-			message.success(`Chào mừng ${data.full_name}`);
 			return true;
 		} catch (error: any) {
 			message.error(error.response?.data?.message || 'Sai thông tin đăng nhập!');
@@ -91,6 +90,7 @@ export default function useAuthModel() {
 					role,
 				});
 				message.success('Đăng ký thành công! Vui lòng đăng nhập lại.');
+				localStorage.setItem('isNewlyRegistered', 'true');
 				return true;
 			} catch (error: any) {
 				message.error(error.response?.data?.message || 'Lỗi đăng ký!');
@@ -108,10 +108,30 @@ export default function useAuthModel() {
 		}
 	}, []);
 
-	const updateAccount = useCallback((phone: string, username: string, newPass: string) => {
-		message.warning('Chức năng đổi mật khẩu đang được nâng cấp!');
-		return false;
-	}, []);
+	const updateAccount = useCallback(async (phone: string, username: string, newPass: string) => {
+		const userStr = localStorage.getItem('CURRENT_USER');
+		if (!userStr) {
+			message.error('Vui lòng đăng nhập để thực hiện chức năng này!');
+			return false;
+		}
+		const user = JSON.parse(userStr);
+		const userId = user._id || user.id;
+
+		if (user.phone !== phone || user.name !== username) {
+			message.error('Số điện thoại hoặc tên đăng nhập không khớp với tài khoản hiện tại!');
+			return false;
+		}
+
+		try {
+			await api.put(`/users/${userId}`, { password: newPass });
+			message.success('Đổi mật khẩu thành công! Vui lòng đăng nhập lại.');
+			logout();
+			return true;
+		} catch (error: any) {
+			message.error(error.response?.data?.message || 'Lỗi cập nhật mật khẩu!');
+			return false;
+		}
+	}, [logout]);
 
 	return { currentUser, login, register, logout, updateAccount };
 }

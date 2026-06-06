@@ -13,6 +13,7 @@ const CustomerLogin: React.FC = () => {
 	const { login, register, logout, currentUser } = useModel('useAuthModel');
 	const [activeTab, setActiveTab] = React.useState('1');
 	const [isForgotModalVisible, setIsForgotModalVisible] = React.useState(false);
+	const [isExiting, setIsExiting] = React.useState(false);
 	const [form] = Form.useForm();
 	const [forgotForm] = Form.useForm();
 
@@ -21,6 +22,13 @@ const CustomerLogin: React.FC = () => {
 			logout();
 		}
 	}, []);
+
+	const handleNavigateInternal = (path: string) => {
+		setIsExiting(true);
+		setTimeout(() => {
+			history.push(path);
+		}, 800);
+	};
 
 	const triggerTransition = () => {
 		sessionStorage.setItem('showLoginTransition', 'true');
@@ -87,7 +95,7 @@ const CustomerLogin: React.FC = () => {
 			<div className='login-split-container'>
 				<div className='login-banner'>
 					<div className='banner-overlay'>
-						<div className="banner-content-wrapper">
+						<div className={`banner-content-wrapper ${isExiting ? 'exit-left' : ''}`}>
 							<div className="banner-carousel">
 								<Carousel autoplay effect="fade" dotPosition="bottom">
 									<div>
@@ -159,7 +167,7 @@ const CustomerLogin: React.FC = () => {
 				</div>
 
 				<div className='login-form-wrapper'>
-					<div className='form-container'>
+					<div className={`form-container ${isExiting ? 'exit-right' : ''}`}>
 						<div className='logo-mobile'>Doki Food</div>
 						<h2>Xin chào!</h2>
 						<p className='subtitle'>Vui lòng đăng nhập hoặc tạo tài khoản để đặt món.</p>
@@ -291,7 +299,7 @@ const CustomerLogin: React.FC = () => {
 									<Button
 										type='dashed'
 										size='large'
-										onClick={() => history.push('/staff/login')}
+										onClick={() => handleNavigateInternal('/staff/login')}
 										style={{ borderRadius: '10px', flex: 1, fontWeight: 600, color: '#666', borderColor: '#DDDDDD' }}
 									>
 										Nhân viên
@@ -299,7 +307,7 @@ const CustomerLogin: React.FC = () => {
 									<Button
 										type='dashed'
 										size='large'
-										onClick={() => history.push('/user/login')}
+										onClick={() => handleNavigateInternal('/user/login')}
 										style={{ borderRadius: '10px', flex: 1, fontWeight: 600, color: '#666', borderColor: '#DDDDDD' }}
 									>
 										Quản trị viên

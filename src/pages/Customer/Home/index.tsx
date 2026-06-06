@@ -249,8 +249,42 @@ const CustomerHome: React.FC = () => {
           visible={true}
           onClose={() => setSelectedProduct(null)}
           onAddToCart={(item) => {
+            const startEl = document.querySelector('.modal-image');
+            let startRect: DOMRect | null = null;
+            if (startEl) {
+              startRect = startEl.getBoundingClientRect();
+            }
+            
             addToCart(item);
             setSelectedProduct(null);
+
+            if (startRect) {
+              setTimeout(() => {
+                const flyer = document.createElement('div');
+                flyer.className = 'cart-flyer';
+                flyer.style.backgroundImage = `url(${item.product.image || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=800&q=80'})`;
+                flyer.style.left = `${startRect!.left}px`;
+                flyer.style.top = `${startRect!.top}px`;
+                flyer.style.width = `${startRect!.width}px`;
+                flyer.style.height = `${startRect!.height}px`;
+                document.body.appendChild(flyer);
+
+                requestAnimationFrame(() => {
+                  requestAnimationFrame(() => {
+                    const targetEl = document.querySelector('.floating-cart .cart-icon-wrapper') || document.querySelector('.floating-cart');
+                    if (targetEl) {
+                      const targetRect = targetEl.getBoundingClientRect();
+                      const tx = targetRect.left + targetRect.width / 2 - (startRect!.left + startRect!.width / 2);
+                      const ty = targetRect.top + targetRect.height / 2 - (startRect!.top + startRect!.height / 2);
+                      
+                      flyer.style.transform = `translate(${tx}px, ${ty}px) scale(0.1) rotate(360deg)`;
+                      flyer.style.opacity = '0.3';
+                    }
+                    setTimeout(() => flyer.remove(), 800);
+                  });
+                });
+              }, 50);
+            }
           }}
         />
       )}

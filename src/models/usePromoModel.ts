@@ -98,6 +98,21 @@ export default function usePromoModel() {
   
   const validateAndApplyPromo = async (code: string, subtotal: number): Promise<{ isValid: boolean, discountAmount: number, message: string, promo?: Promo }> => {
     try {
+      if (code === 'CHICKEN_NEWBIE') {
+        const userStr = localStorage.getItem('CURRENT_USER');
+        if (!userStr) {
+          return { isValid: false, discountAmount: 0, message: 'Vui lòng đăng nhập để sử dụng mã CHICKEN_NEWBIE!' };
+        }
+        try {
+          const res = await api.get('/orders/myorders');
+          if (res.data && res.data.length > 0) {
+            return { isValid: false, discountAmount: 0, message: 'Mã CHICKEN_NEWBIE chỉ dành cho khách hàng mới chưa từng đặt đơn nào!' };
+          }
+        } catch (e) {
+          console.error('Lỗi khi kiểm tra lịch sử đơn hàng:', e);
+        }
+      }
+
       const { data } = await api.post('/promos/verify', { code, orderValue: subtotal });
       const promo: Promo = {
         id: 'temp',

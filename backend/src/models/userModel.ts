@@ -1,11 +1,11 @@
-﻿import mongoose, { Schema, Document } from 'mongoose';
+import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IUser extends Document {
   full_name: string;
   name: string; // username in frontend
   phone: string;
   password?: string;
-  address?: string; // Bá»• sung Ä‘á»‹a chá»‰
+  address?: string; // Bổ sung địa chỉ
   addresses?: Array<{
     id: string;
     name: string;
@@ -24,7 +24,7 @@ const UserSchema: Schema = new Schema(
     name: { type: String, required: true, unique: true },
     phone: { type: String, required: true, unique: true },
     password: { type: String },
-    address: { type: String }, // Bá»• sung Ä‘á»‹a chá»‰
+    address: { type: String }, // Bổ sung địa chỉ
     addresses: [
       {
         id: { type: String, required: true },
@@ -42,6 +42,7 @@ const UserSchema: Schema = new Schema(
   }
 );
 
+// Map _id to id for Frontend compatibility
 UserSchema.set('toJSON', {
   virtuals: true,
   versionKey: false,

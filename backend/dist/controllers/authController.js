@@ -12,7 +12,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.updateProfile = exports.getMe = exports.loginUser = exports.registerUser = void 0;
+exports.deleteAddress = exports.addAddress = exports.updateProfile = exports.getMe = exports.loginUser = exports.registerUser = void 0;
 const userModel_1 = __importDefault(require("../models/userModel"));
 const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -133,6 +133,7 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
             name: updatedUser.name,
             phone: updatedUser.phone,
             address: updatedUser.address,
+            addresses: updatedUser.addresses,
             role: updatedUser.role,
         });
     }
@@ -141,3 +142,78 @@ const updateProfile = (req, res) => __awaiter(void 0, void 0, void 0, function* 
     }
 });
 exports.updateProfile = updateProfile;
+// @desc    Thêm địa chỉ mới vào sổ địa chỉ
+// @route   POST /api/auth/address
+// @access  Private
+const addAddress = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel_1.default.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Không tìm thấy user' });
+        }
+        const { name, phone, address, isDefault } = req.body;
+        const newAddr = {
+            id: 'addr' + Date.now(),
+            name,
+            phone,
+            address,
+            isDefault: isDefault || false
+        };
+        if (!user.addresses) {
+            user.addresses = [];
+        }
+        // Nếu đặt làm mặc định, hủy mặc định của các địa chỉ khác
+        if (newAddr.isDefault) {
+            user.addresses.forEach(a => a.isDefault = false);
+            user.address = newAddr.address; // Cập nhật luôn field address cũ cho tương thích
+        }
+        else if (user.addresses.length === 0) {
+            // Nếu là địa chỉ đầu tiên thì tự làm mặc định
+            newAddr.isDefault = true;
+            user.address = newAddr.address;
+        }
+        user.addresses.push(newAddr);
+        const updatedUser = yield user.save();
+        res.json({
+            id: updatedUser._id,
+            full_name: updatedUser.full_name,
+            name: updatedUser.name,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            addresses: updatedUser.addresses,
+            role: updatedUser.role,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.addAddress = addAddress;
+// @desc    Xóa địa chỉ
+// @route   DELETE /api/auth/address/:addressId
+// @access  Private
+const deleteAddress = (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    try {
+        const user = yield userModel_1.default.findById(req.user.id);
+        if (!user) {
+            return res.status(404).json({ message: 'Không tìm thấy user' });
+        }
+        if (user.addresses) {
+            user.addresses = user.addresses.filter(a => a.id !== req.params.addressId);
+        }
+        const updatedUser = yield user.save();
+        res.json({
+            id: updatedUser._id,
+            full_name: updatedUser.full_name,
+            name: updatedUser.name,
+            phone: updatedUser.phone,
+            address: updatedUser.address,
+            addresses: updatedUser.addresses,
+            role: updatedUser.role,
+        });
+    }
+    catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+});
+exports.deleteAddress = deleteAddress;

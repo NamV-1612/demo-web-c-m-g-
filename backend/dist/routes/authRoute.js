@@ -11,4 +11,6 @@ router.post('/register', authController_1.registerUser);
 router.post('/login', authController_1.loginUser);
 router.get('/me', authMiddleware_1.protect, authController_1.getMe);
 router.put('/profile', authMiddleware_1.protect, authController_1.updateProfile);
+router.post('/address', authMiddleware_1.protect, authController_1.addAddress);
+router.delete('/address/:addressId', authMiddleware_1.protect, authController_1.deleteAddress);
 exports.default = router;
