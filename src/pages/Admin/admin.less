@@ -1,4 +1,4 @@
-﻿.admin-page {
+.admin-page {
   padding: 24px;
   background: #fff;
   border-radius: 8px;
@@ -12,6 +12,11 @@
     
     h2 {
       margin: 0;
+      font-family: 'Dancing Script', cursive;
+      font-size: 32px;
+      font-weight: 700;
+      color: #000;
+      letter-spacing: 1px;
     }
   }
 
@@ -25,5 +30,40 @@
   .amount-highlight {
     color: #f5222d;
     font-weight: bold;
+  }
+
+  /* Custom Table Header - Brand Theme */
+  .ant-table-thead > tr > th {
+    background-color: #D53E0F !important;
+    color: #ffffff !important;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    border-bottom: none !important;
+
+    /* Xóa vạch phân cột */
+    &::before {
+      display: none !important;
+    }
+
+    /* Đổi màu icon sort và filter sang trắng */
+    .ant-table-column-sorter-up.active,
+    .ant-table-column-sorter-down.active {
+      color: #fff;
+    }
+    .ant-table-column-sorter-up,
+    .ant-table-column-sorter-down,
+    .ant-table-filter-trigger {
+      color: rgba(255, 255, 255, 0.6);
+      
+      &:hover {
+        color: #fff;
+      }
+    }
+  }
+
+  /* Hover effect cho column th */
+  .ant-table-thead > tr > th:not(.ant-table-selection-column):hover {
+    background-color: #b5320b !important;
   }
 }

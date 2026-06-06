@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Form, message } from 'antd';
+import { Table, Button, Space, Tag, Form, message, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import '../admin.less';
@@ -13,7 +13,7 @@ const PromoManagement: React.FC = () => {
 
   const handleAdd = () => {
     form.resetFields();
-    form.setFieldsValue({ isActive: true, discountType: 'PERCENT' });
+    form.setFieldsValue({ isActive: true, discountType: 'PERCENT', isUnlimited: false });
     setIsModalVisible(true);
   };
 
@@ -23,7 +23,7 @@ const PromoManagement: React.FC = () => {
       discountType: values.discountType,
       discountValue: values.discountValue,
       maxDiscountAmount: values.discountType === 'PERCENT' ? values.maxDiscountAmount : undefined,
-      quantity: values.quantity,
+      quantity: values.isUnlimited ? 999999 : values.quantity,
       isActive: values.isActive !== false,
     };
 
@@ -59,7 +59,8 @@ const PromoManagement: React.FC = () => {
       title: 'Mã Khuyến Mãi', 
       dataIndex: 'code', 
       key: 'code', 
-      render: (text: string) => <Tag color="blue" style={{ fontSize: '14px', padding: '4px 8px' }}>{text}</Tag>,
+      align: 'center',
+      render: (text: string) => <Tag style={{ fontWeight: 600, padding: '4px 12px', borderRadius: 8, fontSize: 13, border: '1px dashed #D53E0F', color: '#D53E0F', background: '#fff2e8' }}>{text}</Tag>,
       sorter: (a: any, b: any) => a.code.localeCompare(b.code) 
     },
     { 
@@ -83,40 +84,59 @@ const PromoManagement: React.FC = () => {
     { 
       title: 'Số lượng còn', 
       dataIndex: 'quantity', 
-      render: (qty: number) => <span style={{ fontWeight: 'bold' }}>{qty}</span>, 
+      render: (qty: number) => {
+        if (qty >= 900000) return <span style={{ fontWeight: 'bold', fontSize: 18, color: '#52c41a' }}>∞</span>;
+        return <span style={{ fontWeight: 'bold' }}>{qty}</span>;
+      }, 
       sorter: (a: any, b: any) => a.quantity - b.quantity 
     },
     { 
       title: 'Trạng thái', 
       dataIndex: 'isActive', 
+      align: 'center',
       render: (isActive: boolean) => (
-        <Tag color={isActive ? 'green' : 'red'}>
+        <Tag style={{ 
+          fontWeight: 600, padding: '2px 10px', borderRadius: 12, fontSize: 12, border: '1px solid',
+          ...(isActive 
+            ? { color: '#389e0d', background: '#f6ffed', borderColor: '#b7eb8f' }
+            : { color: '#cf1322', background: '#fff1f0', borderColor: '#ffa39e' })
+        }}>
           {isActive ? 'Đang hoạt động' : 'Đã tắt'}
         </Tag>
       ) 
     },
     {
       title: 'Hành động',
+      align: 'center',
       render: (_: any, record: any) => (
         <Space>
           <Button 
             icon={<EditOutlined />} 
             onClick={() => { 
-              form.setFieldsValue({ ...record }); 
+              form.setFieldsValue({ ...record, isUnlimited: record.quantity >= 900000 }); 
               setIsModalVisible(true); 
             }} 
           />
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+          <Popconfirm
+            title="Xác nhận xóa"
+            description="Bạn có chắc chắn muốn xóa mã khuyến mãi này không?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Button danger icon={<DeleteOutlined />} />
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
   return (
-    <div className="admin-page" style={{ padding: 24 }}>
+    <div className="admin-page" style={{ padding: 24, fontFamily: "'Inter', 'Roboto', sans-serif" }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Quản lý Mã Khuyến Mãi</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#D53E0F', borderColor: '#D53E0F' }}>
           Thêm mã khuyến mãi
         </Button>
       </div>

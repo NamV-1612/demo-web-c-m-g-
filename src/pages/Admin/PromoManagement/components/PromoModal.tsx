@@ -1,5 +1,5 @@
 import React from 'react';
-import { Modal, Form, Input, InputNumber, Switch, Select } from 'antd';
+import { Modal, Form, Input, InputNumber, Switch, Select, Checkbox } from 'antd';
 import { FormInstance } from 'antd/es/form';
 
 interface PromoModalProps {
@@ -11,6 +11,7 @@ interface PromoModalProps {
 
 const PromoModal: React.FC<PromoModalProps> = ({ visible, onCancel, onSave, form }) => {
   const discountType = Form.useWatch('discountType', form);
+  const isUnlimited = Form.useWatch('isUnlimited', form);
 
   return (
     <Modal 
@@ -20,7 +21,7 @@ const PromoModal: React.FC<PromoModalProps> = ({ visible, onCancel, onSave, form
       onOk={() => form.submit()}
       okText="Lưu"
       cancelText="Hủy"
-      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+      okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F' } }}
     >
       <Form form={form} layout="vertical" onFinish={onSave}>
         <Form.Item name="id" hidden><Input /></Form.Item>
@@ -60,9 +61,15 @@ const PromoModal: React.FC<PromoModalProps> = ({ visible, onCancel, onSave, form
           </Form.Item>
         )}
 
-        <Form.Item name="quantity" label="Số lượng mã" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
-          <InputNumber style={{ width: '100%' }} min={0} />
+        <Form.Item name="isUnlimited" valuePropName="checked" style={{ marginBottom: 8 }}>
+          <Checkbox>Không giới hạn số lượng</Checkbox>
         </Form.Item>
+
+        {!isUnlimited && (
+          <Form.Item name="quantity" label="Số lượng mã" rules={[{ required: true, message: 'Vui lòng nhập số lượng!' }]}>
+            <InputNumber style={{ width: '100%' }} min={0} />
+          </Form.Item>
+        )}
 
         <Form.Item name="isActive" label="Trạng thái kích hoạt" valuePropName="checked">
           <Switch />

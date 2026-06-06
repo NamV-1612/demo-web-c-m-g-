@@ -20,7 +20,7 @@ const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, 
       onOk={() => form.submit()}
       okText={isEdit ? "Lưu thay đổi" : "Tạo tài khoản"}
       cancelText="Hủy"
-      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' }, loading: loading }}
+      okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F' }, loading: loading }}
     >
       <Form form={form} layout="vertical" onFinish={onSave}>
         <Form.Item 
@@ -32,13 +32,13 @@ const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, 
         </Form.Item>
         <Form.Item 
           name="phone" 
-          label="Tên đăng nhập (Số điện thoại)" 
+          label="Số điện thoại đăng nhập" 
           rules={[
             { required: true, message: 'Vui lòng nhập số điện thoại!' },
-            { pattern: /^[0-9A-Za-z]+$/, message: 'Chỉ chứa số hoặc chữ viết liền không dấu!' }
+            { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ (VD: 0912345678)!' }
           ]}
         >
-          <Input placeholder="VD: 0912345678 hoặc STAFF2" disabled={isEdit} />
+          <Input placeholder="VD: 0912345678" disabled={isEdit} />
         </Form.Item>
         <Form.Item 
           name="password" 

@@ -20,7 +20,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ visible, onCancel, onSave, 
       onOk={() => form.submit()}
       okText="Lưu"
       cancelText="Hủy"
-      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+      okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F' } }}
     >
       <Form form={form} layout="vertical" onFinish={onSave}>
         <Form.Item name="id" hidden><Input /></Form.Item>
@@ -31,7 +31,7 @@ const ProductModal: React.FC<ProductModalProps> = ({ visible, onCancel, onSave, 
           <Upload 
             beforeUpload={(file) => {
               setSelectedFile(file);
-              return false; // Ngăn không cho upload tự động
+              return false; // chan auto upload
             }}
             maxCount={1}
             onRemove={() => setSelectedFile(null)}

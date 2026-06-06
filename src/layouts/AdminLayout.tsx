@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Layout, Menu, Avatar, Dropdown, Space } from 'antd';
 import {
   PieChartOutlined,
@@ -22,6 +22,26 @@ const AdminLayout: React.FC = ({ children }) => {
   const { currentUser, logout } = useModel('useAuthModel');
   const [collapsed, setCollapsed] = useState(false);
   const [isAccountModalVisible, setIsAccountModalVisible] = useState(false);
+  const wrapperRef = useRef<HTMLDivElement>(null);
+  const [bgStyle, setBgStyle] = useState({ top: 20, height: 40, opacity: 0 });
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (wrapperRef.current) {
+        const selectedEl = wrapperRef.current.querySelector('.ant-menu-item-selected') as HTMLElement;
+        if (selectedEl) {
+          const wrapperRect = wrapperRef.current.getBoundingClientRect();
+          const selectedRect = selectedEl.getBoundingClientRect();
+          setBgStyle({
+            top: selectedRect.top - wrapperRect.top,
+            height: selectedRect.height,
+            opacity: 1
+          });
+        }
+      }
+    }, 100);
+    return () => clearTimeout(timer);
+  }, [history.location.pathname, collapsed]);
 
   const handleMenuClick = ({ key }: { key: string }) => {
     history.push(key);
@@ -54,42 +74,61 @@ const AdminLayout: React.FC = ({ children }) => {
         width={250}
       >
         <div className="admin-logo">
-          <span className="logo-icon">🍗</span>
+          <span className="logo-icon" style={{ display: 'none' }}></span>
           {!collapsed && <span className="logo-text">Doki Admin</span>}
         </div>
-        <Menu
-          mode="inline"
-          selectedKeys={[history.location.pathname]}
-          onClick={handleMenuClick}
-          className="admin-menu"
-          items={[
-            {
-              key: '/admin/dashboard',
-              icon: <PieChartOutlined />,
-              label: 'Tổng quan',
-            },
-            {
-              key: '/admin/menu',
-              icon: <AppstoreOutlined />,
-              label: 'Quản lý Thực đơn',
-            },
-            {
-              key: '/admin/orders',
-              icon: <ContainerOutlined />,
-              label: 'Quản lý Đơn hàng',
-            },
-            {
-              key: '/admin/promos',
-              icon: <GiftOutlined />,
-              label: 'Quản lý Mã Khuyến Mãi',
-            },
-            {
-              key: '/admin/users',
-              icon: <ContactsOutlined />,
-              label: 'Quản lý Người dùng',
-            },
-          ]}
-        />
+        <div style={{ position: 'relative' }} ref={wrapperRef}>
+          <div 
+            className="sliding-bg" 
+            style={{
+              position: 'absolute',
+              left: 8,
+              right: 8,
+              height: bgStyle.height,
+              backgroundColor: '#ffffff',
+              borderRadius: 8,
+              top: bgStyle.top,
+              opacity: bgStyle.opacity,
+              transition: 'top 0.3s cubic-bezier(0.645, 0.045, 0.355, 1), height 0.3s ease, opacity 0.3s ease',
+              zIndex: 0,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+          />
+          <Menu
+            mode="inline"
+            selectedKeys={[history.location.pathname]}
+            onClick={handleMenuClick}
+            className="admin-menu"
+            style={{ position: 'relative', zIndex: 1 }}
+            items={[
+              {
+                key: '/admin/dashboard',
+                icon: <PieChartOutlined />,
+                label: 'Tổng quan',
+              },
+              {
+                key: '/admin/menu',
+                icon: <AppstoreOutlined />,
+                label: 'Quản lý Thực đơn',
+              },
+              {
+                key: '/admin/orders',
+                icon: <ContainerOutlined />,
+                label: 'Quản lý Đơn hàng',
+              },
+              {
+                key: '/admin/promos',
+                icon: <GiftOutlined />,
+                label: 'Quản lý Mã Khuyến Mãi',
+              },
+              {
+                key: '/admin/users',
+                icon: <ContactsOutlined />,
+                label: 'Quản lý Người dùng',
+              },
+            ]}
+          />
+        </div>
       </Sider>
       
       <Layout className="site-layout">
@@ -104,7 +143,7 @@ const AdminLayout: React.FC = ({ children }) => {
           <div className="header-right">
             <Dropdown overlay={userMenu} placement="bottomRight">
               <span className="user-dropdown-link" style={{ cursor: 'pointer' }}>
-                <Avatar style={{ backgroundColor: '#BA1A21' }} icon={<UserOutlined />} />
+                <Avatar style={{ backgroundColor: '#D53E0F' }} icon={<UserOutlined />} />
                 <span className="user-name" style={{ marginLeft: 8 }}>{currentUser?.full_name || 'Quản trị viên'}</span>
               </span>
             </Dropdown>

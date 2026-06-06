@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Table, Tag, Button, Space, message, Popconfirm, Form, Input } from 'antd';
-import { StopOutlined, SafetyOutlined, PlusOutlined } from '@ant-design/icons';
+import { Table, Tag, Button, Space, message, Popconfirm, Form, Input, Tooltip } from 'antd';
+import { StopOutlined, SafetyOutlined, PlusOutlined, SearchOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { getUsers, createStaff, toggleUserStatus, updateUser, deleteUser } from '@/services/auth';
 import { User } from '@/services/typing';
 import '../admin.less';
@@ -23,7 +23,7 @@ const UserManagement: React.FC = () => {
 
   useEffect(() => {
     loadUsers();
-    // Bỏ event listener storage vì giờ gọi API thật
+    // doi sang call api that roi
   }, []);
 
   const toggleBan = async (id: string, isBanned: boolean) => {
@@ -37,7 +37,7 @@ const UserManagement: React.FC = () => {
     const res = await toggleUserStatus(id, isBanned);
     if (res.success) {
       message.success(isBanned ? `Đã khóa tài khoản!` : `Đã mở khóa tài khoản!`);
-      loadUsers(); // Refresh từ server
+      loadUsers(); // load lai api
     } else {
       message.error(res.message);
       setLoading(false);
@@ -71,7 +71,7 @@ const UserManagement: React.FC = () => {
       setIsModalVisible(false);
       setEditingUserId(null);
       form.resetFields();
-      loadUsers(); // Tải lại danh sách
+      loadUsers(); // load lai list
     } else {
       message.error(res.message);
       setLoading(false);
@@ -95,7 +95,7 @@ const UserManagement: React.FC = () => {
     form.setFieldsValue({
       name: user.full_name || user.name,
       phone: user.phone,
-      password: '' // Không hiện password cũ
+      password: '' // ko hien pass cu
     });
     setIsModalVisible(true);
   };
@@ -130,11 +130,23 @@ const UserManagement: React.FC = () => {
     { 
       title: 'Vai trò', 
       dataIndex: 'role', 
+      align: 'center',
       render: (role: string) => {
         const r = role?.toUpperCase();
-        const color = r === 'ADMIN' ? 'purple' : r === 'STAFF' ? 'blue' : 'orange';
-        const label = r === 'ADMIN' ? 'Quản trị viên' : r === 'STAFF' ? 'Nhân viên bếp' : 'Khách hàng';
-        return <Tag color={color}>{label}</Tag>;
+        const isAdmin = r === 'ADMIN';
+        const isStaff = r === 'STAFF';
+        
+        let customStyle: React.CSSProperties = { borderRadius: '12px', padding: '2px 12px', fontWeight: 600, fontSize: '13px', border: '1px solid' };
+        if (isAdmin) {
+          customStyle = { ...customStyle, background: '#f9f0ff', color: '#531dab', borderColor: '#d3adf7' }; // tim
+        } else if (isStaff) {
+          customStyle = { ...customStyle, background: '#e6f7ff', color: '#0958d9', borderColor: '#91caff' }; // xanh
+        } else {
+          customStyle = { ...customStyle, background: '#fff2e8', color: '#D53E0F', borderColor: '#ffbb96' }; // cam
+        }
+
+        const label = isAdmin ? 'Quản trị viên' : isStaff ? 'Nhân viên bếp' : 'Khách hàng';
+        return <Tag style={customStyle}>{label}</Tag>;
       },
       filters: [
         { text: 'Quản trị viên', value: 'ADMIN' },
@@ -146,6 +158,7 @@ const UserManagement: React.FC = () => {
     { 
       title: 'Trạng thái', 
       dataIndex: 'status', 
+      align: 'center',
       render: (status: string) => {
         const s = status?.toUpperCase() || 'ACTIVE';
         const color = s === 'ACTIVE' ? 'green' : 'red';
@@ -160,13 +173,18 @@ const UserManagement: React.FC = () => {
     },
     {
       title: 'Hành động',
+      align: 'center',
       render: (_: any, record: User) => {
         const r = record.role?.toUpperCase();
         const s = record.status?.toUpperCase() || 'ACTIVE';
-        if (r === 'ADMIN') return null; // No actions for Admin
+        if (r === 'ADMIN') return null; // admin thi ko lam gi
         return (
-          <Space>
-            <Button size="small" onClick={() => handleEditUser(record)}>Sửa</Button>
+          <Space size="small">
+            {r === 'STAFF' && (
+              <Tooltip title="Sửa nhân viên">
+                <Button type="text" icon={<EditOutlined style={{ color: '#262626', fontSize: 16 }} />} onClick={() => handleEditUser(record)} />
+              </Tooltip>
+            )}
             {s === 'ACTIVE' ? (
               <Popconfirm 
                 title={`Bạn có chắc muốn KHÓA tài khoản của ${record.name}?`} 
@@ -175,18 +193,19 @@ const UserManagement: React.FC = () => {
                 cancelText="Hủy"
                 okButtonProps={{ danger: true }}
               >
-                <Button danger icon={<StopOutlined />} size="small">Khóa</Button>
+                <Tooltip title="Khóa tài khoản">
+                  <Button type="primary" shape="circle" icon={<StopOutlined style={{ fontSize: 16, color: '#fff' }} />} style={{ background: '#262626', borderColor: '#262626' }} />
+                </Tooltip>
               </Popconfirm>
             ) : (
-              <Button 
-                type="primary" 
-                icon={<SafetyOutlined />} 
-                size="small" 
-                style={{ background: '#52c41a', borderColor: '#52c41a' }} 
-                onClick={() => toggleBan(record.id!, false)}
-              >
-                Mở khóa
-              </Button>
+              <Tooltip title="Mở khóa tài khoản">
+                <Button 
+                  type="text" 
+                  icon={<SafetyOutlined style={{ fontSize: 16 }} />} 
+                  style={{ color: '#52c41a' }} 
+                  onClick={() => toggleBan(record.id!, false)}
+                />
+              </Tooltip>
             )}
             <Popconfirm 
               title={`Bạn có chắc muốn XÓA VĨNH VIỄN tài khoản này?`} 
@@ -195,7 +214,9 @@ const UserManagement: React.FC = () => {
               cancelText="Hủy"
               okButtonProps={{ danger: true }}
             >
-              <Button danger size="small">Xóa</Button>
+              <Tooltip title="Xóa tài khoản">
+                <Button type="text" danger icon={<DeleteOutlined style={{ fontSize: 16 }} />} />
+              </Tooltip>
             </Popconfirm>
           </Space>
         );
@@ -208,18 +229,25 @@ const UserManagement: React.FC = () => {
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Quản lý Người dùng & Nhân sự</h2>
         <Space>
-          <Input.Search 
+          <Input 
             placeholder="Tìm theo Tên, Username hoặc SĐT..." 
             allowClear 
-            onSearch={setSearchText} 
             onChange={(e: any) => setSearchText(e.target.value)}
-            style={{ width: 300 }} 
+            prefix={<SearchOutlined style={{ color: '#bfbfbf', fontSize: 16, marginRight: 6 }} />}
+            style={{ 
+              width: 320, 
+              borderRadius: 24, 
+              padding: '6px 20px',
+              border: '1px solid #d9d9d9',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              fontSize: 14
+            }} 
           />
           <Button 
             type="primary" 
             icon={<PlusOutlined />} 
             onClick={() => { setEditingUserId(null); form.resetFields(); setIsModalVisible(true); }}
-            style={{ background: '#BA1A21', borderColor: '#BA1A21' }}
+            style={{ background: '#D53E0F', borderColor: '#D53E0F' }}
           >
             Cấp tài khoản Nhân viên (Staff)
           </Button>

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Table, Button, Space, Tag, Form, Switch, message } from 'antd';
+import { Table, Button, Space, Tag, Form, Switch, message, Popconfirm } from 'antd';
 import { PlusOutlined, EditOutlined, DeleteOutlined } from '@ant-design/icons';
 import { useModel } from 'umi';
 import '../admin.less';
@@ -63,7 +63,7 @@ const MenuManagement: React.FC = () => {
       ) 
     },
     { title: 'Tên món', dataIndex: 'name', key: 'name', sorter: (a: any, b: any) => a.name.localeCompare(b.name) },
-    { title: 'Danh mục', dataIndex: 'category', key: 'category', filters: [
+    { title: 'Danh mục', dataIndex: 'category', key: 'category', align: 'center', filters: [
       { text: 'Cơm rang', value: 'Cơm rang' },
       { text: 'Món ăn kèm', value: 'Món ăn kèm' },
       { text: 'Đồ uống', value: 'Đồ uống' },
@@ -72,14 +72,21 @@ const MenuManagement: React.FC = () => {
     { 
       title: 'Trạng thái', 
       dataIndex: 'isAvailable', 
+      align: 'center',
       render: (isAvail: boolean) => (
-        <Tag color={isAvail !== false ? 'green' : 'red'}>
+        <Tag style={{ 
+          fontWeight: 600, padding: '2px 10px', borderRadius: 12, fontSize: 12, border: '1px solid',
+          ...(isAvail !== false 
+            ? { color: '#389e0d', background: '#f6ffed', borderColor: '#b7eb8f' }
+            : { color: '#cf1322', background: '#fff1f0', borderColor: '#ffa39e' })
+        }}>
           {isAvail !== false ? 'Đang bán' : 'Tạm ẩn'}
         </Tag>
       ) 
     },
     {
       title: 'Hành động',
+      align: 'center',
       render: (_: any, record: any) => (
         <Space>
           <Button 
@@ -93,17 +100,26 @@ const MenuManagement: React.FC = () => {
               setIsModalVisible(true); 
             }} 
           />
-          <Button danger icon={<DeleteOutlined />} onClick={() => handleDelete(record.id)} />
+          <Popconfirm
+            title="Xác nhận xóa"
+            description="Bạn có chắc chắn muốn xóa món này không?"
+            onConfirm={() => handleDelete(record.id)}
+            okText="Xóa"
+            cancelText="Hủy"
+            okButtonProps={{ danger: true }}
+          >
+            <Button danger icon={<DeleteOutlined />} />
+          </Popconfirm>
         </Space>
       ),
     },
   ];
 
   return (
-    <div className="admin-page" style={{ padding: 24 }}>
+    <div className="admin-page" style={{ padding: 24, fontFamily: "'Inter', 'Roboto', sans-serif" }}>
       <div className="header-actions" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
         <h2 style={{ margin: 0 }}>Quản lý Thực đơn</h2>
-        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+        <Button type="primary" icon={<PlusOutlined />} onClick={handleAdd} style={{ background: '#D53E0F', borderColor: '#D53E0F' }}>
           Thêm món ăn
         </Button>
       </div>
