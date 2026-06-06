@@ -1,4 +1,4 @@
-﻿.modal-image {
+.modal-image {
   width: 100%;
   height: 180px;
   object-fit: cover;
@@ -30,6 +30,39 @@
 }
 
 .add-btn {
-  background: #BA1A21;
-  border-color: #BA1A21;
+  background: #D53E0F;
+  border-color: #D53E0F;
+}
+
+.modal-flex-container {
+  display: flex;
+  gap: 24px;
+  
+  @media (max-width: 576px) {
+    flex-direction: column;
+  }
+}
+
+.modal-left-col {
+  flex: 1 1 50%;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  
+  @media (max-width: 576px) {
+    max-width: 100%;
+  }
+}
+
+.modal-right-col {
+  flex: 1 1 50%;
+  max-width: 50%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  
+  @media (max-width: 576px) {
+    max-width: 100%;
+  }
 }

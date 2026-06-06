@@ -18,8 +18,8 @@
 
       &:hover,
       &:focus {
-        border-color: #BA1A21 !important;
-        box-shadow: 0 0 0 2px rgba(186, 26, 33, 0.1) !important;
+        border-color: #D53E0F !important;
+        box-shadow: 0 0 0 2px rgba(213, 62, 15, 0.1) !important;
       }
     }
 
@@ -38,7 +38,7 @@
       .ant-select-item {
         border-radius: 8px;
         margin-bottom: 4px;
-        padding: 12px 16px;
+        padding: 10px 16px;
         font-size: 15px;
         color: #595959;
         transition: all 0.2s ease;
@@ -49,15 +49,15 @@
 
         &:hover,
         &.ant-select-item-option-active:not(.ant-select-item-option-disabled) {
-          background-color: #fff2e8 !important;
-          color: #BA1A21;
+          background-color: rgba(213, 62, 15, 0.08) !important;
+          color: #D53E0F !important;
         }
       }
 
       .ant-select-item-option-selected:not(.ant-select-item-option-disabled) {
-        background-color: #fff7e6 !important;
-        color: #BA1A21 !important;
-        font-weight: 700;
+        background-color: #D53E0F !important;
+        color: #ffffff !important;
+        font-weight: 600;
       }
     }
 
@@ -71,7 +71,7 @@
       .ant-picker-time-panel-column {
         > li.ant-picker-time-panel-cell-selected .ant-picker-time-panel-cell-inner {
           background: #fff2e8;
-          color: #BA1A21;
+          color: #D53E0F;
           font-weight: bold;
         }
         > li .ant-picker-time-panel-cell-inner {
@@ -80,7 +80,7 @@
           transition: all 0.2s;
           &:hover {
             background: #fafafa;
-            color: #BA1A21;
+            color: #D53E0F;
           }
         }
       }
@@ -130,7 +130,7 @@
     }
 
     .item-price {
-      color: #BA1A21;
+      color: #D53E0F;
       font-size: 16px;
       font-weight: bold;
     }
@@ -142,12 +142,12 @@
     }
 
     .ant-btn-text.ant-btn-dangerous {
-      color: #BA1A21;
+      color: #D53E0F;
       transition: all 0.3s;
       
       &:hover {
-        color: #8E1419;
-        background-color: rgba(186, 26, 33, 0.08);
+        color: #D53E0F;
+        background-color: rgba(213, 62, 15, 0.08);
       }
     }
   }
@@ -176,12 +176,12 @@
       transition: all 0.3s;
 
       &:hover {
-        border-color: #BA1A21;
+        border-color: #D53E0F;
         background: #fff7e6;
       }
 
       &.ant-radio-wrapper-checked {
-        border-color: #BA1A21;
+        border-color: #D53E0F;
         background: #fff7e6;
       }
     }
@@ -218,7 +218,7 @@
 
           .total-price {
             font-size: 24px;
-            color: #BA1A21;
+            color: #D53E0F;
           }
         }
       }
@@ -229,13 +229,13 @@
       height: 50px;
       font-size: 16px;
       border-radius: 8px;
-      background: #BA1A21;
-      border-color: #BA1A21;
-      box-shadow: 0 4px 15px rgba(186, 26, 33, 0.4);
+      background: #D53E0F;
+      border-color: #D53E0F;
+      box-shadow: 0 4px 15px rgba(213, 62, 15, 0.4);
 
       &:hover {
-        background: #8E1419;
-        border-color: #8E1419;
+        background: #D53E0F;
+        border-color: #D53E0F;
       }
     }
   }
@@ -253,15 +253,15 @@
     }
 
     .ant-segmented-item-selected {
-      background-color: #BA1A21 !important;
+      background-color: #D53E0F !important;
       color: white !important;
       font-weight: 600 !important;
-      box-shadow: 0 4px 12px rgba(186, 26, 33, 0.3) !important;
+      box-shadow: 0 4px 12px rgba(213, 62, 15, 0.3) !important;
       transform: scale(1.02);
     }
 
     .ant-segmented-thumb {
-      background-color: #BA1A21 !important;
+      background-color: #D53E0F !important;
       border-radius: 8px !important;
     }
   }
@@ -272,13 +272,13 @@
     .ant-btn {
       border-top-right-radius: 8px !important;
       border-bottom-right-radius: 8px !important;
-      background-color: #BA1A21 !important;
-      border-color: #BA1A21 !important;
+      background-color: #D53E0F !important;
+      border-color: #D53E0F !important;
       color: white !important;
 
       &:hover {
-        background-color: #8E1419 !important;
-        border-color: #8E1419 !important;
+        background-color: #D53E0F !important;
+        border-color: #D53E0F !important;
       }
     }
   }
@@ -286,5 +286,37 @@
   .ant-input {
     border-top-left-radius: 8px !important;
     border-bottom-left-radius: 8px !important;
+  }
+}
+
+.success-checkmark-svg {
+  width: 80px;
+  height: 80px;
+  overflow: visible; /* Cho phép nét vẽ tràn ra ngoài viewBox mà không bị cắt */
+  
+  .checkmark-circle {
+    stroke-dasharray: 166;
+    stroke-dashoffset: 166;
+    stroke-width: 6; /* Nét vẽ đậm hơn */
+    stroke-miterlimit: 10;
+    stroke: #52c41a;
+    fill: none;
+    animation: strokeCheck 0.4s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+  }
+  
+  .checkmark-check {
+    transform-origin: 50% 50%;
+    stroke-dasharray: 48;
+    stroke-dashoffset: 48;
+    stroke-width: 7; /* Nét vẽ đậm hơn */
+    stroke: #52c41a;
+    fill: none;
+    animation: strokeCheck 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.4s forwards;
+  }
+}
+
+@keyframes strokeCheck {
+  100% {
+    stroke-dashoffset: 0;
   }
 }

@@ -52,11 +52,11 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
       width={700}
       zIndex={1001}
       bodyStyle={{ padding: 0 }}
-      okButtonProps={{ style: { background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
+      okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F', borderRadius: '8px', color: 'white', fontWeight: 'bold' } }}
       cancelButtonProps={{ style: { borderRadius: '8px' } }}
     >
-      <div style={{ position: 'relative', width: '100%', height: '450px', overflow: 'hidden' }}>
-        <div style={{ position: 'absolute', top: 16, left: '50%', transform: 'translateX(-50%)', width: '90%', maxWidth: '500px', zIndex: 10 }}>
+      <div>
+        <div style={{ padding: '16px 24px', background: '#fff', borderBottom: '1px solid #f0f0f0' }}>
           <AutoComplete
             options={mapOptions}
             style={{ width: '100%' }}
@@ -77,7 +77,7 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
               placeholder="Nhập địa chỉ bạn muốn tìm..." 
               enterButton="Tìm"
               size="large"
-              style={{ boxShadow: '0 2px 6px rgba(0,0,0,0.3)', borderRadius: 8 }}
+              style={{ borderRadius: 8 }}
               onSearch={(value) => {
                 const newSearch = value.trim() || 'Hồ Hoàn Kiếm, Hà Nội';
                 setSubmittedSearchText(newSearch);
@@ -85,15 +85,17 @@ const CartMapModal: React.FC<CartMapModalProps> = ({ visible, onCancel, onConfir
             />
           </AutoComplete>
         </div>
-        <iframe 
-          src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
-          width="100%" 
-          height="100%" 
-          style={{ border: 0 }} 
-          allowFullScreen 
-          loading="lazy"
-          title="Map"
-        ></iframe>
+        <div style={{ width: '100%', height: '400px', background: '#e6e6e6', position: 'relative' }}>
+          <iframe 
+            src={`https://maps.google.com/maps?q=${encodeURIComponent(submittedSearchText)}&t=&z=16&ie=UTF8&iwloc=&output=embed`}
+            width="100%" 
+            height="100%" 
+            style={{ border: 0 }} 
+            allowFullScreen 
+            loading="lazy"
+            title="Map"
+          ></iframe>
+        </div>
       </div>
     </Modal>
   );

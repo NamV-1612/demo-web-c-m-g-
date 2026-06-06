@@ -30,7 +30,7 @@ const RatingModal: React.FC<RatingModalProps> = ({ visible, orderId, onCancel, o
       onCancel={onCancel}
       okText="Gửi đánh giá"
       cancelText="Hủy"
-      okButtonProps={{ disabled: stars === 0, style: { background: '#BA1A21', borderColor: '#BA1A21' } }}
+      okButtonProps={{ disabled: stars === 0, style: { background: '#D53E0F', borderColor: '#D53E0F' } }}
     >
       <div style={{ textAlign: 'center', margin: '20px 0' }}>
         <p style={{ fontWeight: 'bold' }}>Đơn hàng: {orderId}</p>

@@ -26,7 +26,7 @@ const CustomerProfile: React.FC = () => {
       const users = JSON.parse(rawUsers);
       const index = users.findIndex((u: any) => u.phone === currentUser.phone);
       if (index > -1) {
-        // Kiểm tra mật khẩu cũ nếu người dùng muốn đổi mật khẩu mới
+        // check pass cu neu muon doi
         if (values.password) {
           if (values.oldPassword !== currentUser.password) {
             message.error('Mật khẩu cũ không chính xác!');
@@ -39,7 +39,7 @@ const CustomerProfile: React.FC = () => {
         users[index].name = values.name;
         localStorage.setItem('users', JSON.stringify(users));
         
-        // Cập nhật CURRENT_USER
+        // update user hien tai
         const updatedUser = { ...currentUser, full_name: values.name, name: values.name };
         if (values.password) {
           updatedUser.password = values.password;
@@ -48,7 +48,7 @@ const CustomerProfile: React.FC = () => {
         window.dispatchEvent(new Event('storage'));
         
         message.success('Cập nhật thông tin thành công!');
-        // Xóa trường mật khẩu sau khi lưu thành công
+        // xoa input pass sau khi luu
         form.setFieldsValue({ oldPassword: '', password: '' });
       } else {
         message.error('Không tìm thấy tài khoản để cập nhật!');

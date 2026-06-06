@@ -46,7 +46,7 @@ const PayQRPage: React.FC = () => {
             title="Thanh toán thành công!"
             subTitle="Hệ thống đã ghi nhận thanh toán. Bạn có thể xem trạng thái trên màn hình web chính."
             extra={[
-              <Button type="primary" key="home" onClick={() => history.push('/customer/home')} style={{ background: '#BA1A21', borderColor: '#BA1A21' }}>
+              <Button type="primary" key="home" onClick={() => history.push('/customer/home')} style={{ background: '#D53E0F', borderColor: '#D53E0F' }}>
                 Quay lại Trang chủ
               </Button>,
             ]}
@@ -60,9 +60,9 @@ const PayQRPage: React.FC = () => {
     <div style={{ padding: 24, display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh', background: '#f5f5f5' }}>
       <Card style={{ width: '100%', maxWidth: 400, borderRadius: 16, boxShadow: '0 4px 12px rgba(0,0,0,0.05)' }}>
         <div style={{ textAlign: 'center', marginBottom: 24 }}>
-          <WalletOutlined style={{ fontSize: 64, color: '#BA1A21', marginBottom: 16 }} />
-          <Title level={3} style={{ margin: 0, color: '#BA1A21' }}>Xác nhận Thanh toán</Title>
-          <Text type="secondary">Ứng dụng Chicken Doki (Demo)</Text>
+          <WalletOutlined style={{ fontSize: 64, color: '#D53E0F', marginBottom: 16 }} />
+          <Title level={3} style={{ margin: 0, color: '#D53E0F' }}>Xác nhận Thanh toán</Title>
+          <Text type="secondary">Ứng dụng Doki Food (Demo)</Text>
         </div>
 
         <div style={{ background: '#fffbe6', padding: 16, borderRadius: 8, border: '1px solid #ffe58f', marginBottom: 24, textAlign: 'center' }}>
@@ -80,7 +80,7 @@ const PayQRPage: React.FC = () => {
           icon={<CheckCircleOutlined />} 
           loading={loading}
           onClick={handleConfirmPayment}
-          style={{ background: '#BA1A21', borderColor: '#BA1A21', height: 50, borderRadius: 8, fontSize: 16, fontWeight: 'bold' }}
+          style={{ background: '#D53E0F', borderColor: '#D53E0F', height: 50, borderRadius: 8, fontSize: 16, fontWeight: 'bold' }}
         >
           Tôi đã chuyển khoản thành công
         </Button>

@@ -102,7 +102,7 @@ const MapModal: React.FC<MapModalProps> = ({ visible, onCancel, onConfirm }) => 
         <Button 
           type="primary" 
           onClick={handleConfirm} 
-          style={{ marginLeft: '12px', background: '#BA1A21', borderColor: '#BA1A21', borderRadius: '8px' }}
+          style={{ marginLeft: '12px', background: '#D53E0F', borderColor: '#D53E0F', borderRadius: '8px' }}
         >
           Xác nhận vị trí này
         </Button>

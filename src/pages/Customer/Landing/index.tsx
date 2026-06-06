@@ -12,7 +12,7 @@ const LandingPage: React.FC = () => {
   return (
     <div className="landing-container">
       <div className="content-wrapper">
-        <Title className="hero-title">Chicken Doki</Title>
+        <Title className="hero-title">Doki Food</Title>
         <Paragraph className="hero-subtitle">
           Hương vị đặc trưng, cơm giòn rụm, topping ngập tràn. <br />
           Đặt món trực tuyến - Tiết kiệm thời gian, không lo chờ đợi!

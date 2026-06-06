@@ -39,10 +39,10 @@ const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove })
           <div style={{ margin: '8px 0' }}>
             {(item.selectedToppings || []).map((t: string) => <Tag key={t} color="orange" style={{ borderRadius: 12 }}>{t}</Tag>)}
           </div>
-          {item.note && <div className="item-note" style={{ fontSize: 13, color: '#BA1A21', fontStyle: 'italic' }}>* Ghi chú: {item.note}</div>}
+          {item.note && <div className="item-note" style={{ fontSize: 13, color: '#D53E0F', fontStyle: 'italic' }}>* Ghi chú: {item.note}</div>}
         </div>
         <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: 80 }}>
-          <div className="item-price" style={{ fontSize: 16, fontWeight: 'bold', color: '#BA1A21' }}>{item.totalPrice.toLocaleString()}đ</div>
+          <div className="item-price" style={{ fontSize: 16, fontWeight: 'bold', color: '#D53E0F' }}>{item.totalPrice.toLocaleString()}đ</div>
           <Button type="text" danger icon={<DeleteOutlined />} onClick={() => onRemove(item.cartItemId)} style={{ marginTop: 'auto' }}>
             Xóa
           </Button>

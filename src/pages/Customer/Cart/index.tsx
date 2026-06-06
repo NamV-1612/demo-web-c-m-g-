@@ -18,6 +18,7 @@ const CustomerCart: React.FC = () => {
   const { cartItems, removeFromCart, clearCart, subTotal, totalCartPrice, voucher, applyVoucher, updateQuantity } = useModel('useCartModel');
   const { submitOrder, addresses, addAddress, removeAddress } = useModel('useOrderModel');
   const { currentUser } = useModel('useAuthModel');
+  const [checkoutSuccess, setCheckoutSuccess] = useState(false);
   const { decreasePromoQuantity } = useModel('usePromoModel');
 
   const timeOptions = [0, 1, 2, 3].map(h => {
@@ -44,6 +45,10 @@ const CustomerCart: React.FC = () => {
   const [isMapModalVisible, setIsMapModalVisible] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, []);
+
+  useEffect(() => {
     if (addresses.length > 0) {
       const exists = addresses.find(a => a.id === selectedAddressId);
       if (!exists) {
@@ -66,8 +71,12 @@ const CustomerCart: React.FC = () => {
     }
 
     if (isDelivery && pickupTimeType === 'specific') {
-      const selectedTime = moment(pickupTimeText, 'hh:00 A');
-      const minTime = moment().add(1, 'hours');
+      let selectedTime = moment(pickupTimeText, 'hh:00 A');
+      // fix chon gio buoi dem
+      if (moment().hour() >= 12 && selectedTime.hour() < 12) {
+        selectedTime.add(1, 'day');
+      }
+      const minTime = moment().add(30, 'minutes');
       if (selectedTime.isBefore(minTime)) {
         message.error(`Vui lòng tải lại trang hoặc chọn giờ khác (giờ hiện tại đã vượt qua giờ bạn chọn)`);
         return;
@@ -98,8 +107,11 @@ const CustomerCart: React.FC = () => {
       if (voucher) {
         decreasePromoQuantity(voucher.code);
       }
-      clearCart();
-      history.push('/customer/history');
+      setCheckoutSuccess(true);
+      setTimeout(() => {
+        clearCart();
+        history.push('/customer/history');
+      }, 1500); // doi xiu cho hien tich xanh
     }
   };
 
@@ -110,7 +122,7 @@ const CustomerCart: React.FC = () => {
   };
 
   const handleMapConfirm = (address: string) => {
-    // Note: The form state is handled by AddressModal, so we need to either pass it a ref or let AddressModal handle MapModal. 
+    // address modal xu ly form, so we need to either pass it a ref or let AddressModal handle MapModal. 
     // Wait, AddressModal encapsulates the form but MapModal is outside. It's better if MapModal is just called from AddressModal or we pass the address back.
     // For simplicity, we can just trigger a global event or manage the form inside AddressModal completely.
     // Since we extracted AddressModal, we can let it handle the MapModal state internally if we wanted.
@@ -161,7 +173,7 @@ const CustomerCart: React.FC = () => {
             />
 
             <div style={{ borderTop: '1px solid #f0f0f0', paddingTop: 24, marginTop: 24 }}>
-              <Title level={5} style={{ color: '#BA1A21', marginBottom: 16 }}>
+              <Title level={5} style={{ color: '#D53E0F', marginBottom: 16 }}>
                 <ShopOutlined /> Danh sách món ăn
               </Title>
               <List
@@ -189,6 +201,7 @@ const CustomerCart: React.FC = () => {
             onApplyVoucher={() => applyVoucher(voucherInput)}
             onCheckout={handleCheckout}
             onClearCart={clearCart}
+            checkoutSuccess={checkoutSuccess}
           />
         </Col>
       </Row>

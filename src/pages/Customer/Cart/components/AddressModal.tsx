@@ -36,7 +36,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, currentUser, onCan
       visible={visible} 
       onCancel={() => { form.resetFields(); onCancel(); }} 
       onOk={() => form.submit()}
-      okButtonProps={{ style: { background: '#BA1A21', backgroundImage: 'none', borderColor: '#BA1A21', borderRadius: '8px', color: 'white' } }}
+      okButtonProps={{ style: { background: '#D53E0F', backgroundImage: 'none', borderColor: '#D53E0F', borderRadius: '8px', color: 'white' } }}
       cancelButtonProps={{ style: { borderRadius: '8px' } }}
     >
       <Form form={form} layout="vertical" onFinish={onSubmit}>
@@ -48,7 +48,7 @@ const AddressModal: React.FC<AddressModalProps> = ({ visible, currentUser, onCan
         </Form.Item>
         <Form.Item label="Địa chỉ cụ thể" style={{ marginBottom: 0 }}>
           <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
-            <Button type="dashed" onClick={onOpenMap} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#1890ff', color: '#1890ff' }}>
+            <Button type="dashed" onClick={onOpenMap} icon={<EnvironmentOutlined />} style={{ flex: 1, borderColor: '#D53E0F', color: '#D53E0F' }}>
               Chọn từ Google Maps
             </Button>
           </div>
