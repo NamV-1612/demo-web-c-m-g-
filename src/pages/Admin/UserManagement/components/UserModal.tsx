@@ -35,7 +35,7 @@ const UserModal: React.FC<UserModalProps> = ({ visible, onCancel, onSave, form, 
           label="Số điện thoại đăng nhập" 
           rules={[
             { required: true, message: 'Vui lòng nhập số điện thoại!' },
-            { pattern: /^(0[3|5|7|8|9])+([0-9]{8})\b/, message: 'Số điện thoại không hợp lệ (VD: 0912345678)!' }
+            { pattern: /^(0[35789])[0-9]{8}$/, message: 'Số điện thoại không hợp lệ (gồm 10 số, bắt đầu bằng 03, 05, 07, 08, 09)' }
           ]}
         >
           <Input placeholder="VD: 0912345678" disabled={isEdit} />

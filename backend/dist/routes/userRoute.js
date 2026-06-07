@@ -38,8 +38,8 @@ router.post('/', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
         // Băm (Hash) mật khẩu giống như trong authController để có thể đăng nhập được
         const salt = yield bcryptjs_1.default.genSalt(10);
         const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
-        // Thêm full_name (vì schema bắt buộc, ta lấy name làm full_name cho Staff)
-        const newUser = new userModel_1.default({ full_name: name, name, phone, password: hashedPassword, role });
+        // Thêm full_name. Để tránh lỗi trùng lặp username, ta gán name (username) bằng số điện thoại.
+        const newUser = new userModel_1.default({ full_name: name, name: phone, phone, password: hashedPassword, role });
         yield newUser.save();
         res.status(201).json(newUser);
     }
@@ -81,10 +81,10 @@ router.put('/:id', (req, res) => __awaiter(void 0, void 0, void 0, function* () 
                 return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
             }
             user.phone = phone;
+            user.name = phone; // Cập nhật luôn username theo sđt mới
         }
         if (name) {
-            user.name = name;
-            user.full_name = name;
+            user.full_name = name; // Chỉ cập nhật họ tên, không cập nhật name(username)
         }
         if (password) {
             const salt = yield bcryptjs_1.default.genSalt(10);
