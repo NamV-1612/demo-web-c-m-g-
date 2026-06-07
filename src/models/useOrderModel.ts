@@ -205,7 +205,6 @@ export default function useOrderModel() {
       
       // Update local state temporarily
       setOrders(prev => prev.map(o => o.id === id ? { ...o, status: newStatus.toUpperCase() as any, cancelMessage } : o));
-      message.success('Cập nhật trạng thái thành công');
       loadData();
     } catch (error) {
       message.error('Lỗi khi cập nhật trạng thái');

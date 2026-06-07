@@ -29,9 +29,10 @@ interface Props {
   onEditAddress: (order: any) => void;
   onCancel: (id: string, reason?: string) => void;
   onReorder: (order: any) => void;
+  isNew?: boolean;
 }
 
-const OrderCard: React.FC<Props> = ({ order, onRateOrder, onEditAddress, onCancel, onReorder }) => {
+const OrderCard: React.FC<Props> = ({ order, onRateOrder, onEditAddress, onCancel, onReorder, isNew }) => {
   const [isCancelModalVisible, setIsCancelModalVisible] = useState(false);
   const [cancelReason, setCancelReason] = useState('Tôi muốn thay đổi món');
   const [otherReason, setOtherReason] = useState('');
@@ -71,7 +72,7 @@ const OrderCard: React.FC<Props> = ({ order, onRateOrder, onEditAddress, onCance
 
   return (
     <Card 
-      className="history-card" 
+      className={`order-card ${isNew ? 'running-border-animation' : ''}`}
       bodyStyle={{ padding: '24px' }} 
       style={{ 
         marginBottom: 20, 

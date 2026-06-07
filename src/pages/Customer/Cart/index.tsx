@@ -44,8 +44,15 @@ const CustomerCart: React.FC = () => {
   const [isAddressModalVisible, setIsAddressModalVisible] = useState(false);
   const [isMapModalVisible, setIsMapModalVisible] = useState(false);
 
+  const [newCartItemId, setNewCartItemId] = useState<string | null>(null);
+
   useEffect(() => {
     window.scrollTo(0, 0);
+    const id = sessionStorage.getItem('newCartItemId');
+    if (id) {
+      setNewCartItemId(id);
+      sessionStorage.removeItem('newCartItemId');
+    }
   }, []);
 
   useEffect(() => {
@@ -110,6 +117,7 @@ const CustomerCart: React.FC = () => {
       setCheckoutSuccess(true);
       setTimeout(() => {
         clearCart();
+        sessionStorage.setItem('newOrderId', order.id);
         history.push('/customer/history');
       }, 1500); // doi xiu cho hien tich xanh
     }
@@ -182,7 +190,8 @@ const CustomerCart: React.FC = () => {
                   <CartItem 
                     item={item} 
                     onUpdateQuantity={updateQuantity} 
-                    onRemove={removeFromCart} 
+                    onRemove={removeFromCart}
+                    isNew={item.cartItemId === newCartItemId}
                   />
                 )}
               />

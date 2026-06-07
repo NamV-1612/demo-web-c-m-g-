@@ -197,7 +197,7 @@ const OrderCard: React.FC<Props> = ({ order, onStatusChange, onPrint, onPaymentC
           setIsCancelModalVisible(false);
         }}
         okText="Xác nhận hủy"
-        cancelText="Bỏ qua"
+        cancelText="Hủy"
         okButtonProps={{ danger: true, disabled: cancelReason === 'Lý do khác' && !otherReason.trim() }}
       >
         <Radio.Group onChange={(e) => setCancelReason(e.target.value)} value={cancelReason} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>

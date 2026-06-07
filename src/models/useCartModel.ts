@@ -62,6 +62,7 @@ export default function useCartModel() {
       }
 
       if (userId) localStorage.setItem(`CART_${userId}`, JSON.stringify(newCart));
+      sessionStorage.setItem('newCartItemId', item.cartItemId);
       return newCart;
     });
   }, [userId]);

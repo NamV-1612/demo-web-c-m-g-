@@ -1,1 +1,1 @@
-export const unTechnicalSupportPaths = ['/user/login', '/403', '/notification/check', '/notification/subscribe'];
+export const unTechnicalSupportPaths = ['/admin/login', '/403', '/notification/check', '/notification/subscribe'];

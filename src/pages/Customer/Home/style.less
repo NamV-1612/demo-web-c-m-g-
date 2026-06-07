@@ -178,6 +178,10 @@
 		}
 	}
 
+	@keyframes cartSpin {
+		100% { transform: rotate(360deg); }
+	}
+
 	/* FLOATING CART */
 	.floating-cart {
 		position: fixed;
@@ -195,10 +199,46 @@
 		cursor: pointer;
 		transition: all 0.3s ease;
 		animation: floatCartPop 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+		overflow: hidden;
+
+		&::before {
+			content: '';
+			position: absolute;
+			top: -50%; left: -50%;
+			width: 200%; height: 200%;
+			background: conic-gradient(transparent, transparent, transparent, #FADB14);
+			animation: cartSpin 1s linear infinite;
+			z-index: 0;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		&::after {
+			content: '';
+			position: absolute;
+			inset: 3px;
+			background: #d53e0f;
+			border-radius: 27px;
+			z-index: 1;
+			opacity: 0;
+			transition: opacity 0.3s ease;
+		}
+
+		> * {
+			position: relative;
+			z-index: 2;
+		}
 
 		&:hover {
 			box-shadow: 0 12px 30px rgba(213, 62, 15, 0.5);
 			transform: translateY(-5px) scale(1.02);
+		}
+
+		&.bumping {
+			transform: scale(1.05);
+			&::before, &::after {
+				opacity: 1;
+			}
 		}
 
 		.cart-icon-wrapper {

@@ -67,15 +67,15 @@ const CustomerLogin: React.FC = () => {
 					const res = await api.get('/users');
 					const users = res.data;
 					const targetUser = users.find((u: any) => u.phone === values.phone && u.name === values.username);
-					
+
 					if (!targetUser) {
 						message.error('Không tìm thấy tài khoản với thông tin cung cấp!');
 						return;
 					}
-					
+
 					const userId = targetUser._id || targetUser.id;
 					await api.put(`/users/${userId}`, { password: values.newPassword });
-					
+
 					message.success('Mật khẩu của bạn đã được đặt lại thành công! Hãy đăng nhập bằng mật khẩu mới.');
 					setIsForgotModalVisible(false);
 					forgotForm.resetFields();
@@ -91,76 +91,94 @@ const CustomerLogin: React.FC = () => {
 
 	return (
 		<>
-
 			<div className='login-split-container'>
 				<div className='login-banner'>
 					<div className='banner-overlay'>
 						<div className={`banner-content-wrapper ${isExiting ? 'exit-left' : ''}`}>
-							<div className="banner-carousel">
-								<Carousel autoplay effect="fade" dotPosition="bottom">
+							<div className='banner-carousel'>
+								<Carousel autoplay effect='fade' dotPosition='bottom'>
 									<div>
-										<div className="carousel-slide">
-											<img src="/welcome_discount_banner.png" alt="Welcome Discount" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img src='/welcome_discount_banner.png' alt='Welcome Discount' />
+											<div className='slide-content'>
 												<h3 style={{ color: '#FFD700' }}>🎁 Ưu đãi khách mới!</h3>
-												<p>Nhập mã <strong>WELCOME</strong> để nhận ngay ưu đãi đặc biệt cho đơn hàng đầu tiên của bạn.</p>
+												<p>
+													Nhập mã <strong>WELCOME</strong> để nhận ngay ưu đãi đặc biệt cho đơn hàng đầu tiên của bạn.
+												</p>
 											</div>
 										</div>
 									</div>
 									<div>
-										<div className="carousel-slide">
-											<img src="https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cơm rang dưa bò đút lò" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img
+												src='https://images.unsplash.com/photo-1512058564366-18510be2db19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+												alt='Cơm rang dưa bò đút lò'
+											/>
+											<div className='slide-content'>
 												<h3>Cơm rang dưa bò đút lò phô mai</h3>
 												<p>Sự kết hợp phá cách: dưa bò truyền thống phủ phô mai kéo sợi nướng lò.</p>
 											</div>
 										</div>
 									</div>
 									<div>
-										<div className="carousel-slide">
-											<img src="https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cơm rang đùi gà nướng mật ong" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img
+												src='https://images.unsplash.com/photo-1604908176997-125f25cc6f3d?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+												alt='Cơm rang đùi gà nướng mật ong'
+											/>
+											<div className='slide-content'>
 												<h3>Cơm rang đùi gà nướng mật ong</h3>
 												<p>Đùi gà góc tư nướng mật ong thơm lừng ăn kèm cơm rang.</p>
 											</div>
 										</div>
 									</div>
 									<div>
-										<div className="carousel-slide">
-											<img src="https://images.unsplash.com/photo-1564834744159-ff0ea41ba4b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Cơm rang hải sản" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img
+												src='https://images.unsplash.com/photo-1564834744159-ff0ea41ba4b9?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+												alt='Cơm rang hải sản'
+											/>
+											<div className='slide-content'>
 												<h3>Cơm rang hải sản</h3>
 												<p>Cơm rang tôm, mực giòn sần sật, đậm vị biển cả.</p>
 											</div>
 										</div>
 									</div>
 									<div>
-										<div className="carousel-slide">
-											<img src="https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Gà Rán Doki" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img
+												src='https://images.unsplash.com/photo-1626082927389-6cd097cdc6ec?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+												alt='Gà Rán Doki'
+											/>
+											<div className='slide-content'>
 												<h3>Gà Rán Giòn Rụm</h3>
 												<p>Miếng gà tẩm bột chiên giòn rụm bên ngoài, mọng nước bên trong.</p>
 											</div>
 										</div>
 									</div>
 									<div>
-										<div className="carousel-slide">
-											<img src="https://images.unsplash.com/photo-1573080496219-bb080dd4f877?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80" alt="Khoai tây chiên" />
-											<div className="slide-content">
+										<div className='carousel-slide'>
+											<img
+												src='https://images.unsplash.com/photo-1573080496219-bb080dd4f877?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80'
+												alt='Khoai tây chiên'
+											/>
+											<div className='slide-content'>
 												<h3>Khoai Tây Lắc Phô Mai</h3>
 												<p>Khoai tây chiên vàng ươm lắc cùng bột phô mai mặn ngọt cực cuốn.</p>
 											</div>
 										</div>
 									</div>
-
 								</Carousel>
 							</div>
 
-							<div className="banner-text-bottom">
+							<div className='banner-text-bottom'>
 								<h1>
 									Doki <span>Food</span>
 								</h1>
-								<p>Đỉnh cao cơm rang tơi xốp, giòn rụm đậm đà. Trải nghiệm đặt món siêu tốc, giao đĩa cơm nóng hổi bốc khói cùng topping ngập tràn!</p>
+								<p>
+									Đỉnh cao cơm rang tơi xốp, giòn rụm đậm đà. Trải nghiệm đặt món siêu tốc, giao đĩa cơm nóng hổi bốc
+									khói cùng topping ngập tràn!
+								</p>
 							</div>
 						</div>
 					</div>
@@ -277,7 +295,7 @@ const CustomerLogin: React.FC = () => {
 								className={`expandable-field ${activeTab === '1' ? 'expanded' : ''}`}
 								style={{ textAlign: 'center', marginTop: activeTab === '1' ? 24 : 0 }}
 							>
-								<Text className="guest-login-btn" onClick={triggerTransition}>
+								<Text className='guest-login-btn' onClick={triggerTransition}>
 									Tiếp tục dưới tư cách Khách vãng lai
 								</Text>
 							</div>
@@ -307,7 +325,7 @@ const CustomerLogin: React.FC = () => {
 									<Button
 										type='dashed'
 										size='large'
-										onClick={() => handleNavigateInternal('/user/login')}
+										onClick={() => handleNavigateInternal('/admin/login')}
 										style={{ borderRadius: '10px', flex: 1, fontWeight: 600, color: '#666', borderColor: '#DDDDDD' }}
 									>
 										Quản trị viên
@@ -317,15 +335,17 @@ const CustomerLogin: React.FC = () => {
 						</Collapse>
 					</div>
 
-					<div className="login-footer">
-						<div className="login-footer-content">
-							<span><EnvironmentOutlined /> 120 Yên Lãng, Hà Nội</span>
-							<span className="divider">•</span>
-							<span><PhoneOutlined /> Hotline: 1900 8888</span>
+					<div className='login-footer'>
+						<div className='login-footer-content'>
+							<span>
+								<EnvironmentOutlined /> 120 Yên Lãng, Hà Nội
+							</span>
+							<span className='divider'>•</span>
+							<span>
+								<PhoneOutlined /> Hotline: 1900 8888
+							</span>
 						</div>
-						<div className="login-footer-copyright">
-							© 2026 Hệ thống Doki Food. All rights reserved.
-						</div>
+						<div className='login-footer-copyright'>© 2026 Hệ thống Doki Food. All rights reserved.</div>
 					</div>
 				</div>
 
@@ -338,9 +358,7 @@ const CustomerLogin: React.FC = () => {
 					cancelText='Hủy'
 					okButtonProps={{ style: { background: '#D53E0F', borderColor: '#D53E0F' } }}
 				>
-					<p style={{ color: '#666', marginBottom: 24 }}>
-						Vui lòng nhập thông tin để đổi mật khẩu mới.
-					</p>
+					<p style={{ color: '#666', marginBottom: 24 }}>Vui lòng nhập thông tin để đổi mật khẩu mới.</p>
 					<Form form={forgotForm} layout='vertical'>
 						<Form.Item name='name' label='Họ và tên' rules={[{ required: true, message: 'Vui lòng nhập họ tên!' }]}>
 							<Input prefix={<UserOutlined />} placeholder='Nhập họ và tên đã đăng ký' />
