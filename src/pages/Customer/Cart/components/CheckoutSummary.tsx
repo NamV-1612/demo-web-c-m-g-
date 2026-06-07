@@ -48,9 +48,9 @@ const CheckoutSummary: React.FC<CheckoutSummaryProps> = ({
         </Text>
         <div style={{ position: 'relative', display: 'flex', justifyContent: 'center' }}>
           <img 
-            src={`https://api.qrserver.com/v1/create-qr-code/?size=120x120&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
+            src={`https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=247-MBBANK-130788889999-${totalCartPrice}-CHICKEN%20DOKI`} 
             alt="QR Code" 
-            style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 6, background: '#fff', width: 120, height: 120 }}
+            style={{ borderRadius: 8, border: '1px solid #f0f0f0', padding: 6, background: '#fff', width: 160, height: 160 }}
           />
           {checkoutSuccess && (
             <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(255,255,255,0.85)', display: 'flex', justifyContent: 'center', alignItems: 'center', borderRadius: 8 }}>

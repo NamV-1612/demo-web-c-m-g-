@@ -27,6 +27,20 @@ const CustomerHome: React.FC = () => {
   const searchTimeoutRef = useRef<any>(null);
   const hasScrolledRef = useRef(false);
 
+  const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
+  const cartTotalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
+
+  const [isCartBumping, setIsCartBumping] = useState(false);
+  const prevCartTotalRef = React.useRef(cartTotalItems);
+
+  React.useEffect(() => {
+    if (cartTotalItems > prevCartTotalRef.current) {
+      setIsCartBumping(true);
+      setTimeout(() => setIsCartBumping(false), 1000); // chay border trong 1s
+    }
+    prevCartTotalRef.current = cartTotalItems;
+  }, [cartTotalItems]);
+
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
     
@@ -146,8 +160,6 @@ const CustomerHome: React.FC = () => {
     return 0;
   });
 
-  const cartTotalAmount = cartItems.reduce((sum, item) => sum + item.totalPrice, 0);
-  const cartTotalItems = cartItems.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
     <div className="customer-home-page">
@@ -158,11 +170,11 @@ const CustomerHome: React.FC = () => {
         <div className="hero-content">
           <Badge count={<FireOutlined style={{ color: '#D53E0F', fontSize: 36 }} />} offset={[35, 15]}>
             <Title className="hero-title" style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', lineHeight: 1.1, marginBottom: 24 }}>
-              <span style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '4px', textShadow: '0 4px 10px rgba(0,0,0,0.5)', color: '#fff' }}>Thưởng Thức Tinh Hoa</span>
+              <span style={{ fontSize: 'clamp(24px, 4vw, 40px)', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '4px', textShadow: '0 4px 10px rgba(0,0,0,0.5)', color: '#fff' }}>Muốn ăn thì lăn vào</span>
               <span className="art-title" style={{ fontSize: 'clamp(60px, 10vw, 100px)', color: '#D53E0F', marginTop: '-10px', textShadow: '0 6px 15px rgba(0,0,0,0.6)' }}>Doki Food</span>
             </Title>
           </Badge>
-          <Text className="hero-subtitle">Gà giòn rụm, tim rung động! Take-away nóng hổi từng giây, giòn tan từng miếng!</Text>
+          <Text className="hero-subtitle">Đặt liền tay, ngon ngất ngây</Text>
 
           <div className="hero-search-wrapper" ref={searchWrapperRef}>
             <Input
@@ -231,7 +243,7 @@ const CustomerHome: React.FC = () => {
                   className="fade-in-up"
                   style={{ animationDelay: `${index * 0.05}s` }}
                 >
-                  <Badge.Ribbon text={isTopSelling ? '🔥 Bán chạy' : ''} color={isTopSelling ? 'volcano' : 'transparent'} style={{ display: isTopSelling ? 'block' : 'none', zIndex: 10 }}>
+                  <Badge.Ribbon text={isTopSelling ? '🔥 Bán chạy' : ''} color={isTopSelling ? 'volcano' : 'transparent'} style={{ display: isTopSelling ? 'block' : 'none', zIndex: 10, fontFamily: "'Dancing Script', cursive", fontSize: 18, fontWeight: 700, padding: '0 12px' }}>
                     <div style={{ height: '100%' }} className={isTopSelling ? 'premium-fire-wrapper' : ''}>
                       <ProductCard product={product} onClick={() => setSelectedProduct(product)} />
                     </div>
@@ -254,7 +266,7 @@ const CustomerHome: React.FC = () => {
             if (startEl) {
               startRect = startEl.getBoundingClientRect();
             }
-            
+
             addToCart(item);
             setSelectedProduct(null);
 
@@ -290,7 +302,7 @@ const CustomerHome: React.FC = () => {
       )}
 
       {!isInitialLoading && currentUser && (currentUser.role?.toLowerCase() === 'customer' || currentUser.role?.toLowerCase() === 'admin') && cartTotalItems > 0 && (
-        <div className="floating-cart" onClick={() => navigateWithCartTransition(history, '/customer/cart')}>
+        <div className={`floating-cart ${isCartBumping ? 'bumping' : ''}`} onClick={() => navigateWithCartTransition(history, '/customer/cart')}>
           <div className="cart-icon-wrapper">
             <Badge count={cartTotalItems} size="small" style={{ backgroundColor: '#FADB14', color: '#262626', fontWeight: 'bold', boxShadow: 'none' }}>
               <ShoppingCartOutlined style={{ fontSize: 24, color: '#fff' }} />

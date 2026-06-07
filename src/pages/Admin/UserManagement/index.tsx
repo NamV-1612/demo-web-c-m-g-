@@ -161,9 +161,19 @@ const UserManagement: React.FC = () => {
       align: 'center',
       render: (status: string) => {
         const s = status?.toUpperCase() || 'ACTIVE';
-        const color = s === 'ACTIVE' ? 'green' : 'red';
-        const label = s === 'ACTIVE' ? 'Đang hoạt động' : 'Bị Khóa';
-        return <Tag color={color}>{label}</Tag>;
+        const isActive = s === 'ACTIVE';
+        const customStyle: React.CSSProperties = {
+          borderRadius: '12px',
+          padding: '2px 12px',
+          fontWeight: 600,
+          fontSize: '13px',
+          border: '1px solid',
+          background: isActive ? '#f6ffed' : '#fff2f0',
+          color: isActive ? '#389e0d' : '#cf1322',
+          borderColor: isActive ? '#b7eb8f' : '#ffa39e'
+        };
+        const label = isActive ? 'Đang hoạt động' : 'Bị Khóa';
+        return <Tag style={customStyle}>{label}</Tag>;
       },
       filters: [
         { text: 'Đang hoạt động', value: 'ACTIVE' },

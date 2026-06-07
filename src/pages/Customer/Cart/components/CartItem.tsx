@@ -8,11 +8,12 @@ interface CartItemProps {
   item: any;
   onUpdateQuantity: (cartItemId: string, change: number) => void;
   onRemove: (cartItemId: string) => void;
+  isNew?: boolean;
 }
 
-const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove }) => {
+const CartItem: React.FC<CartItemProps> = ({ item, onUpdateQuantity, onRemove, isNew }) => {
   return (
-    <Card className="cart-item-card" bordered={false}>
+    <Card className={`cart-item-card ${isNew ? 'running-border-animation' : ''}`} bordered={false}>
       <div style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
         <img 
           src={item.product?.image || item.product?.imageUrl || 'https://images.unsplash.com/photo-1603133872878-684f208fb84b?auto=format&fit=crop&w=150&q=80'} 

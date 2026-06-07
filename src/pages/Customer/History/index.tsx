@@ -18,8 +18,15 @@ const CustomerHistory: React.FC = () => {
 
   const [form] = Form.useForm();
 
+  const [newOrderId, setNewOrderId] = useState<string | null>(null);
+
   React.useEffect(() => {
     window.scrollTo(0, 0);
+    const storedNewOrderId = sessionStorage.getItem('newOrderId');
+    if (storedNewOrderId) {
+      setNewOrderId(storedNewOrderId);
+      sessionStorage.removeItem('newOrderId');
+    }
   }, []);
   
   // Edit Address Modal
@@ -123,6 +130,7 @@ const CustomerHistory: React.FC = () => {
             onCancel={cancelOrder}
             onEditAddress={openEditModal}
             onRateOrder={openRateModal}
+            isNew={order.id === newOrderId}
           />
         ))
       )}

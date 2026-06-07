@@ -152,6 +152,18 @@
     }
   }
 
+  @keyframes cartBorderRun {
+    0% { box-shadow: 0 0 0 2px #D53E0F, 0 0 15px rgba(213, 62, 15, 0.4); border-color: #D53E0F; }
+    50% { box-shadow: 0 0 0 4px #ff7a45, 0 0 25px rgba(255, 122, 69, 0.8); border-color: #ff7a45; }
+    100% { box-shadow: 0 0 0 2px #D53E0F, 0 0 15px rgba(213, 62, 15, 0.4); border-color: #D53E0F; }
+  }
+
+  .running-border-animation {
+    animation: cartBorderRun 1.5s infinite;
+    position: relative;
+    z-index: 2;
+  }
+
   .checkout-panel {
     background: #fff;
     padding: 24px;

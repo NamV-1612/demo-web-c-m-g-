@@ -87,6 +87,14 @@ const StaffDashboard: React.FC = () => {
             
             <div class="divider"></div>
             
+            ${order.discountAmount ? `
+            <div class="row" style="margin-bottom: 8px;">
+              <span>Mã giảm giá (${order.promoCode || 'Voucher'}):</span>
+              <span style="font-weight: bold;">-${order.discountAmount.toLocaleString()}đ</span>
+            </div>
+            <div class="divider"></div>
+            ` : ''}
+
             <div class="row total-row">
               <span>TỔNG CỘNG:</span>
               <span>${order.totalAmount.toLocaleString()}đ</span>
