@@ -29,8 +29,8 @@ router.post('/', async (req: Request, res: Response) => {
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
-    // Thêm full_name (vì schema bắt buộc, ta lấy name làm full_name cho Staff)
-    const newUser = new User({ full_name: name, name, phone, password: hashedPassword, role });
+    // Thêm full_name. Để tránh lỗi trùng lặp username, ta gán name (username) bằng số điện thoại.
+    const newUser = new User({ full_name: name, name: phone, phone, password: hashedPassword, role });
     await newUser.save();
     res.status(201).json(newUser);
   } catch (error: any) {
@@ -74,11 +74,11 @@ router.put('/:id', async (req: Request, res: Response) => {
          return res.status(400).json({ success: false, message: 'Số điện thoại này đã tồn tại!' });
        }
        user.phone = phone;
+       user.name = phone; // Cập nhật luôn username theo sđt mới
     }
 
     if (name) {
-       user.name = name;
-       user.full_name = name;
+       user.full_name = name; // Chỉ cập nhật họ tên, không cập nhật name(username)
     }
 
     if (password) {
